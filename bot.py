@@ -1,4 +1,4 @@
-# bot.py - Hex Terminal with ONLY Premium Emoji IDs (Like Your Demo)
+# bot.py - Hex Terminal with NO Verification & NO Emojis
 
 import logging
 import asyncio
@@ -37,13 +37,7 @@ API_HASH = os.environ.get('API_HASH', '47ee9fa07b5eeb865edb3d79ada726a5')
 BOT_TOKEN = os.environ.get('BOT_TOKEN', '8687617595:AAGcgsclpi0waOdvOCYblCwJ2-g7KFVoQIc')
 ADMIN_ID = int(os.environ.get('ADMIN_ID', '7898928200'))
 
-CHANNEL_1_ID = int(os.environ.get('CHANNEL_1_ID', '-1003240507339'))
-CHANNEL_2_ID = int(os.environ.get('CHANNEL_2_ID', '-1003806004135'))
-
-LINK_1 = os.environ.get('LINK_1', 'https://t.me/+dP7xLb3AoE1jNmRl')
-LINK_2 = os.environ.get('LINK_2', 'https://t.me/+9vuPcr9LJ8piODdl')
-
-FOOTER = "\n\n⚡ ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC"
+FOOTER = "\n\nPowered by @Hexh4ckerOFC"
 SEP = "━━━━━━━━━━━━━━━━━━━"
 
 # APIs
@@ -65,17 +59,13 @@ DAILY_FREE_CREDITS = 10
 INVITE_CREDITS = 3
 AUTO_DELETE_TIME = 60
 
-BOT_NAME = "𝗛𝗲𝘅 𝗧𝗲𝗿𝗺𝗶𝗻𝗮𝗹"
+BOT_NAME = "Hex Terminal"
 BOT_USERNAME = "Hex_Terminal_bot"
 
-# Premium Emoji IDs - ONLY IDs (NO EMOJIS IN TEXT)
+# Premium Emoji IDs - ONLY FOR BUTTONS
 PREMIUM_BLUE = 5258096772776991776
 PREMIUM_GREEN = 5258503720928288433
 PREMIUM_RED = 5258331647358540449
-PREMIUM_STAR = 5258096772776991776
-PREMIUM_CHECK = 5258096772776991776
-PREMIUM_SPARKLE = 5258503720928288433
-PREMIUM_HEART = 5258331647358540449
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -111,8 +101,7 @@ def get_user(user_id):
             "daily_queries": 0,
             "last_reset": today,
             "invite_code": f"HEX-{''.join(random.choices(string.ascii_uppercase+string.digits, k=8))}",
-            "invites": 0,
-            "verified": False
+            "invites": 0
         }
         save_json(USERS_FILE, users)
     elif users[uid].get("last_reset") != today:
@@ -171,15 +160,15 @@ def redeem_code(uid, code):
     codes = load_json(REDEEM_FILE)
     code = code.upper().strip()
     if code not in codes:
-        return False, "ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ"
+        return False, "Invalid code"
     if codes[code].get("used"):
-        return False, "ᴀʟʀᴇᴀᴅʏ ᴜꜱᴇᴅ"
+        return False, "Already used"
     cr = codes[code]["credits"]
     codes[code]["used"] = True
     codes[code]["used_by"] = str(uid)
     save_json(REDEEM_FILE, codes)
     bal = add_credits(uid, cr)
-    return True, f"+{cr} ᴄʀᴇᴅɪᴛꜱ ᴀᴅᴅᴇᴅ! ʙᴀʟᴀɴᴄᴇ: {bal}"
+    return True, f"+{cr} credits added! Balance: {bal}"
 
 def get_settings():
     try:
@@ -207,16 +196,6 @@ def get_settings():
 
 def save_settings(data):
     save_json(SETTINGS_FILE, data)
-
-# --- 🔍 VERIFY ---
-
-async def check_channels(uid):
-    try:
-        m1 = await client.get_permissions(CHANNEL_1_ID, uid)
-        m2 = await client.get_permissions(CHANNEL_2_ID, uid)
-        return m1.is_member and m2.is_member
-    except:
-        return False
 
 # --- 🛠️ UTILS ---
 
@@ -277,7 +256,7 @@ def check_feature_maintenance(feature_key):
         return True, s.get(f"maint_msg_{feature_key}", f"{feature_key} is under maintenance.")
     return False, ""
 
-# --- 🎨 COLORED REPLY BUTTONS (Like Your Demo) ---
+# --- 🎨 COLORED REPLY BUTTONS ---
 
 def create_colored_button(text, bg_color, emoji_id):
     style = KeyboardButtonStyle(
@@ -297,56 +276,56 @@ def create_main_menu(is_admin=False, settings=None):
     # Row 1: TG ID & IFSC
     row1 = []
     if settings.get("tgid_enabled", True):
-        row1.append(create_colored_button("📱 ᴛɢ ɪᴅ ➜ 📞 ɴᴜᴍʙᴇʀ 🔍", 'primary', PREMIUM_BLUE))
+        row1.append(create_colored_button("TG ID -> Phone Number", 'primary', PREMIUM_BLUE))
     if settings.get("ifsc_enabled", True):
-        row1.append(create_colored_button("🏦 ɪꜰꜱᴄ ɪɴꜰᴏ➜🔎", 'success', PREMIUM_GREEN))
+        row1.append(create_colored_button("IFSC Info", 'success', PREMIUM_GREEN))
     if row1:
         rows.append(KeyboardButtonRow(buttons=row1))
     
     # Row 2: Link Bypass
     if settings.get("bypass_enabled", True):
-        rows.append(KeyboardButtonRow(buttons=[create_colored_button("🔗 ʟɪɴᴋ ʙʏᴘᴀꜱꜱ", 'primary', PREMIUM_BLUE)]))
+        rows.append(KeyboardButtonRow(buttons=[create_colored_button("Link Bypass", 'primary', PREMIUM_BLUE)]))
     
     # Row 3: Aadhaar & Mobile
     row3 = []
     if settings.get("aadhaar_enabled", True):
-        row3.append(create_colored_button("🪪 ᴀᴀᴅʜᴀʀ ɪɴꜰᴏ➜👤", 'success', PREMIUM_GREEN))
+        row3.append(create_colored_button("Aadhar Info", 'success', PREMIUM_GREEN))
     if settings.get("mobile_enabled", True):
-        row3.append(create_colored_button("🇮🇳 ɪɴᴅ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ➜👤", 'primary', PREMIUM_BLUE))
+        row3.append(create_colored_button("India Number Info", 'primary', PREMIUM_BLUE))
     if row3:
         rows.append(KeyboardButtonRow(buttons=row3))
     
     # Row 4: RC & GST
     row4 = []
     if settings.get("rc_enabled", True):
-        row4.append(create_colored_button("🚘 ʀᴄ ᴅᴇᴛᴀɪʟꜱ", 'danger', PREMIUM_RED))
+        row4.append(create_colored_button("RC Details", 'danger', PREMIUM_RED))
     if settings.get("gst_enabled", True):
-        row4.append(create_colored_button("📋 ɢꜱᴛ ʟᴏᴏᴋᴜᴘ", 'success', PREMIUM_GREEN))
+        row4.append(create_colored_button("GST Lookup", 'success', PREMIUM_GREEN))
     if row4:
         rows.append(KeyboardButtonRow(buttons=row4))
     
     # Row 5: PAK & IND NUM
     row5 = []
     if settings.get("pak_enabled", True):
-        row5.append(create_colored_button("🇵🇰 ᴘᴀᴋ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ", 'danger', PREMIUM_RED))
+        row5.append(create_colored_button("Pakistan Number Info", 'danger', PREMIUM_RED))
     if settings.get("indnum_enabled", True):
-        row5.append(create_colored_button("📲 ɪɴᴅ ɴᴜᴍ ɪɴꜰᴏ 𝟸", 'primary', PREMIUM_BLUE))
+        row5.append(create_colored_button("India Number Info 2", 'primary', PREMIUM_BLUE))
     if row5:
         rows.append(KeyboardButtonRow(buttons=row5))
     
     # Row 6: IND NUM 3
     if settings.get("indnum3_enabled", True):
-        rows.append(KeyboardButtonRow(buttons=[create_colored_button("🇮🇳 ɪɴᴅ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ 𝟹 ➜👤", 'success', PREMIUM_GREEN)]))
+        rows.append(KeyboardButtonRow(buttons=[create_colored_button("India Number Tracking", 'success', PREMIUM_GREEN)]))
     
     # Row 7: Invite & Redeem
     rows.append(KeyboardButtonRow(buttons=[
-        create_colored_button("👥 ɪɴᴠɪᴛᴇ & ᴇᴀʀɴ", 'primary', PREMIUM_BLUE),
-        create_colored_button("🎫 ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ", 'success', PREMIUM_GREEN)
+        create_colored_button("Invite & Earn", 'primary', PREMIUM_BLUE),
+        create_colored_button("Redeem Code", 'success', PREMIUM_GREEN)
     ]))
     
     # Row 8: Admin Panel
     if is_admin:
-        rows.append(KeyboardButtonRow(buttons=[create_colored_button("👑 ᴀᴅᴍɪɴ ᴘᴀɴᴇʟ", 'danger', PREMIUM_RED)]))
+        rows.append(KeyboardButtonRow(buttons=[create_colored_button("Admin Panel", 'danger', PREMIUM_RED)]))
     
     return ReplyKeyboardMarkup(rows=rows, resize=True)
 
@@ -387,12 +366,12 @@ def parse_all_india_records(raw):
             continue
         record = {}
         for field, label in {
-            'Name': 'ɴᴀᴍᴇ',
-            "Father's Name": 'ꜰᴀᴛʜᴇʀ',
-            'Mobile': 'ᴍᴏʙɪʟᴇ',
-            'Address': 'ᴀᴅᴅʀᴇꜱꜱ',
-            'Circle': 'ᴄɪʀᴄʟᴇ',
-            'State': 'ꜱᴛᴀᴛᴇ'
+            'Name': 'Name',
+            "Father's Name": "Father",
+            'Mobile': 'Mobile',
+            'Address': 'Address',
+            'Circle': 'Circle',
+            'State': 'State'
         }.items():
             match = re.search(rf'{re.escape(field)}:\s*([^\n]+)', section, re.IGNORECASE)
             if match and match.group(1).strip() not in ['None', '', 'N/A', 'null']:
@@ -417,16 +396,16 @@ def parse_all_india_records(raw):
 
 def format_records_result(records, search_type):
     if not records:
-        return "ɴᴏ ʀᴇᴄᴏʀᴅꜱ ꜰᴏᴜɴᴅ"
+        return "No records found"
     title = {
-        'aadhaar': 'ᴀᴀᴅʜᴀʀ',
-        'mobile': 'ɪɴᴅ ɴᴜᴍʙᴇʀ',
-        'vehicle': 'ᴠᴇʜɪᴄʟᴇ'
-    }.get(search_type, 'ʀᴇꜱᴜʟᴛ')
-    result = f"{title}\n"
+        'aadhaar': 'Aadhar',
+        'mobile': 'India Number',
+        'vehicle': 'Vehicle'
+    }.get(search_type, 'Result')
+    result = f"{title}\nTotal: {len(records)}\n"
     for i, record in enumerate(records, 1):
         if len(records) > 1:
-            result += f"\n━━ ʀᴇᴄᴏʀᴅ {i} ━━\n"
+            result += f"\nRecord {i}\n"
         for key, value in record.items():
             result += f"{key}: {value}\n"
     return result
@@ -457,83 +436,83 @@ async def safe_api_fetch(session, url, timeout=20):
 async def chatid_lookup(session, query):
     data = await safe_api_fetch(session, f"{LOOKUP_API}{query}")
     if not data:
-        return "ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
+        return "Service unavailable"
     if isinstance(data, dict) and not data.get("raw_text") and data.get("success"):
         d = data.get("data", data)
         if isinstance(d, dict):
-            result = "ᴛᴇʟᴇɢʀᴀᴍ ɪᴅ ɪɴꜰᴏ\n"
+            result = "TG ID Info\n"
             if d.get('chat_id') or d.get('userid'):
-                result += f"ᴄʜᴀᴛ ɪᴅ: {d.get('chat_id', d.get('userid', query))}\n"
+                result += f"Chat ID: {d.get('chat_id', d.get('userid', query))}\n"
             if d.get('number'):
-                result += f"ᴘʜᴏɴᴇ ɴᴜᴍʙᴇʀ: {d['number']}\n"
+                result += f"Phone: {d['number']}\n"
             if d.get('name'):
-                result += f"ᴘʀᴏꜰɪʟᴇ ɴᴀᴍᴇ: {d['name']}\n"
+                result += f"Name: {d['name']}\n"
             return result
-    return "ɴᴏᴛ ꜰᴏᴜɴᴅ"
+    return "Not found"
 
 async def ifsc_lookup(session, code):
     data = await safe_api_fetch(session, f"{IFSC_API}{code.upper()}")
     if not data or isinstance(data, dict) and data.get("raw_text"):
-        return "ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
+        return "Service unavailable"
     if isinstance(data, dict):
-        return (f"ʙᴀɴᴋ ɪꜰꜱᴄ ᴅᴇᴛᴀɪʟꜱ\n"
-                f"ʙᴀɴᴋ ɴᴀᴍᴇ: {data.get('BANK','N/A')}\n"
-                f"ʙʀᴀɴᴄʜ: {data.get('BRANCH','N/A')}\n"
-                f"ɪꜰꜱᴄ ᴄᴏᴅᴇ: {data.get('IFSC',code.upper())}\n"
-                f"ᴀᴅᴅʀᴇꜱꜱ: {data.get('ADDRESS','N/A')}")
-    return "ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ"
+        return (f"IFSC Details\n"
+                f"Bank: {data.get('BANK','N/A')}\n"
+                f"Branch: {data.get('BRANCH','N/A')}\n"
+                f"IFSC: {data.get('IFSC',code.upper())}\n"
+                f"Address: {data.get('ADDRESS','N/A')}")
+    return "Invalid code"
 
 async def bypass_lookup(session, link):
     s = get_settings()
     if s.get("bypass_maintenance", False):
-        return "ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ"
+        return "Under maintenance"
     data = await safe_api_fetch(session, f"{SHORTLINK_API}{link}", timeout=20)
     if not data or isinstance(data, dict) and data.get("raw_text"):
-        return "ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
+        return "Service unavailable"
     if isinstance(data, dict):
         r = data.get('bypassed_url') or data.get('url') or str(data)
-        return f"ʟɪɴᴋ ʙʏᴘᴀꜱꜱᴇᴅ\nᴏʀɪɢɪɴᴀʟ ᴜʀʟ: {str(r)}"
-    return f"ʀᴇꜱᴜʟᴛ: {str(data)}"
+        return f"Bypassed URL: {str(r)}"
+    return f"Result: {str(data)}"
 
 async def gst_lookup(session, gst_number):
     data = await safe_api_fetch(session, f"{GST_API}{gst_number.upper()}", timeout=20)
     if not data or isinstance(data, dict) and data.get("raw_text"):
-        return "ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
+        return "Service unavailable"
     if isinstance(data, dict) and data.get("status") == "success" and data.get("data"):
         d = data["data"]
-        result = "ɢꜱᴛ ʙᴜꜱɪɴᴇꜱꜱ ɪɴꜰᴏ\n"
+        result = "GST Info\n"
         if d.get('TradeName'):
-            result += f"ʙᴜꜱɪɴᴇꜱꜱ ɴᴀᴍᴇ: {d['TradeName']}\n"
+            result += f"Business: {d['TradeName']}\n"
         if d.get('Gstin'):
-            result += f"ɢꜱᴛ ɴᴜᴍʙᴇʀ: {d['Gstin']}\n"
+            result += f"GST: {d['Gstin']}\n"
         return result
-    return "ɪɴᴠᴀʟɪᴅ ɢꜱᴛ"
+    return "Invalid GST"
 
 async def pakistan_lookup(session, number):
     try:
         data = await safe_api_fetch(session, f"{PAK_API}{number}", timeout=20)
         if not data or isinstance(data, dict) and data.get("raw_text"):
-            return "ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
+            return "Service unavailable"
         if isinstance(data, dict) and data.get("success") and data.get("data"):
             valid = [r for r in data["data"] if isinstance(r, dict) and any(r.get(k) for k in ['name', 'number', 'cnic', 'address'])]
             if not valid:
-                return "ɴᴏ ᴅᴀᴛᴀ"
-            result = "ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ\n"
+                return "No data"
+            result = "Pakistan Info\n"
             for i, r in enumerate(valid[:3], 1):
                 if len(valid) > 1:
-                    result += f"\n━━ ʀᴇᴄᴏʀᴅ {i} ━━\n"
+                    result += f"\nRecord {i}\n"
                 if r.get('number'):
-                    result += f"ᴘʜᴏɴᴇ: {r['number']}\n"
+                    result += f"Phone: {r['number']}\n"
                 if r.get('name'):
-                    result += f"ɴᴀᴍᴇ: {r['name']}\n"
+                    result += f"Name: {r['name']}\n"
                 if r.get('cnic'):
-                    result += f"ᴄɴɪᴄ: {r['cnic']}\n"
+                    result += f"CNIC: {r['cnic']}\n"
                 if r.get('address'):
-                    result += f"ᴀᴅᴅʀᴇꜱꜱ: {r['address'][:200]}\n"
+                    result += f"Address: {r['address'][:200]}\n"
             return result
-        return "ɴᴏ ᴅᴀᴛᴀ"
+        return "No data"
     except:
-        return "ᴇʀʀᴏʀ"
+        return "Error"
 
 async def indnum_lookup(session, number):
     for attempt in range(3):
@@ -543,11 +522,11 @@ async def indnum_lookup(session, number):
         if attempt < 2:
             await asyncio.sleep(2)
     if not data or isinstance(data, dict) and data.get("raw_text"):
-        return "ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
+        return "Service unavailable"
     results = data.get("results", {})
     if not results:
-        return "ɴᴏ ʀᴇꜱᴜʟᴛꜱ"
-    result = f"ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴀᴅᴠᴀɴᴄᴇᴅ\nɴᴜᴍʙᴇʀ: {number}\n"
+        return "No results"
+    result = f"India Advanced\nNumber: {number}\n"
     found = False
     s3 = results.get("source_3", {}).get("data", {})
     if isinstance(s3, dict):
@@ -557,9 +536,9 @@ async def indnum_lookup(session, number):
                 found = True
     s4 = results.get("source_4", {}).get("data", {})
     if isinstance(s4, dict) and s4.get("carrier"):
-        result += f"ᴄᴀʀʀɪᴇʀ: {s4['carrier']}\n"
+        result += f"Carrier: {s4['carrier']}\n"
         found = True
-    return result if found else "ɴᴏ ᴅᴀᴛᴀ"
+    return result if found else "No data"
 
 async def indnum3_lookup(session, number):
     url = f"{IND_NUM_API_3}{number}"
@@ -571,11 +550,11 @@ async def indnum3_lookup(session, number):
         async with session.get(url, timeout=aiohttp.ClientTimeout(total=25), headers=headers, allow_redirects=True) as r:
             text = await r.text()
             if not text or len(text) < 20:
-                return "ᴇᴍᴘᴛʏ ʀᴇꜱᴘᴏɴꜱᴇ"
+                return "Empty response"
             try:
                 data = json.loads(text)
                 if isinstance(data, dict):
-                    result = f"ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴛʀᴀᴄᴋɪɴɢ\nɴᴜᴍʙᴇʀ: {number}\n"
+                    result = f"India Tracking\nNumber: {number}\n"
                     for k, v in data.items():
                         if v and str(v).strip():
                             result += f"{k}: {str(v)[:200]}\n"
@@ -584,7 +563,7 @@ async def indnum3_lookup(session, number):
                 pass
             clean = re.sub(r'<[^>]+>', '\n', text)
             lines = [l.strip() for l in clean.split('\n') if l.strip() and len(l.strip()) > 1]
-            result = f"ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴛʀᴀᴄᴋɪɴɢ\nɴᴜᴍʙᴇʀ: {number}\n"
+            result = f"India Tracking\nNumber: {number}\n"
             found = 0
             for line in lines[:20]:
                 if ':' in line:
@@ -594,10 +573,10 @@ async def indnum3_lookup(session, number):
                         result += f"{key}: {val[:200]}\n"
                         found += 1
             if found == 0:
-                result += f"ʀᴀᴡ ᴅᴀᴛᴀ: {clean[:500]}\n"
+                result += f"Raw: {clean[:500]}\n"
             return result
     except:
-        return "ᴛɪᴍᴇᴏᴜᴛ"
+        return "Timeout"
 
 # --- 👑 ADMIN ---
 
@@ -608,20 +587,20 @@ async def admin_panel(event):
     ms = lambda key: "🔴" if s.get(f"maint_{key}") else "🟢"
     
     buttons = [
-        [KeyboardButtonCallback(text="🎫 ɢᴇɴ ᴄᴏᴅᴇ", data=b"ad_gen"), KeyboardButtonCallback(text="📋 ᴄᴏᴅᴇꜱ", data=b"ad_codes")],
-        [KeyboardButtonCallback(text="🎁 ᴀᴅᴅ ᴄʀ", data=b"ad_credit"), KeyboardButtonCallback(text="📢 ʙᴄᴀꜱᴛ", data=b"ad_bcast")],
-        [KeyboardButtonCallback(text=f"{'🔴' if s.get('maintenance_mode') else '🟢'} ɢʟᴏʙᴀʟ", data=b"ad_maint")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('tgid_enabled',True) else '🔴'} ᴛɢ", data=b"ad_tgid"), KeyboardButtonCallback(text=f"{ms('tgid')} ᴍ", data=b"ad_maint_tgid")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('ifsc_enabled',True) else '🔴'} ɪꜰ", data=b"ad_ifsc"), KeyboardButtonCallback(text=f"{ms('ifsc')} ᴍ", data=b"ad_maint_ifsc")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('bypass_enabled',True) else '🔴'} ʙʏ", data=b"ad_bypass_toggle"), KeyboardButtonCallback(text=f"{ms('bypass')} ᴍ", data=b"ad_maint_bypass")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('mobile_enabled',True) else '🔴'} ᴍᴏ", data=b"ad_mobile"), KeyboardButtonCallback(text=f"{ms('mobile')} ᴍ", data=b"ad_maint_mobile")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('aadhaar_enabled',True) else '🔴'} ᴀᴀ", data=b"ad_aadhaar"), KeyboardButtonCallback(text=f"{ms('aadhaar')} ᴍ", data=b"ad_maint_aadhaar")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('rc_enabled',True) else '🔴'} ʀᴄ", data=b"ad_rc"), KeyboardButtonCallback(text=f"{ms('rc')} ᴍ", data=b"ad_maint_rc")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('gst_enabled',True) else '🔴'} ɢꜱ", data=b"ad_gst"), KeyboardButtonCallback(text=f"{ms('gst')} ᴍ", data=b"ad_maint_gst")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('pak_enabled',True) else '🔴'} ᴘᴀ", data=b"ad_pak"), KeyboardButtonCallback(text=f"{ms('pak')} ᴍ", data=b"ad_maint_pak")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('indnum_enabled',True) else '🔴'} ɪɴ2", data=b"ad_indnum"), KeyboardButtonCallback(text=f"{ms('indnum')} ᴍ", data=b"ad_maint_indnum")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('indnum3_enabled',True) else '🔴'} ɪɴ3", data=b"ad_indnum3"), KeyboardButtonCallback(text=f"{ms('indnum3')} ᴍ", data=b"ad_maint_indnum3")],
-        [KeyboardButtonCallback(text="❌ ᴄʟᴏꜱᴇ", data=b"ad_close")]
+        [KeyboardButtonCallback(text="Generate Code", data=b"ad_gen"), KeyboardButtonCallback(text="List Codes", data=b"ad_codes")],
+        [KeyboardButtonCallback(text="Add Credits", data=b"ad_credit"), KeyboardButtonCallback(text="Broadcast", data=b"ad_bcast")],
+        [KeyboardButtonCallback(text=f"{'🔴' if s.get('maintenance_mode') else '🟢'} Global", data=b"ad_maint")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('tgid_enabled',True) else '🔴'} TG", data=b"ad_tgid"), KeyboardButtonCallback(text=f"{ms('tgid')} M", data=b"ad_maint_tgid")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('ifsc_enabled',True) else '🔴'} IF", data=b"ad_ifsc"), KeyboardButtonCallback(text=f"{ms('ifsc')} M", data=b"ad_maint_ifsc")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('bypass_enabled',True) else '🔴'} BY", data=b"ad_bypass_toggle"), KeyboardButtonCallback(text=f"{ms('bypass')} M", data=b"ad_maint_bypass")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('mobile_enabled',True) else '🔴'} MO", data=b"ad_mobile"), KeyboardButtonCallback(text=f"{ms('mobile')} M", data=b"ad_maint_mobile")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('aadhaar_enabled',True) else '🔴'} AA", data=b"ad_aadhaar"), KeyboardButtonCallback(text=f"{ms('aadhaar')} M", data=b"ad_maint_aadhaar")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('rc_enabled',True) else '🔴'} RC", data=b"ad_rc"), KeyboardButtonCallback(text=f"{ms('rc')} M", data=b"ad_maint_rc")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('gst_enabled',True) else '🔴'} GS", data=b"ad_gst"), KeyboardButtonCallback(text=f"{ms('gst')} M", data=b"ad_maint_gst")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('pak_enabled',True) else '🔴'} PA", data=b"ad_pak"), KeyboardButtonCallback(text=f"{ms('pak')} M", data=b"ad_maint_pak")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('indnum_enabled',True) else '🔴'} IN2", data=b"ad_indnum"), KeyboardButtonCallback(text=f"{ms('indnum')} M", data=b"ad_maint_indnum")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('indnum3_enabled',True) else '🔴'} IN3", data=b"ad_indnum3"), KeyboardButtonCallback(text=f"{ms('indnum3')} M", data=b"ad_maint_indnum3")],
+        [KeyboardButtonCallback(text="Close", data=b"ad_close")]
     ]
     
     rows = []
@@ -629,7 +608,7 @@ async def admin_panel(event):
         rows.append(KeyboardButtonRow(buttons=row))
     
     markup = ReplyInlineMarkup(rows=rows)
-    txt = f"ᴀᴅᴍɪɴ ᴘᴀɴᴇʟ\nᴜꜱᴇʀꜱ: {len(load_json(USERS_FILE))} | ᴄᴏᴅᴇꜱ: {len(load_json(REDEEM_FILE))}"
+    txt = f"Admin Panel\nUsers: {len(load_json(USERS_FILE))} | Codes: {len(load_json(REDEEM_FILE))}"
     
     if hasattr(event, 'data'):
         await event.edit(txt, buttons=markup)
@@ -647,23 +626,23 @@ async def admin_callback(event):
         await event.delete()
     elif d == "ad_codes":
         codes = load_json(REDEEM_FILE)
-        txt = f"ᴄᴏᴅᴇꜱ: {len(codes)}\n"
+        txt = f"Codes: {len(codes)}\n"
         for c, v in list(codes.items())[-15:]:
             txt += f"{'✅' if not v.get('used') else '❌'} {c} | {v.get('credits')}cr\n"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]))
+        await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_gen":
         ADMIN_STATE[event.sender_id] = "gen"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit("ᴇɴᴛᴇʀ ᴄʀᴇᴅɪᴛꜱ:\n100", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]))
+        await event.edit("Enter credits:\n100", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_credit":
         ADMIN_STATE[event.sender_id] = "credit"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit("ᴇɴᴛᴇʀ ɪᴅ ᴀᴍᴏᴜɴᴛ:\n123456789 50", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]))
+        await event.edit("Enter ID Amount:\n123456789 50", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_bcast":
         ADMIN_STATE[event.sender_id] = "bcast"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit("ᴇɴᴛᴇʀ ᴍᴇꜱꜱᴀɢᴇ:", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]))
+        await event.edit("Enter message:", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_maint":
         s["maintenance_mode"] = not s.get("maintenance_mode", False)
         save_settings(s)
@@ -711,91 +690,14 @@ async def start(event):
                 if data.get("invite_code") == args[1] and inviter != str(uid):
                     cr = process_invite(inviter, uid)
                     try:
-                        await send_message(int(inviter), f"+{cr} ᴄʀᴇᴅɪᴛꜱ! ɴᴇᴡ ᴜꜱᴇʀ ᴊᴏɪɴᴇᴅ!")
+                        await send_message(int(inviter), f"+{cr} credits! New user joined!")
                     except:
                         pass
                     break
         
-        user = get_user(uid)
-        if not user.get("verified"):
-            if await check_channels(uid):
-                user["verified"] = True
-                save_user(uid, user)
-                await main_menu(event)
-                return
-            await show_verification_page(event)
-            return
         await main_menu(event)
     except Exception as e:
         logger.error(f"Start: {e}")
-
-async def show_verification_page(event):
-    try:
-        txt = (
-            f"{BOT_NAME}\n"
-            f"@{BOT_USERNAME}\n\n"
-            f"ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ʀᴇQᴜɪʀᴇᴅ\n"
-            f"ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ᴛᴏ ᴜɴʟᴏᴄᴋ\n\n"
-            f"ɢᴜɪᴅᴇʟɪɴᴇꜱ:\n"
-            f"• ᴇᴅᴜᴄᴀᴛɪᴏɴᴀʟ ᴘᴜʀᴘᴏꜱᴇꜱ ᴏɴʟʏ\n"
-            f"• ᴜꜱᴇ ᴏɴ ʏᴏᴜʀ ᴏᴡɴ ᴅᴀᴛᴀ\n"
-            f"• ʀᴇꜱᴘᴇᴄᴛ ᴘʀɪᴠᴀᴄʏ ʟᴀᴡꜱ\n\n"
-            f"+{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ\n"
-            f"+{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ\n"
-            f"{AUTO_DELETE_TIME}ꜱ ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ\n\n"
-            f"ᴏᴡɴᴇʀ: @Hexh4ckerOFC\n"
-            f"ᴍɪꜱᴜꜱᴇ ᴍᴀʏ ʟᴇᴀᴅ ᴛᴏ ʟᴇɢᴀʟ ᴀᴄᴛɪᴏɴ"
-        )
-        
-        button1 = KeyboardButtonCallback(
-            text="ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷",
-            data=b"url1"
-        )
-        button2 = KeyboardButtonCallback(
-            text="ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟸",
-            data=b"url2"
-        )
-        button3 = KeyboardButtonCallback(
-            text="ɪ'ᴠᴇ ᴊᴏɪɴᴇᴅ - ᴠᴇʀɪꜰʏ",
-            data=b"verify"
-        )
-        
-        markup = ReplyInlineMarkup(rows=[
-            KeyboardButtonRow(buttons=[button1]),
-            KeyboardButtonRow(buttons=[button2]),
-            KeyboardButtonRow(buttons=[button3])
-        ])
-        
-        await send_message(event.chat_id, txt, reply_markup=markup)
-    except Exception as e:
-        logger.error(f"Verification page: {e}")
-
-@client.on(events.CallbackQuery(data=b"verify"))
-async def verify_cb(event):
-    try:
-        uid = event.sender_id
-        if await check_channels(uid):
-            user = get_user(uid)
-            user["verified"] = True
-            save_user(uid, user)
-            await event.answer("✅ ᴠᴇʀɪꜰɪᴇᴅ!", alert=True)
-            try:
-                await event.delete()
-            except:
-                pass
-            await main_menu(event)
-        else:
-            await event.answer("❌ ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ꜰɪʀꜱᴛ!", alert=True)
-    except Exception as e:
-        logger.error(f"Verify callback error: {e}")
-        await event.answer("❌ ᴇʀʀᴏʀ, ᴛʀʏ ᴀɢᴀɪɴ", alert=True)
-
-@client.on(events.CallbackQuery)
-async def handle_url_callback(event):
-    if event.data == b"url1":
-        await event.answer(f"📢 ᴊᴏɪɴ: {LINK_1}", alert=True)
-    elif event.data == b"url2":
-        await event.answer(f"📢 ᴊᴏɪɴ: {LINK_2}", alert=True)
 
 async def main_menu(event):
     is_admin = event.sender_id == ADMIN_ID
@@ -806,17 +708,17 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     
     txt = (
-        f"ᴘʀᴇᴍɪᴜᴍ ʜᴜʙ\n"
-        f"ᴡᴇʟᴄᴏᴍᴇ ʙᴀᴄᴋ, {event.sender.first_name}\n\n"
-        f"ʏᴏᴜʀ ꜱᴛᴀᴛɪꜱᴛɪᴄꜱ:\n"
-        f"ᴄʀᴇᴅɪᴛꜱ: {cr}\n"
-        f"Qᴜᴇʀɪᴇꜱ: {user.get('total_queries',0)}\n"
-        f"ɪɴᴠɪᴛᴇꜱ: {user.get('invites',0)}\n\n"
-        f"ʀᴇᴡᴀʀᴅꜱ:\n"
-        f"+{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ ꜰʀᴇᴇ\n"
-        f"+{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ\n"
-        f"{AUTO_DELETE_TIME}ꜱ ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ\n\n"
-        f"ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ"
+        f"Hex Terminal Hub\n"
+        f"Welcome back, {event.sender.first_name}\n\n"
+        f"Your Statistics:\n"
+        f"Credits: {cr}\n"
+        f"Queries: {user.get('total_queries',0)}\n"
+        f"Invites: {user.get('invites',0)}\n\n"
+        f"Rewards:\n"
+        f"+{DAILY_FREE_CREDITS} daily free\n"
+        f"+{INVITE_CREDITS} per invite\n"
+        f"{AUTO_DELETE_TIME}s auto delete\n\n"
+        f"Select a service below"
     )
     
     msg = await send_message(event.chat_id, txt, reply_markup=markup)
@@ -872,21 +774,12 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(msg))
                 return
         
-        user = get_user(uid)
-        if not user.get("verified"):
-            if await check_channels(uid):
-                user["verified"] = True
-                save_user(uid, user)
-                await main_menu(event)
-                return
-            else:
-                await show_verification_page(event)
-                return
-        
-        if txt == "👑 ᴀᴅᴍɪɴ ᴘᴀɴᴇʟ":
+        # Handle admin panel button
+        if txt == "Admin Panel":
             await admin_panel(event)
             return
         
+        # Handle redeem mode
         if hasattr(event, 'redeem_mode') and event.redeem_mode:
             event.redeem_mode = False
             if txt.upper().startswith("HEX-"):
@@ -897,20 +790,21 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
+        # Feature buttons mapping
         mode = None
         feature_map = {
-            "📱 ᴛɢ ɪᴅ ➜ 📞 ɴᴜᴍʙᴇʀ 🔍": ("TG", "tgid"),
-            "🏦 ɪꜰꜱᴄ ɪɴꜰᴏ➜🔎": ("IFSC", "ifsc"),
-            "🔗 ʟɪɴᴋ ʙʏᴘᴀꜱꜱ": ("SHORTLINK", "bypass"),
-            "🇮🇳 ɪɴᴅ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ➜👤": ("MOBILE", "mobile"),
-            "🪪 ᴀᴀᴅʜᴀʀ ɪɴꜰᴏ➜👤": ("AADHAAR", "aadhaar"),
-            "🚘 ʀᴄ ᴅᴇᴛᴀɪʟꜱ": ("VEHICLE", "rc"),
-            "📋 ɢꜱᴛ ʟᴏᴏᴋᴜᴘ": ("GST", "gst"),
-            "🇵🇰 ᴘᴀᴋ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ": ("PAK", "pak"),
-            "📲 ɪɴᴅ ɴᴜᴍ ɪɴꜰᴏ 𝟸": ("INDNUM", "indnum"),
-            "🇮🇳 ɪɴᴅ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ 𝟹 ➜👤": ("INDNUM3", "indnum3"),
-            "👥 ɪɴᴠɪᴛᴇ & ᴇᴀʀɴ": ("INVITE", None),
-            "🎫 ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ": ("REDEEM", None)
+            "TG ID -> Phone Number": ("TG", "tgid"),
+            "IFSC Info": ("IFSC", "ifsc"),
+            "Link Bypass": ("SHORTLINK", "bypass"),
+            "India Number Info": ("MOBILE", "mobile"),
+            "Aadhar Info": ("AADHAAR", "aadhaar"),
+            "RC Details": ("VEHICLE", "rc"),
+            "GST Lookup": ("GST", "gst"),
+            "Pakistan Number Info": ("PAK", "pak"),
+            "India Number Info 2": ("INDNUM", "indnum"),
+            "India Number Tracking": ("INDNUM3", "indnum3"),
+            "Invite & Earn": ("INVITE", None),
+            "Redeem Code": ("REDEEM", None)
         }
         
         if txt in feature_map:
@@ -920,12 +814,12 @@ async def msg_handler(event):
                 user = get_user(uid)
                 bot_username = BOT_USERNAME
                 link = f"https://t.me/{bot_username}?start={user['invite_code']}"
-                m = await send_message(event.chat_id, f"ɪɴᴠɪᴛᴇ (+{INVITE_CREDITS}ᴄʀ)\n{link}")
+                m = await send_message(event.chat_id, f"Invite (+{INVITE_CREDITS}cr)\n{link}")
                 asyncio.create_task(schedule_delete(m, 120))
                 return
             elif mode == "REDEEM":
                 event.redeem_mode = True
-                m = await send_message(event.chat_id, "ᴇɴᴛᴇʀ ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ:\nHEX-XXXXXXXXXX")
+                m = await send_message(event.chat_id, "Enter redeem code:\nHEX-XXXXXXXXXX")
                 asyncio.create_task(schedule_delete(m, 30))
                 return
             
@@ -943,22 +837,23 @@ async def msg_handler(event):
             
             event.mode = mode
             prompts = {
-                "TG": "ᴛᴇʟᴇɢʀᴀᴍ ɪᴅ ᴛᴏ ᴘʜᴏɴᴇ ɴᴜᴍʙᴇʀ\n7123181749, 6884112825",
-                "IFSC": "ʙᴀɴᴋ ɪꜰꜱᴄ ᴄᴏᴅᴇ\nSBIN0001234, HDFC0001234",
-                "SHORTLINK": "ʟɪɴᴋ ʙʏᴘᴀꜱꜱ\nhttps://indianshortner.in/xxxx",
-                "MOBILE": "ɪɴᴅɪᴀɴ ᴍᴏʙɪʟᴇ ɴᴜᴍʙᴇʀ\n9876543210, 8123456789",
-                "AADHAAR": "ᴀᴀᴅʜᴀʀ ɴᴜᴍʙᴇʀ\n123456789012",
-                "VEHICLE": "ᴠᴇʜɪᴄʟᴇ ɴᴜᴍʙᴇʀ\nKA01AB3256, DL1CX1234",
-                "GST": "ɢꜱᴛ ɴᴜᴍʙᴇʀ\n19BOKPS7056D1ZI",
-                "PAK": "ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ\n923078750447",
-                "INDNUM": "ᴀᴅᴠᴀɴᴄᴇᴅ ɴᴜᴍʙᴇʀ\n6363016966, 9876543210",
-                "INDNUM3": "ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴛʀᴀᴄᴋɪɴɢ\n6363016966, 9876543210"
+                "TG": "Enter TG ID:\n7123181749, 6884112825",
+                "IFSC": "Enter IFSC Code:\nSBIN0001234, HDFC0001234",
+                "SHORTLINK": "Enter link to bypass:\nhttps://indianshortner.in/xxxx",
+                "MOBILE": "Enter Indian mobile:\n9876543210, 8123456789",
+                "AADHAAR": "Enter Aadhar:\n123456789012",
+                "VEHICLE": "Enter vehicle number:\nKA01AB3256, DL1CX1234",
+                "GST": "Enter GST number:\n19BOKPS7056D1ZI",
+                "PAK": "Enter Pakistan number:\n923078750447",
+                "INDNUM": "Enter number:\n6363016966, 9876543210",
+                "INDNUM3": "Enter number to track:\n6363016966, 9876543210"
             }
             if mode in prompts:
                 m = await send_message(event.chat_id, prompts[mode])
                 asyncio.create_task(schedule_delete(m))
             return
         
+        # Handle query mode
         if hasattr(event, 'mode') and event.mode:
             mode = event.mode
             if txt.upper().startswith("HEX-"):
@@ -987,21 +882,8 @@ async def run_query(event, mode, query):
         asyncio.create_task(schedule_delete(m))
         return
     
-    names = {
-        'TG': 'PHONE',
-        'IFSC': 'BANK',
-        'SHORTLINK': 'LINK',
-        'AADHAAR': 'CARD',
-        'MOBILE': 'INDIA',
-        'VEHICLE': 'CAR',
-        'GST': 'CARD',
-        'PAK': 'PAK',
-        'INDNUM': 'PHONE2',
-        'INDNUM3': 'INDIA'
-    }
-    
-    st = await send_message(event.chat_id, "ꜱᴇᴀʀᴄʜɪɴɢ...")
-    lt = asyncio.create_task(loading_animation(st, names.get(mode, '')))
+    st = await send_message(event.chat_id, "Searching...")
+    lt = asyncio.create_task(loading_animation(st, mode))
     credit_deducted = False
     
     try:
@@ -1011,7 +893,7 @@ async def run_query(event, mode, query):
             if raw:
                 records = parse_all_india_records(raw)
                 result = format_records_result(records, {'AADHAAR': 'aadhaar', 'MOBILE': 'mobile', 'VEHICLE': 'vehicle'}[mode])
-                if records and "ɴᴏ" not in str(result):
+                if records and "No" not in str(result):
                     use_credit(event.sender_id)
                     credit_deducted = True
             else:
@@ -1035,7 +917,7 @@ async def run_query(event, mode, query):
                 else:
                     result = "ERROR"
             
-            if result and "ɴᴏ" not in str(result) and "unavailable" not in str(result).lower():
+            if result and "No" not in str(result) and "unavailable" not in str(result).lower():
                 use_credit(event.sender_id)
                 credit_deducted = True
         
@@ -1046,23 +928,23 @@ async def run_query(event, mode, query):
             pass
         
         user = get_user(event.sender_id)
-        final = f"{result}\n{SEP}\n{'ᴄʀ: '+str(user.get('credits',0)) if credit_deducted else 'ɴᴏ ᴄʀ ᴅᴇᴅᴜᴄᴛᴇᴅ'} | {AUTO_DELETE_TIME}ꜱ{DISCLAIMER}{FOOTER}"
+        final = f"{result}\n{SEP}\n{'Credits: '+str(user.get('credits',0)) if credit_deducted else 'No credit deducted'} | {AUTO_DELETE_TIME}s{FOOTER}"
         sent = await edit_message(st, final)
         asyncio.create_task(schedule_delete(sent))
     except Exception as e:
         lt.cancel()
         logger.error(f"Query: {e}")
         try:
-            await edit_message(st, f"ᴇʀʀᴏʀ{FOOTER}")
+            await edit_message(st, f"Error{FOOTER}")
         except:
             pass
 
 # --- 🚀 START ---
 
 async def main():
-    print("Hex Terminal Premium (Telethon Version)...")
-    print("ONLY Premium Emoji IDs in Buttons - NO Emojis in Text")
-    print("Like your demo code!")
+    print("Hex Terminal (Telethon Version)")
+    print("NO Verification - NO Emojis in Text")
+    print("Colored buttons with premium emoji IDs")
     
     try:
         subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4"], capture_output=True, timeout=30)
