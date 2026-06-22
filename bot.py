@@ -1,4 +1,4 @@
-# bot.py - Hex Terminal FINAL with ALL Emojis Working
+# bot.py - Hex Terminal FINAL with HTML Parse Mode
 
 import logging
 import asyncio
@@ -261,7 +261,8 @@ async def send_message(chat_id, text, reply_markup=None):
         peer=chat_id,
         message=text,
         random_id=random.getrandbits(63),
-        reply_markup=reply_markup
+        reply_markup=reply_markup,
+        parse_mode='HTML'  # <--- IMPORTANT FIX
     ))
 
 async def edit_message(msg, text, reply_markup=None):
@@ -269,7 +270,8 @@ async def edit_message(msg, text, reply_markup=None):
         peer=msg.peer_id,
         id=msg.id,
         message=text,
-        reply_markup=reply_markup
+        reply_markup=reply_markup,
+        parse_mode='HTML'  # <--- IMPORTANT FIX
     ))
 
 async def loading_animation(msg, name):
@@ -987,7 +989,7 @@ async def run_query(event, mode, query):
 
 async def main():
     print("Hex Terminal FINAL Version")
-    print("ALL Premium Emojis Working with PE() method")
+    print("ALL Premium Emojis Working with parse_mode='HTML'")
     print("3 button icon IDs used for all buttons")
     
     try:
