@@ -1,4 +1,4 @@
-# bot.py - Hex Terminal FINAL with Fixed parse_mode
+# bot.py - Hex Terminal FINAL with Working send_message
 
 import logging
 import asyncio
@@ -256,22 +256,36 @@ async def schedule_delete(msg, delay=AUTO_DELETE_TIME):
     except:
         pass
 
-# FIXED: Use client.send_message with parse_mode parameter
+# FIXED: Use SendMessageRequest directly with proper parameters
 async def send_message(chat_id, text, reply_markup=None):
+    return await client(functions.messages.SendMessageRequest(
+        peer=chat_id,
+        message=text,
+        random_id=random.getrandbits(63),
+        reply_markup=reply_markup
+    ))
+
+# FIXED: Use EditMessageRequest directly
+async def edit_message(msg, text, reply_markup=None):
+    return await client(functions.messages.EditMessageRequest(
+        peer=msg.peer_id,
+        id=msg.id,
+        message=text,
+        reply_markup=reply_markup
+    ))
+
+# FIXED: Send HTML message with parse_mode
+async def send_html(chat_id, text, reply_markup=None):
     return await client.send_message(
         chat_id,
         text,
-        reply_markup=reply_markup,
-        parse_mode='HTML'
-    )
-
-# FIXED: Use client.edit_message with parse_mode parameter
-async def edit_message(msg, text, reply_markup=None):
-    return await client.edit_message(
-        msg,
-        text,
-        reply_markup=reply_markup,
-        parse_mode='HTML'
+        file=None,
+        reply_to=None,
+        parse_mode='html',
+        link_preview=None,
+        buttons=reply_markup,
+        silent=False,
+        schedule=None
     )
 
 async def loading_animation(msg, name):
@@ -989,7 +1003,7 @@ async def run_query(event, mode, query):
 
 async def main():
     print("Hex Terminal FINAL Version")
-    print("ALL Premium Emojis Working with parse_mode='HTML'")
+    print("ALL Premium Emojis Working")
     print("3 button icon IDs used for all buttons")
     
     try:
