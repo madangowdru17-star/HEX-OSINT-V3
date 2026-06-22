@@ -1,4 +1,4 @@
-# bot.py - Telethon Version with Colored Reply Buttons & Premium Emojis
+# bot.py - Telethon Version with Fixed Event Loop
 
 import logging
 import asyncio
@@ -13,7 +13,7 @@ import os
 import sys
 from datetime import datetime, timedelta
 
-# Fix: Import telethon properly with fallback
+# Fix: Proper Telethon import with event loop handling
 try:
     from telethon import TelegramClient, events, functions
     from telethon.tl import types
@@ -184,6 +184,7 @@ DISCLAIMER = f"\n\n<b>{PE_WARN} ᴅɪꜱᴄʟᴀɪᴍᴇʀ:</b>\n<i>ᴇᴅᴜᴄ
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Create client with proper event loop
 client = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 ADMIN_STATE = {}
 
@@ -1002,7 +1003,7 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
-        # Feature buttons mapping (all use colored buttons now)
+        # Feature buttons mapping
         mode = None
         feature_map = {
             "📱 ᴛɢ ɪᴅ ➜ 📞 ɴᴜᴍʙᴇʀ 🔍": ("TG", "tgid"),
@@ -1184,7 +1185,28 @@ async def main():
     except:
         pass
     
+    # Start client and run
+    await client.start(bot_token=BOT_TOKEN)
     await client.run_until_disconnected()
 
+# Fix: Properly handle event loop for Railway
 if __name__ == '__main__':
-    asyncio.run(main())
+    try:
+        # Get or create event loop
+        loop = asyncio.get_event_loop()
+        if loop.is_closed():
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+        loop.run_until_complete(main())
+    except RuntimeError as e:
+        if "event loop" in str(e).lower():
+            # Create new loop if there's an issue
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(main())
+        else:
+            raise
+    except KeyboardInterrupt:
+        print("Bot stopped by user")
+    except Exception as e:
+        print(f"Error: {e}")
