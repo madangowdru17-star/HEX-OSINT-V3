@@ -12,11 +12,41 @@ import re
 import os
 import sys
 from datetime import datetime, timedelta
-from telethon import TelegramClient, events, types, functions
-from telethon.tl.types import (
-    KeyboardButton, KeyboardButtonRow, ReplyKeyboardMarkup,
-    KeyboardButtonStyle, Message
-)
+
+# Fix: Import telethon properly with fallback
+try:
+    from telethon import TelegramClient, events, functions
+    from telethon.tl import types
+    from telethon.tl.types import (
+        KeyboardButton, KeyboardButtonRow, ReplyKeyboardMarkup,
+        Message
+    )
+    # Try to import KeyboardButtonStyle (only available in master branch)
+    try:
+        from telethon.tl.types import KeyboardButtonStyle
+        HAS_BUTTON_STYLE = True
+    except ImportError:
+        HAS_BUTTON_STYLE = False
+        # Create a dummy class if not available
+        class KeyboardButtonStyle:
+            def __init__(self, bg_primary=False, bg_success=False, bg_danger=False, icon=None):
+                self.bg_primary = bg_primary
+                self.bg_success = bg_success
+                self.bg_danger = bg_danger
+                self.icon = icon
+        types.KeyboardButtonStyle = KeyboardButtonStyle
+except ImportError as e:
+    print(f"Import error: {e}")
+    print("Installing Telethon from master branch...")
+    subprocess.run([sys.executable, "-m", "pip", "install", "git+https://github.com/LonamiWebs/Telethon.git"])
+    # Retry import after installation
+    from telethon import TelegramClient, events, functions
+    from telethon.tl import types
+    from telethon.tl.types import (
+        KeyboardButton, KeyboardButtonRow, ReplyKeyboardMarkup,
+        Message, KeyboardButtonStyle
+    )
+    HAS_BUTTON_STYLE = True
 
 # --- ⚙️ CONFIGURATION ---
 API_ID = int(os.environ.get('API_ID', '37996037'))
@@ -307,7 +337,7 @@ async def schedule_delete(msg, delay=AUTO_DELETE_TIME):
     except:
         pass
 
-async def send_message(chat_id, text, reply_markup=None, parse_mode='HTML'):
+async def send_message(chat_id, text, reply_markup=None):
     return await client(functions.messages.SendMessageRequest(
         peer=chat_id,
         message=text,
@@ -315,19 +345,13 @@ async def send_message(chat_id, text, reply_markup=None, parse_mode='HTML'):
         reply_markup=reply_markup
     ))
 
-async def edit_message(msg, text, reply_markup=None, parse_mode='HTML'):
+async def edit_message(msg, text, reply_markup=None):
     return await client(functions.messages.EditMessageRequest(
         peer=msg.peer_id,
         id=msg.id,
         message=text,
         reply_markup=reply_markup
     ))
-
-async def delete_message(msg):
-    try:
-        await client.delete_messages(msg.peer_id, [msg.id])
-    except:
-        pass
 
 async def loading_animation(msg, name):
     bars = [
@@ -359,13 +383,18 @@ def check_feature_maintenance(feature_key):
 # --- 🎨 COLORED REPLY BUTTONS ---
 
 def create_colored_button(text, bg_color, emoji_id):
-    style = KeyboardButtonStyle(
-        bg_primary=bg_color == 'primary',
-        bg_success=bg_color == 'success',
-        bg_danger=bg_color == 'danger',
-        icon=emoji_id
-    )
-    return KeyboardButton(text=text, style=style)
+    if HAS_BUTTON_STYLE:
+        # Use real KeyboardButtonStyle if available
+        style = KeyboardButtonStyle(
+            bg_primary=bg_color == 'primary',
+            bg_success=bg_color == 'success',
+            bg_danger=bg_color == 'danger',
+            icon=emoji_id
+        )
+        return KeyboardButton(text=text, style=style)
+    else:
+        # Fallback: return normal button without style (Telethon stable version)
+        return KeyboardButton(text=text)
 
 def create_main_menu(is_admin=False, settings=None):
     if settings is None:
@@ -687,9 +716,8 @@ async def admin_panel(event):
     s = get_settings()
     ms = lambda key: "🔴" if s.get(f"maint_{key}") else "🟢"
     
-    # Create inline keyboard for admin (using InlineKeyboardButton)
-    from telethon.tl.types import KeyboardButtonCallback, InlineKeyboardButton
-    from telethon.tl.types import ReplyInlineMarkup, KeyboardButtonRow
+    # Create inline keyboard for admin
+    from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
     
     buttons = [
         [KeyboardButtonCallback(text="🎫 ɢᴇɴ ᴄᴏᴅᴇ", data=b"ad_gen"), KeyboardButtonCallback(text="📋 ᴄᴏᴅᴇꜱ", data=b"ad_codes")],
@@ -717,7 +745,7 @@ async def admin_panel(event):
     txt = f"<blockquote>{PE_CROWN} ᴀᴅᴍɪɴ ᴘᴀɴᴇʟ {PE_CROWN}</blockquote>\n<blockquote>{PE_INVITE} ᴜꜱᴇʀꜱ: {len(load_json(USERS_FILE))} | {PE_TICKET} ᴄᴏᴅᴇꜱ: {len(load_json(REDEEM_FILE))}</blockquote>"
     
     if hasattr(event, 'data'):  # Callback query
-        await event.edit(txt, buttons=markup, parse_mode='HTML')
+        await event.edit(txt, buttons=markup)
     else:
         await send_message(event.chat_id, txt, reply_markup=markup)
 
@@ -735,16 +763,20 @@ async def admin_callback(event):
         txt = f"<blockquote>{PE_TICKET} ᴄᴏᴅᴇꜱ: {len(codes)}</blockquote>\n"
         for c, v in list(codes.items())[-15:]:
             txt += f"<blockquote>{'✅' if not v.get('used') else '❌'} <code>{c}</code> | {v.get('credits')}cr</blockquote>\n"
-        await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]), parse_mode='HTML')
+        from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
+        await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]))
     elif d == "ad_gen":
         ADMIN_STATE[event.sender_id] = "gen"
-        await event.edit(f"<blockquote>{PE_TICKET} ᴇɴᴛᴇʀ ᴄʀᴇᴅɪᴛꜱ:</blockquote>\n<i>100</i>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]), parse_mode='HTML')
+        from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
+        await event.edit(f"<blockquote>{PE_TICKET} ᴇɴᴛᴇʀ ᴄʀᴇᴅɪᴛꜱ:</blockquote>\n<i>100</i>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]))
     elif d == "ad_credit":
         ADMIN_STATE[event.sender_id] = "credit"
-        await event.edit(f"<blockquote>{PE_GIFT} ᴇɴᴛᴇʀ ɪᴅ ᴀᴍᴏᴜɴᴛ:</blockquote>\n<i>123456789 50</i>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]), parse_mode='HTML')
+        from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
+        await event.edit(f"<blockquote>{PE_GIFT} ᴇɴᴛᴇʀ ɪᴅ ᴀᴍᴏᴜɴᴛ:</blockquote>\n<i>123456789 50</i>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]))
     elif d == "ad_bcast":
         ADMIN_STATE[event.sender_id] = "bcast"
-        await event.edit(f"<blockquote>{PE_BOLT} ᴇɴᴛᴇʀ ᴍᴇꜱꜱᴀɢᴇ:</blockquote>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]), parse_mode='HTML')
+        from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
+        await event.edit(f"<blockquote>{PE_BOLT} ᴇɴᴛᴇʀ ᴍᴇꜱꜱᴀɢᴇ:</blockquote>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]))
     elif d == "ad_maint":
         s["maintenance_mode"] = not s.get("maintenance_mode", False)
         save_settings(s)
@@ -1139,8 +1171,12 @@ async def run_query(event, mode, query):
 async def main():
     print("🔄 Hex Terminal Premium (Telethon Version)...")
     print(f"{PE_CHECK} {BOT_NAME} Ready!")
-    print(f"{PE_DIAMOND} Colored Reply Buttons with Premium Emojis")
-    print(f"{PE_STAR} All buttons use premium emoji IDs")
+    if HAS_BUTTON_STYLE:
+        print(f"{PE_DIAMOND} Colored Reply Buttons with Premium Emojis ENABLED")
+    else:
+        print(f"{PE_WARN} Colored buttons not available (using Telethon stable)")
+        print(f"{PE_WARN} Install Telethon master branch for colored buttons")
+    print(f"{PE_STAR} All premium emoji IDs are working")
     
     # Install dependencies if needed
     try:
