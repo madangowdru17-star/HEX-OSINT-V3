@@ -1,4 +1,4 @@
-# bot.py - Hex Terminal FINAL with ALL Premium Emoji IDs
+# bot.py - Hex Terminal FINAL with ALL Premium Emojis Working
 
 import logging
 import asyncio
@@ -108,53 +108,53 @@ EMOJI_PRIMARY = 5258096772776991776
 EMOJI_SUCCESS = 5258503720928288433
 EMOJI_DANGER = 5258331647358540449
 
-# Premium emoji helper
-def PE(eid):
-    return f'<tg-emoji emoji-id="{eid}"></tg-emoji>'
+# --- PREMIUM EMOJI HELPER - SAME METHOD FOR ALL ---
+def PE(eid, fallback):
+    return f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
-# Pre-computed premium emoji strings
-PE_WARN = PE(EMOJI_WARN)
-PE_CHECK = PE(EMOJI_CHECK)
-PE_CROSS = PE(EMOJI_CROSS)
-PE_LOCK = PE(EMOJI_LOCK)
-PE_CROWN = PE(EMOJI_CROWN)
-PE_DIAMOND = PE(EMOJI_DIAMOND)
-PE_STAR = PE(EMOJI_STAR)
-PE_GIFT = PE(EMOJI_GIFT)
-PE_FIRE = PE(EMOJI_FIRE)
-PE_SEARCH = PE(EMOJI_SEARCH)
-PE_PHONE = PE(EMOJI_PHONE)
-PE_BANK = PE(EMOJI_BANK)
-PE_LINK = PE(EMOJI_LINK)
-PE_CAR = PE(EMOJI_CAR)
-PE_CARD = PE(EMOJI_CARD)
-PE_USER = PE(EMOJI_USER)
-PE_INDIA = PE(EMOJI_INDIA)
-PE_PAK = PE(EMOJI_PAK)
-PE_PHONE2 = PE(EMOJI_PHONE2)
-PE_INVITE = PE(EMOJI_INVITE)
-PE_TICKET = PE(EMOJI_TICKET)
-PE_CREDIT = PE(EMOJI_CREDIT)
-PE_REFRESH = PE(EMOJI_REFRESH)
-PE_CLOCK = PE(EMOJI_CLOCK)
-PE_BOLT = PE(EMOJI_BOLT)
-PE_GREEN = PE(EMOJI_GREEN)
-PE_BLACK = PE(EMOJI_BLACK)
-PE_SPARKLE = PE(EMOJI_SPARKLE)
-PE_ROCKET = PE(EMOJI_ROCKET)
-PE_TOOLS = PE(EMOJI_TOOLS)
-PE_DISABLED = PE(EMOJI_DISABLED)
-PE_FATHER = PE(EMOJI_FATHER)
-PE_LOCATION = PE(EMOJI_LOCATION)
-PE_HOME = PE(EMOJI_HOME)
-PE_STATE = PE(EMOJI_STATE)
-PE_NETWORK = PE(EMOJI_NETWORK)
-PE_SIGNAL = PE(EMOJI_SIGNAL)
-PE_SIM = PE(EMOJI_SIM)
-PE_CHART = PE(EMOJI_CHART)
-PE_PRIMARY = PE(EMOJI_PRIMARY)
-PE_SUCCESS = PE(EMOJI_SUCCESS)
-PE_DANGER = PE(EMOJI_DANGER)
+# --- ALL PREMIUM EMOJIS WITH FALLBACKS (SAME METHOD) ---
+PE_WARN = PE(EMOJI_WARN, "⚠️")
+PE_CHECK = PE(EMOJI_CHECK, "✅")
+PE_CROSS = PE(EMOJI_CROSS, "❌")
+PE_LOCK = PE(EMOJI_LOCK, "🔒")
+PE_CROWN = PE(EMOJI_CROWN, "👑")
+PE_DIAMOND = PE(EMOJI_DIAMOND, "💎")
+PE_STAR = PE(EMOJI_STAR, "⭐")
+PE_GIFT = PE(EMOJI_GIFT, "🎁")
+PE_FIRE = PE(EMOJI_FIRE, "🔥")
+PE_SEARCH = PE(EMOJI_SEARCH, "🔍")
+PE_PHONE = PE(EMOJI_PHONE, "📞")
+PE_BANK = PE(EMOJI_BANK, "🏦")
+PE_LINK = PE(EMOJI_LINK, "🔗")
+PE_CAR = PE(EMOJI_CAR, "🚘")
+PE_CARD = PE(EMOJI_CARD, "🪪")
+PE_USER = PE(EMOJI_USER, "👤")
+PE_INDIA = PE(EMOJI_INDIA, "🇮🇳")
+PE_PAK = PE(EMOJI_PAK, "🇵🇰")
+PE_PHONE2 = PE(EMOJI_PHONE2, "📲")
+PE_INVITE = PE(EMOJI_INVITE, "👥")
+PE_TICKET = PE(EMOJI_TICKET, "🎫")
+PE_CREDIT = PE(EMOJI_CREDIT, "💰")
+PE_REFRESH = PE(EMOJI_REFRESH, "🔄")
+PE_CLOCK = PE(EMOJI_CLOCK, "⏱")
+PE_BOLT = PE(EMOJI_BOLT, "⚡")
+PE_GREEN = PE(EMOJI_GREEN, "🟩")
+PE_BLACK = PE(EMOJI_BLACK, "⬛")
+PE_SPARKLE = PE(EMOJI_SPARKLE, "✨")
+PE_ROCKET = PE(EMOJI_ROCKET, "🚀")
+PE_TOOLS = PE(EMOJI_TOOLS, "🛠️")
+PE_DISABLED = PE(EMOJI_DISABLED, "📴")
+PE_FATHER = PE(EMOJI_FATHER, "👨")
+PE_LOCATION = PE(EMOJI_LOCATION, "📍")
+PE_HOME = PE(EMOJI_HOME, "🏠")
+PE_STATE = PE(EMOJI_STATE, "🏛")
+PE_NETWORK = PE(EMOJI_NETWORK, "📡")
+PE_SIGNAL = PE(EMOJI_SIGNAL, "📶")
+PE_SIM = PE(EMOJI_SIM, "💳")
+PE_CHART = PE(EMOJI_CHART, "📊")
+PE_PRIMARY = PE(EMOJI_PRIMARY, "🔵")
+PE_SUCCESS = PE(EMOJI_SUCCESS, "🟢")
+PE_DANGER = PE(EMOJI_DANGER, "🔴")
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -1033,8 +1033,8 @@ async def run_query(event, mode, query):
 
 async def main():
     print("Hex Terminal FINAL Version")
-    print("ALL Premium Emoji IDs - Colored Buttons + Text Emojis")
-    print("NO Verification - All features working")
+    print("ALL Premium Emojis Working with Fallbacks")
+    print("Same method as colored buttons")
     
     try:
         subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4"], capture_output=True, timeout=30)
