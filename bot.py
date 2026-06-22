@@ -1,4 +1,4 @@
-# bot.py - Telethon Version with ONLY Premium Emoji IDs
+# bot.py - Hex Terminal with ONLY Premium Emoji IDs
 
 import logging
 import asyncio
@@ -13,33 +13,18 @@ import os
 import sys
 from datetime import datetime, timedelta
 
-# Fix: Proper Telethon import with event loop handling
+# Fix: Proper Telethon import
 try:
     from telethon import TelegramClient, events, functions
     from telethon.tl import types
     from telethon.tl.types import (
         KeyboardButton, KeyboardButtonRow, ReplyKeyboardMarkup,
-        Message
+        Message, KeyboardButtonStyle
     )
-    # Try to import KeyboardButtonStyle (only available in master branch)
-    try:
-        from telethon.tl.types import KeyboardButtonStyle
-        HAS_BUTTON_STYLE = True
-    except ImportError:
-        HAS_BUTTON_STYLE = False
-        # Create a dummy class if not available
-        class KeyboardButtonStyle:
-            def __init__(self, bg_primary=False, bg_success=False, bg_danger=False, icon=None):
-                self.bg_primary = bg_primary
-                self.bg_success = bg_success
-                self.bg_danger = bg_danger
-                self.icon = icon
-        types.KeyboardButtonStyle = KeyboardButtonStyle
-except ImportError as e:
-    print(f"Import error: {e}")
+    HAS_BUTTON_STYLE = True
+except ImportError:
     print("Installing Telethon from master branch...")
     subprocess.run([sys.executable, "-m", "pip", "install", "git+https://github.com/LonamiWebs/Telethon.git"])
-    # Retry import after installation
     from telethon import TelegramClient, events, functions
     from telethon.tl import types
     from telethon.tl.types import (
@@ -60,7 +45,7 @@ CHANNEL_2_ID = int(os.environ.get('CHANNEL_2_ID', '-1003806004135'))
 LINK_1 = os.environ.get('LINK_1', 'https://t.me/+dP7xLb3AoE1jNmRl')
 LINK_2 = os.environ.get('LINK_2', 'https://t.me/+9vuPcr9LJ8piODdl')
 
-FOOTER = "\n\n<b>⚡ ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC</b>"
+FOOTER = "\n\n⚡ ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC"
 SEP = "━━━━━━━━━━━━━━━━━━━"
 
 # APIs
@@ -85,7 +70,7 @@ AUTO_DELETE_TIME = 60
 BOT_NAME = "𝗛𝗲𝘅 𝗧𝗲𝗿𝗺𝗶𝗻𝗮𝗹"
 BOT_USERNAME = "Hex_Terminal_bot"
 
-# --- PREMIUM EMOJI IDs (ONLY PREMIUM - NO NORMAL EMOJIS) ---
+# --- PREMIUM EMOJI IDs ONLY (NO NORMAL EMOJIS) ---
 EMOJI_WARN = 6267039884016358504
 EMOJI_CHECK = 6267008582294705964
 EMOJI_CROSS = 6267000941547885720
@@ -131,60 +116,60 @@ EMOJI_PRIMARY = 5258096772776991776
 EMOJI_SUCCESS = 5258503720928288433
 EMOJI_DANGER = 5258331647358540449
 
-# Premium emoji helper - ONLY PREMIUM EMOJIS
-def PE(eid, fallback):
-    return f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
+# Premium emoji helper - ONLY IDs, NO EMOJIS
+def PE(eid):
+    return f'<tg-emoji emoji-id="{eid}"></tg-emoji>'
 
-# Pre-computed premium emoji strings (ONLY PREMIUM - NO NORMAL EMOJIS)
-PE_WARN = PE(EMOJI_WARN, "⚠️")
-PE_CHECK = PE(EMOJI_CHECK, "✅")
-PE_CROSS = PE(EMOJI_CROSS, "❌")
-PE_LOCK = PE(EMOJI_LOCK, "🔒")
-PE_CROWN = PE(EMOJI_CROWN, "👑")
-PE_DIAMOND = PE(EMOJI_DIAMOND, "💎")
-PE_STAR = PE(EMOJI_STAR, "⭐")
-PE_GIFT = PE(EMOJI_GIFT, "🎁")
-PE_FIRE = PE(EMOJI_FIRE, "🔥")
-PE_SEARCH = PE(EMOJI_SEARCH, "🔍")
-PE_PHONE = PE(EMOJI_PHONE, "📞")
-PE_BANK = PE(EMOJI_BANK, "🏦")
-PE_LINK = PE(EMOJI_LINK, "🔗")
-PE_CAR = PE(EMOJI_CAR, "🚘")
-PE_CARD = PE(EMOJI_CARD, "🪪")
-PE_USER = PE(EMOJI_USER, "👤")
-PE_INDIA = PE(EMOJI_INDIA, "🇮🇳")
-PE_PAK = PE(EMOJI_PAK, "🇵🇰")
-PE_PHONE2 = PE(EMOJI_PHONE2, "📲")
-PE_INVITE = PE(EMOJI_INVITE, "👥")
-PE_TICKET = PE(EMOJI_TICKET, "🎫")
-PE_CREDIT = PE(EMOJI_CREDIT, "💰")
-PE_REFRESH = PE(EMOJI_REFRESH, "🔄")
-PE_CLOCK = PE(EMOJI_CLOCK, "⏱")
-PE_BOLT = PE(EMOJI_BOLT, "⚡")
-PE_GREEN = PE(EMOJI_GREEN, "🟩")
-PE_BLACK = PE(EMOJI_BLACK, "⬛")
-PE_SPARKLE = PE(EMOJI_SPARKLE, "✨")
-PE_ROCKET = PE(EMOJI_ROCKET, "🚀")
-PE_TOOLS = PE(EMOJI_TOOLS, "🛠️")
-PE_DISABLED = PE(EMOJI_DISABLED, "📴")
-PE_FATHER = PE(EMOJI_FATHER, "👨")
-PE_LOCATION = PE(EMOJI_LOCATION, "📍")
-PE_HOME = PE(EMOJI_HOME, "🏠")
-PE_STATE = PE(EMOJI_STATE, "🏛")
-PE_NETWORK = PE(EMOJI_NETWORK, "📡")
-PE_SIGNAL = PE(EMOJI_SIGNAL, "📶")
-PE_SIM = PE(EMOJI_SIM, "💳")
-PE_CHART = PE(EMOJI_CHART, "📊")
-PE_PRIMARY = PE(EMOJI_PRIMARY, "🔵")
-PE_SUCCESS = PE(EMOJI_SUCCESS, "🟢")
-PE_DANGER = PE(EMOJI_DANGER, "🔴")
+# Pre-computed premium emoji strings (ONLY IDs - NO EMOJIS)
+PE_WARN = PE(EMOJI_WARN)
+PE_CHECK = PE(EMOJI_CHECK)
+PE_CROSS = PE(EMOJI_CROSS)
+PE_LOCK = PE(EMOJI_LOCK)
+PE_CROWN = PE(EMOJI_CROWN)
+PE_DIAMOND = PE(EMOJI_DIAMOND)
+PE_STAR = PE(EMOJI_STAR)
+PE_GIFT = PE(EMOJI_GIFT)
+PE_FIRE = PE(EMOJI_FIRE)
+PE_SEARCH = PE(EMOJI_SEARCH)
+PE_PHONE = PE(EMOJI_PHONE)
+PE_BANK = PE(EMOJI_BANK)
+PE_LINK = PE(EMOJI_LINK)
+PE_CAR = PE(EMOJI_CAR)
+PE_CARD = PE(EMOJI_CARD)
+PE_USER = PE(EMOJI_USER)
+PE_INDIA = PE(EMOJI_INDIA)
+PE_PAK = PE(EMOJI_PAK)
+PE_PHONE2 = PE(EMOJI_PHONE2)
+PE_INVITE = PE(EMOJI_INVITE)
+PE_TICKET = PE(EMOJI_TICKET)
+PE_CREDIT = PE(EMOJI_CREDIT)
+PE_REFRESH = PE(EMOJI_REFRESH)
+PE_CLOCK = PE(EMOJI_CLOCK)
+PE_BOLT = PE(EMOJI_BOLT)
+PE_GREEN = PE(EMOJI_GREEN)
+PE_BLACK = PE(EMOJI_BLACK)
+PE_SPARKLE = PE(EMOJI_SPARKLE)
+PE_ROCKET = PE(EMOJI_ROCKET)
+PE_TOOLS = PE(EMOJI_TOOLS)
+PE_DISABLED = PE(EMOJI_DISABLED)
+PE_FATHER = PE(EMOJI_FATHER)
+PE_LOCATION = PE(EMOJI_LOCATION)
+PE_HOME = PE(EMOJI_HOME)
+PE_STATE = PE(EMOJI_STATE)
+PE_NETWORK = PE(EMOJI_NETWORK)
+PE_SIGNAL = PE(EMOJI_SIGNAL)
+PE_SIM = PE(EMOJI_SIM)
+PE_CHART = PE(EMOJI_CHART)
+PE_PRIMARY = PE(EMOJI_PRIMARY)
+PE_SUCCESS = PE(EMOJI_SUCCESS)
+PE_DANGER = PE(EMOJI_DANGER)
 
-DISCLAIMER = f"\n\n<b>{PE_WARN} ᴅɪꜱᴄʟᴀɪᴍᴇʀ:</b>\n<i>ᴇᴅᴜᴄᴀᴛɪᴏɴᴀʟ ᴘᴜʀᴘᴏꜱᴇꜱ ᴏɴʟʏ. ᴜꜱᴇ ʀᴇꜱᴘᴏɴꜱɪʙʟʏ.</i>"
+DISCLAIMER = f"\n\n{PE_WARN} ᴅɪꜱᴄʟᴀɪᴍᴇʀ:\nᴇᴅᴜᴄᴀᴛɪᴏɴᴀʟ ᴘᴜʀᴘᴏꜱᴇꜱ ᴏɴʟʏ. ᴜꜱᴇ ʀᴇꜱᴘᴏɴꜱɪʙʟʏ."
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Create client with proper event loop
+# Create client
 client = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 ADMIN_STATE = {}
 
@@ -312,21 +297,14 @@ def get_settings():
 def save_settings(data):
     save_json(SETTINGS_FILE, data)
 
-# --- 🔍 VERIFY - FIXED ---
+# --- 🔍 VERIFY ---
 
 async def check_channels(uid):
     try:
-        # Get channel permissions
         m1 = await client.get_permissions(CHANNEL_1_ID, uid)
         m2 = await client.get_permissions(CHANNEL_2_ID, uid)
-        
-        # Check if user is member
-        is_member1 = m1.is_member if hasattr(m1, 'is_member') else m1.status in ['member', 'administrator', 'creator']
-        is_member2 = m2.is_member if hasattr(m2, 'is_member') else m2.status in ['member', 'administrator', 'creator']
-        
-        return is_member1 and is_member2
-    except Exception as e:
-        logger.error(f"Check channels error: {e}")
+        return m1.is_member and m2.is_member
+    except:
         return False
 
 # --- 🛠️ UTILS ---
@@ -391,18 +369,13 @@ def check_feature_maintenance(feature_key):
 # --- 🎨 COLORED REPLY BUTTONS ---
 
 def create_colored_button(text, bg_color, emoji_id):
-    if HAS_BUTTON_STYLE:
-        # Use real KeyboardButtonStyle if available
-        style = KeyboardButtonStyle(
-            bg_primary=bg_color == 'primary',
-            bg_success=bg_color == 'success',
-            bg_danger=bg_color == 'danger',
-            icon=emoji_id
-        )
-        return KeyboardButton(text=text, style=style)
-    else:
-        # Fallback: return normal button without style (Telethon stable version)
-        return KeyboardButton(text=text)
+    style = KeyboardButtonStyle(
+        bg_primary=bg_color == 'primary',
+        bg_success=bg_color == 'success',
+        bg_danger=bg_color == 'danger',
+        icon=emoji_id
+    )
+    return KeyboardButton(text=text, style=style)
 
 def create_main_menu(is_admin=False, settings=None):
     if settings is None:
@@ -724,7 +697,6 @@ async def admin_panel(event):
     s = get_settings()
     ms = lambda key: "🔴" if s.get(f"maint_{key}") else "🟢"
     
-    # Create inline keyboard for admin
     from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
     
     buttons = [
@@ -744,7 +716,6 @@ async def admin_panel(event):
         [KeyboardButtonCallback(text="❌ ᴄʟᴏꜱᴇ", data=b"ad_close")]
     ]
     
-    # Convert to KeyboardButtonRow
     rows = []
     for row in buttons:
         rows.append(KeyboardButtonRow(buttons=row))
@@ -752,7 +723,7 @@ async def admin_panel(event):
     markup = ReplyInlineMarkup(rows=rows)
     txt = f"<blockquote>{PE_CROWN} ᴀᴅᴍɪɴ ᴘᴀɴᴇʟ {PE_CROWN}</blockquote>\n<blockquote>{PE_INVITE} ᴜꜱᴇʀꜱ: {len(load_json(USERS_FILE))} | {PE_TICKET} ᴄᴏᴅᴇꜱ: {len(load_json(REDEEM_FILE))}</blockquote>"
     
-    if hasattr(event, 'data'):  # Callback query
+    if hasattr(event, 'data'):
         await event.edit(txt, buttons=markup)
     else:
         await send_message(event.chat_id, txt, reply_markup=markup)
@@ -852,7 +823,6 @@ async def start(event):
 
 async def show_verification_page(event):
     try:
-        # ONLY PREMIUM EMOJI IDs - NO NORMAL EMOJIS
         txt = (
             f"<b>{PE_DIAMOND} {BOT_NAME} {PE_DIAMOND}</b>\n"
             f"<b>@{BOT_USERNAME}</b>\n\n"
@@ -869,10 +839,8 @@ async def show_verification_page(event):
             f"<i>{PE_WARN} ᴍɪꜱᴜꜱᴇ ᴍᴀʏ ʟᴇᴀᴅ ᴛᴏ ʟᴇɢᴀʟ ᴀᴄᴛɪᴏɴ</i>"
         )
         
-        # Create inline keyboard for verification - ONLY PREMIUM EMOJIS
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
         
-        # Premium emoji buttons - using premium emoji IDs
         button1 = KeyboardButtonCallback(
             text=f"{PE_PRIMARY} ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷",
             data=b"url1"
@@ -900,8 +868,6 @@ async def show_verification_page(event):
 async def verify_cb(event):
     try:
         uid = event.sender_id
-        
-        # Check if user is in both channels
         if await check_channels(uid):
             user = get_user(uid)
             user["verified"] = True
@@ -911,7 +877,6 @@ async def verify_cb(event):
                 await event.delete()
             except:
                 pass
-            # Send main menu
             await main_menu(event)
         else:
             await event.answer(f"{PE_CROSS} ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ꜰɪʀꜱᴛ!", alert=True)
@@ -927,7 +892,6 @@ async def handle_url_callback(event):
         await event.answer(f"{PE_LINK} ᴊᴏɪɴ: {LINK_2}", alert=True)
 
 async def main_menu(event):
-    """Send main menu with colored reply buttons"""
     is_admin = event.sender_id == ADMIN_ID
     user = get_user(event.sender_id)
     s = get_settings()
@@ -969,7 +933,6 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
-        # Admin state handling
         if uid == ADMIN_ID and uid in ADMIN_STATE:
             state = ADMIN_STATE.pop(uid)
             if state == "gen":
@@ -1003,7 +966,6 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(msg))
                 return
         
-        # Check verification
         user = get_user(uid)
         if not user.get("verified"):
             if await check_channels(uid):
@@ -1015,12 +977,10 @@ async def msg_handler(event):
                 await show_verification_page(event)
                 return
         
-        # Handle admin panel button
         if txt == "👑 ᴀᴅᴍɪɴ ᴘᴀɴᴇʟ":
             await admin_panel(event)
             return
         
-        # Handle redeem mode
         if hasattr(event, 'redeem_mode') and event.redeem_mode:
             event.redeem_mode = False
             if txt.upper().startswith("HEX-"):
@@ -1031,7 +991,6 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
-        # Feature buttons mapping
         mode = None
         feature_map = {
             "📱 ᴛɢ ɪᴅ ➜ 📞 ɴᴜᴍʙᴇʀ 🔍": ("TG", "tgid"),
@@ -1064,7 +1023,6 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(m, 30))
                 return
             
-            # Check if feature is enabled
             if feature and not s.get(f"{feature}_enabled", True):
                 m = await send_message(event.chat_id, f"<blockquote>{PE_DISABLED} Disabled</blockquote>")
                 asyncio.create_task(schedule_delete(m))
@@ -1077,7 +1035,6 @@ async def msg_handler(event):
                     asyncio.create_task(schedule_delete(m))
                     return
             
-            # Set mode and prompt for input
             event.mode = mode
             prompts = {
                 "TG": f"<blockquote>{PE_PHONE} ᴛᴇʟᴇɢʀᴀᴍ ɪᴅ ᴛᴏ ᴘʜᴏɴᴇ ɴᴜᴍʙᴇʀ</blockquote>\n<i>7123181749, 6884112825</i>",
@@ -1096,7 +1053,6 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(m))
             return
         
-        # Handle query mode
         if hasattr(event, 'mode') and event.mode:
             mode = event.mode
             if txt.upper().startswith("HEX-"):
@@ -1199,29 +1155,19 @@ async def run_query(event, mode, query):
 
 async def main():
     print("Hex Terminal Premium (Telethon Version)...")
-    print(f"{PE_CHECK} {BOT_NAME} Ready!")
-    if HAS_BUTTON_STYLE:
-        print(f"{PE_DIAMOND} Colored Reply Buttons with Premium Emojis ENABLED")
-    else:
-        print(f"{PE_WARN} Colored buttons not available (using Telethon stable)")
-        print(f"{PE_WARN} Install Telethon master branch for colored buttons")
-    print(f"{PE_STAR} All premium emoji IDs are working")
-    print(f"{PE_LOCK} NO NORMAL EMOJIS - ONLY PREMIUM EMOJI IDs")
+    print("ONLY Premium Emoji IDs - NO Normal Emojis")
+    print("All features preserved")
     
-    # Install dependencies if needed
     try:
         subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4"], capture_output=True, timeout=30)
     except:
         pass
     
-    # Start client and run
     await client.start(bot_token=BOT_TOKEN)
     await client.run_until_disconnected()
 
-# Fix: Properly handle event loop for Railway
 if __name__ == '__main__':
     try:
-        # Get or create event loop
         loop = asyncio.get_event_loop()
         if loop.is_closed():
             loop = asyncio.new_event_loop()
@@ -1229,7 +1175,6 @@ if __name__ == '__main__':
         loop.run_until_complete(main())
     except RuntimeError as e:
         if "event loop" in str(e).lower():
-            # Create new loop if there's an issue
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             loop.run_until_complete(main())
