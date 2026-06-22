@@ -1,4 +1,4 @@
-# bot.py - Telethon Version with Fixed Event Loop
+# bot.py - Telethon Version with ONLY Premium Emoji IDs
 
 import logging
 import asyncio
@@ -85,7 +85,7 @@ AUTO_DELETE_TIME = 60
 BOT_NAME = "𝗛𝗲𝘅 𝗧𝗲𝗿𝗺𝗶𝗻𝗮𝗹"
 BOT_USERNAME = "Hex_Terminal_bot"
 
-# --- PREMIUM EMOJI IDs ---
+# --- PREMIUM EMOJI IDs (ONLY PREMIUM - NO NORMAL EMOJIS) ---
 EMOJI_WARN = 6267039884016358504
 EMOJI_CHECK = 6267008582294705964
 EMOJI_CROSS = 6267000941547885720
@@ -131,11 +131,11 @@ EMOJI_PRIMARY = 5258096772776991776
 EMOJI_SUCCESS = 5258503720928288433
 EMOJI_DANGER = 5258331647358540449
 
-# Premium emoji helper
+# Premium emoji helper - ONLY PREMIUM EMOJIS
 def PE(eid, fallback):
     return f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
-# Pre-computed premium emoji strings
+# Pre-computed premium emoji strings (ONLY PREMIUM - NO NORMAL EMOJIS)
 PE_WARN = PE(EMOJI_WARN, "⚠️")
 PE_CHECK = PE(EMOJI_CHECK, "✅")
 PE_CROSS = PE(EMOJI_CROSS, "❌")
@@ -312,14 +312,21 @@ def get_settings():
 def save_settings(data):
     save_json(SETTINGS_FILE, data)
 
-# --- 🔍 VERIFY ---
+# --- 🔍 VERIFY - FIXED ---
 
 async def check_channels(uid):
     try:
+        # Get channel permissions
         m1 = await client.get_permissions(CHANNEL_1_ID, uid)
         m2 = await client.get_permissions(CHANNEL_2_ID, uid)
-        return m1.is_member and m2.is_member
-    except:
+        
+        # Check if user is member
+        is_member1 = m1.is_member if hasattr(m1, 'is_member') else m1.status in ['member', 'administrator', 'creator']
+        is_member2 = m2.is_member if hasattr(m2, 'is_member') else m2.status in ['member', 'administrator', 'creator']
+        
+        return is_member1 and is_member2
+    except Exception as e:
+        logger.error(f"Check channels error: {e}")
         return False
 
 # --- 🛠️ UTILS ---
@@ -845,7 +852,7 @@ async def start(event):
 
 async def show_verification_page(event):
     try:
-        bot = await client.get_me()
+        # ONLY PREMIUM EMOJI IDs - NO NORMAL EMOJIS
         txt = (
             f"<b>{PE_DIAMOND} {BOT_NAME} {PE_DIAMOND}</b>\n"
             f"<b>@{BOT_USERNAME}</b>\n\n"
@@ -862,14 +869,28 @@ async def show_verification_page(event):
             f"<i>{PE_WARN} ᴍɪꜱᴜꜱᴇ ᴍᴀʏ ʟᴇᴀᴅ ᴛᴏ ʟᴇɢᴀʟ ᴀᴄᴛɪᴏɴ</i>"
         )
         
-        # Create inline keyboard for verification
+        # Create inline keyboard for verification - ONLY PREMIUM EMOJIS
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        buttons = [
-            KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="📢 ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷", data=b"url1")]),
-            KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="📢 ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟸", data=b"url2")]),
-            KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="✅ ɪ'ᴠᴇ ᴊᴏɪɴᴇᴅ - ᴠᴇʀɪꜰʏ", data=b"verify")])
-        ]
-        markup = ReplyInlineMarkup(rows=buttons)
+        
+        # Premium emoji buttons - using premium emoji IDs
+        button1 = KeyboardButtonCallback(
+            text=f"{PE_PRIMARY} ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷",
+            data=b"url1"
+        )
+        button2 = KeyboardButtonCallback(
+            text=f"{PE_SUCCESS} ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟸",
+            data=b"url2"
+        )
+        button3 = KeyboardButtonCallback(
+            text=f"{PE_CHECK} ɪ'ᴠᴇ ᴊᴏɪɴᴇᴅ - ᴠᴇʀɪꜰʏ",
+            data=b"verify"
+        )
+        
+        markup = ReplyInlineMarkup(rows=[
+            KeyboardButtonRow(buttons=[button1]),
+            KeyboardButtonRow(buttons=[button2]),
+            KeyboardButtonRow(buttons=[button3])
+        ])
         
         await send_message(event.chat_id, txt, reply_markup=markup)
     except Exception as e:
@@ -877,26 +898,33 @@ async def show_verification_page(event):
 
 @client.on(events.CallbackQuery(data=b"verify"))
 async def verify_cb(event):
-    if await check_channels(event.sender_id):
-        user = get_user(event.sender_id)
-        user["verified"] = True
-        save_user(event.sender_id, user)
-        await event.answer("✅ Verified!")
-        try:
-            await event.delete()
-        except:
-            pass
-        # Send main menu
-        await main_menu(event)
-    else:
-        await event.answer("❌ Join both channels first!", alert=True)
+    try:
+        uid = event.sender_id
+        
+        # Check if user is in both channels
+        if await check_channels(uid):
+            user = get_user(uid)
+            user["verified"] = True
+            save_user(uid, user)
+            await event.answer(f"{PE_CHECK} ᴠᴇʀɪꜰɪᴇᴅ!", alert=True)
+            try:
+                await event.delete()
+            except:
+                pass
+            # Send main menu
+            await main_menu(event)
+        else:
+            await event.answer(f"{PE_CROSS} ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ꜰɪʀꜱᴛ!", alert=True)
+    except Exception as e:
+        logger.error(f"Verify callback error: {e}")
+        await event.answer(f"{PE_CROSS} ᴇʀʀᴏʀ, ᴛʀʏ ᴀɢᴀɪɴ", alert=True)
 
 @client.on(events.CallbackQuery)
 async def handle_url_callback(event):
     if event.data == b"url1":
-        await event.answer(f"📢 Join: {LINK_1}", alert=True)
+        await event.answer(f"{PE_LINK} ᴊᴏɪɴ: {LINK_1}", alert=True)
     elif event.data == b"url2":
-        await event.answer(f"📢 Join: {LINK_2}", alert=True)
+        await event.answer(f"{PE_LINK} ᴊᴏɪɴ: {LINK_2}", alert=True)
 
 async def main_menu(event):
     """Send main menu with colored reply buttons"""
@@ -1170,7 +1198,7 @@ async def run_query(event, mode, query):
 # --- 🚀 START ---
 
 async def main():
-    print("🔄 Hex Terminal Premium (Telethon Version)...")
+    print("Hex Terminal Premium (Telethon Version)...")
     print(f"{PE_CHECK} {BOT_NAME} Ready!")
     if HAS_BUTTON_STYLE:
         print(f"{PE_DIAMOND} Colored Reply Buttons with Premium Emojis ENABLED")
@@ -1178,6 +1206,7 @@ async def main():
         print(f"{PE_WARN} Colored buttons not available (using Telethon stable)")
         print(f"{PE_WARN} Install Telethon master branch for colored buttons")
     print(f"{PE_STAR} All premium emoji IDs are working")
+    print(f"{PE_LOCK} NO NORMAL EMOJIS - ONLY PREMIUM EMOJI IDs")
     
     # Install dependencies if needed
     try:
