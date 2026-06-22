@@ -12,8 +12,13 @@ import logging
 from datetime import datetime, timedelta
 from telethon import TelegramClient, events, types, functions
 from telethon.tl.types import (
-    KeyboardButton, KeyboardButtonRow, ReplyKeyboardMarkup,
-    KeyboardButtonStyle, InlineKeyboardButton, InlineKeyboardMarkup
+    KeyboardButton,
+    KeyboardButtonRow,
+    ReplyKeyboardMarkup,
+    KeyboardButtonStyle,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    ReplyInlineMarkup
 )
 from telethon.tl.functions.messages import SendMessageRequest
 from telethon.errors import FloodWaitError
@@ -21,7 +26,7 @@ from telethon.errors import FloodWaitError
 # --- ⚙️ CONFIGURATION ---
 API_ID = int(os.environ.get('API_ID', 37996037))
 API_HASH = os.environ.get('API_HASH', '47ee9fa07b5eeb865edb3d79ada726a5')
-BOT_TOKEN = os.environ.get('BOT_TOKEN', '8687617595:AAGcgsclpi0waOdvOCYblCwJ2-g7KFVoQIc')
+BOT_TOKEN = os.environ.get('BOT_TOKEN', 'YOUR_BOT_TOKEN_HERE')
 ADMIN_ID = int(os.environ.get('ADMIN_ID', '7898928200'))
 
 CHANNEL_1_ID = int(os.environ.get('CHANNEL_1_ID', '-1003240507339'))
@@ -55,7 +60,7 @@ AUTO_DELETE_TIME = 60
 BOT_NAME = "𝗛𝗲𝘅 𝗧𝗲𝗿𝗺𝗶𝗻𝗮𝗹"
 BOT_USERNAME = "Hex_Terminal_bot"
 
-# --- ✨ PREMIUM EMOJI IDs (ONLY PREMIUM) ---
+# --- ✨ PREMIUM EMOJI IDs (ONLY PREMIUM - NO NORMAL EMOJIS) ---
 class PE:
     WARN = 6267039884016358504
     CHECK = 6267008582294705964
@@ -128,7 +133,7 @@ class PE:
     ZAP = 5293105696191372779
     ZOOM = 5254451205458872103
 
-# --- 📱 Color Button Styles ---
+# --- 📱 Color Button Styles (ONLY PREMIUM EMOJIS) ---
 class ButtonStyles:
     @staticmethod
     def primary(text, icon=None):
@@ -323,7 +328,7 @@ def format_text_with_emoji(text, emoji_id, fallback=""):
 def emoji_text(emoji_id, fallback=""):
     return f'<tg-emoji emoji-id="{emoji_id}">{fallback}</tg-emoji>'
 
-# --- 🎨 Premium Reply Keyboard Builder ---
+# --- 🎨 Premium Reply Keyboard Builder (ONLY PREMIUM EMOJIS) ---
 class PremiumKeyboard:
     @staticmethod
     def build_main_menu(user, is_admin=False):
@@ -840,10 +845,9 @@ class HexTerminalBot:
         self.client.add_event_handler(self.start_handler, events.NewMessage(pattern='/start'))
         self.client.add_event_handler(self.callback_handler, events.CallbackQuery)
         self.client.add_event_handler(self.message_handler, events.NewMessage)
-        self.client.add_event_handler(self.button_handler, events.NewMessage)
         
         print("✨ Hex Terminal Premium Bot Started!")
-        print("🎨 Using Premium Emojis & Colored Buttons")
+        print("🎨 Using ONLY Premium Emojis & Colored Buttons")
         print("📱 Bot is running...")
         await self.client.run_until_disconnected()
 
@@ -1078,6 +1082,129 @@ class HexTerminalBot:
             parse_mode='html'
         )
 
+    async def message_handler(self, event):
+        try:
+            uid = event.sender_id
+            text = event.message.text
+            
+            # Skip commands
+            if text.startswith('/'):
+                return
+            
+            # Handle redeem code
+            if text.upper().startswith("HEX-"):
+                success, msg = redeem_code(uid, text)
+                await send_with_delete(
+                    self.client,
+                    event.chat_id,
+                    msg,
+                    parse_mode='html'
+                )
+                return
+            
+            # Check for admin states
+            if uid == ADMIN_ID and uid in self.admin_states:
+                state = self.admin_states.pop(uid)
+                if state == "gen":
+                    try:
+                        cr = int(text)
+                        code = generate_redeem_code(cr)
+                        await send_with_delete(
+                            self.client,
+                            event.chat_id,
+                            f"✅ <code>{code}</code> | 💰 {cr}cr",
+                            parse_mode='html'
+                        )
+                    except:
+                        await send_with_delete(
+                            self.client,
+                            event.chat_id,
+                            f"❌ ɪɴᴠᴀʟɪᴅ ɴᴜᴍʙᴇʀ",
+                            parse_mode='html'
+                        )
+                    return
+                
+                elif state == "credit":
+                    parts = text.split()
+                    if len(parts) >= 2:
+                        bal = add_credits(parts[0], int(parts[1]))
+                        await send_with_delete(
+                            self.client,
+                            event.chat_id,
+                            f"✅ +{parts[1]} | {bal}",
+                            parse_mode='html'
+                        )
+                    else:
+                        await send_with_delete(
+                            self.client,
+                            event.chat_id,
+                            f"❌ Format: ID AMOUNT",
+                            parse_mode='html'
+                        )
+                    return
+                
+                elif state == "bcast":
+                    users = load_json(USERS_FILE)
+                    cnt = 0
+                    for u in users:
+                        try:
+                            await self.client.send_message(int(u), f"⚡ {text}")
+                            cnt += 1
+                        except:
+                            pass
+                    await send_with_delete(
+                        self.client,
+                        event.chat_id,
+                        f"✅ Sent: {cnt}",
+                        parse_mode='html'
+                    )
+                    return
+            
+            # Check for user state (query mode)
+            if uid in self.user_states:
+                mode = self.user_states.pop(uid)
+                
+                # Handle redeem mode
+                if mode == "REDEEM":
+                    if text.upper().startswith("HEX-"):
+                        success, msg = redeem_code(uid, text)
+                        await send_with_delete(
+                            self.client,
+                            event.chat_id,
+                            msg,
+                            parse_mode='html'
+                        )
+                    else:
+                        await send_with_delete(
+                            self.client,
+                            event.chat_id,
+                            f"❌ ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ",
+                            parse_mode='html'
+                        )
+                    return
+                
+                # Check credits
+                user = get_user(uid)
+                if user.get("credits", 0) <= 0:
+                    await send_with_delete(
+                        self.client,
+                        event.chat_id,
+                        f"❌ ɴᴏ ᴄʀᴇᴅɪᴛꜱ! +10 ᴅᴀɪʟʏ | +3 ɪɴᴠɪᴛᴇ",
+                        parse_mode='html'
+                    )
+                    return
+                
+                # Run the query
+                await self.run_query(event, mode, text)
+            
+            # Handle button presses (only for non-command messages)
+            else:
+                # Check if it's a button press
+                await self.button_handler(event)
+                
+        except Exception as e:
+            logging.error(f"Message handler error: {e}")
+
     async def button_handler(self, event):
         """Handle button clicks from reply keyboard"""
         try:
@@ -1091,12 +1218,12 @@ class HexTerminalBot:
                 return
             
             # Handle redeem code
-            if text.startswith("HEX-"):
+            if text.upper().startswith("HEX-"):
                 success, msg = redeem_code(uid, text)
                 await send_with_delete(
                     self.client,
                     event.chat_id,
-                    f"{msg}",
+                    msg,
                     parse_mode='html'
                 )
                 return
@@ -1217,113 +1344,6 @@ class HexTerminalBot:
             
         except Exception as e:
             logging.error(f"Button handler error: {e}")
-
-    async def message_handler(self, event):
-        try:
-            uid = event.sender_id
-            text = event.message.text
-            
-            # Skip if it's a command or button (handled by other handlers)
-            if text.startswith('/') or text.startswith('HEX-'):
-                return
-            
-            # Check for admin states
-            if uid == ADMIN_ID and uid in self.admin_states:
-                state = self.admin_states.pop(uid)
-                if state == "gen":
-                    try:
-                        cr = int(text)
-                        code = generate_redeem_code(cr)
-                        await send_with_delete(
-                            self.client,
-                            event.chat_id,
-                            f"✅ <code>{code}</code> | 💰 {cr}cr",
-                            parse_mode='html'
-                        )
-                    except:
-                        await send_with_delete(
-                            self.client,
-                            event.chat_id,
-                            f"❌ ɪɴᴠᴀʟɪᴅ ɴᴜᴍʙᴇʀ",
-                            parse_mode='html'
-                        )
-                    return
-                
-                elif state == "credit":
-                    parts = text.split()
-                    if len(parts) >= 2:
-                        bal = add_credits(parts[0], int(parts[1]))
-                        await send_with_delete(
-                            self.client,
-                            event.chat_id,
-                            f"✅ +{parts[1]} | {bal}",
-                            parse_mode='html'
-                        )
-                    else:
-                        await send_with_delete(
-                            self.client,
-                            event.chat_id,
-                            f"❌ Format: ID AMOUNT",
-                            parse_mode='html'
-                        )
-                    return
-                
-                elif state == "bcast":
-                    users = load_json(USERS_FILE)
-                    cnt = 0
-                    for u in users:
-                        try:
-                            await self.client.send_message(int(u), f"⚡ {text}")
-                            cnt += 1
-                        except:
-                            pass
-                    await send_with_delete(
-                        self.client,
-                        event.chat_id,
-                        f"✅ Sent: {cnt}",
-                        parse_mode='html'
-                    )
-                    return
-            
-            # Check for user state (query mode)
-            if uid in self.user_states:
-                mode = self.user_states.pop(uid)
-                
-                # Handle redeem mode
-                if mode == "REDEEM":
-                    if text.upper().startswith("HEX-"):
-                        success, msg = redeem_code(uid, text)
-                        await send_with_delete(
-                            self.client,
-                            event.chat_id,
-                            msg,
-                            parse_mode='html'
-                        )
-                    else:
-                        await send_with_delete(
-                            self.client,
-                            event.chat_id,
-                            f"❌ ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ",
-                            parse_mode='html'
-                        )
-                    return
-                
-                # Check credits
-                user = get_user(uid)
-                if user.get("credits", 0) <= 0:
-                    await send_with_delete(
-                        self.client,
-                        event.chat_id,
-                        f"❌ ɴᴏ ᴄʀᴇᴅɪᴛꜱ! +10 ᴅᴀɪʟʏ | +3 ɪɴᴠɪᴛᴇ",
-                        parse_mode='html'
-                    )
-                    return
-                
-                # Run the query
-                await self.run_query(event, mode, text)
-            
-        except Exception as e:
-            logging.error(f"Message handler error: {e}")
 
     async def run_query(self, event, mode, query):
         try:
