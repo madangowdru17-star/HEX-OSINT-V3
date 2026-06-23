@@ -48,7 +48,7 @@ CHANNEL_2_ID = int(os.environ.get('CHANNEL_2_ID', '-1003806004135'))
 LINK_1 = os.environ.get('LINK_1', 'https://t.me/+dP7xLb3AoE1jNmRl')
 LINK_2 = os.environ.get('LINK_2', 'https://t.me/+9vuPcr9LJ8piODdl')
 
-FOOTER = "\n\n⚡ ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC"
+FOOTER = "\n\n{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}"
 SEP = "━━━━━━━━━━━━━━━━━━━"
 
 # APIs
@@ -58,7 +58,6 @@ SHORTLINK_API = "https://link-btpass.onrender.com/bypass?key=9c44ad66b95cef8aecd
 GST_API = "https://gst-0y-vishal.vercel.app/api/gst.js?gstNumber="
 PAK_API = "https://api-server-virid-two.vercel.app/number="
 IND_NUM_API = "https://all-number-info-rajan-eta.vercel.app/api?number="
-IND_NUM_API_3 = "https://exploitsindia.site/track/live.php?term="
 
 VERIFY_SCRIPT = "verify_india.py"
 
@@ -73,10 +72,9 @@ AUTO_DELETE_TIME = 60
 BOT_NAME = "𝗛𝗲𝘅 𝗢𝗦𝗜𝗡𝗧 𝗕𝗼𝘁"
 BOT_USERNAME = "Hex_Terminal_bot"
 
-# --- ALL NEW PREMIUM EMOJI IDs (UNIQUE) ---
+# --- ALL PREMIUM EMOJI IDs ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
-# New unique emoji IDs
 E_STAR = PE("6266969287638913443", "⭐")
 E_DIAMOND = PE("6264791387032523779", "💎")
 E_CROWN = PE("6267128480601741166", "👑")
@@ -85,11 +83,9 @@ E_CHECK = PE("6267008582294705964", "✅")
 E_CROSS = PE("6267000941547885720", "❌")
 E_WARN = PE("6267039884016358504", "⚠️")
 E_LOCK = PE("5316522278056399236", "🔒")
-E_UNLOCK = PE("5316661336058696622", "🔓")
 E_PHONE = PE("5947494995798789024", "📞")
 E_PHONE2 = PE("5406809207947142040", "📲")
 E_BANK = PE("5264895611517300926", "🏦")
-E_LINK = PE("5271604874419647061", "🔗")
 E_CAR = PE("5253752975997803460", "🚘")
 E_CARD = PE("5260561650213220533", "🪪")
 E_USER = PE("5249053508681883137", "👤")
@@ -114,39 +110,21 @@ E_SIM = PE("5800717980266403037", "💳")
 E_CHART = PE("6093382540784046658", "📊")
 E_SPARKLE = PE("5467683093693354332", "✨")
 E_ROCKET = PE("5195033767969839232", "🚀")
-E_MAGIC = PE("5467683093693354332", "🔮")
 E_STAR2 = PE("6266969287638913443", "🌟")
-E_FIRE2 = PE("6264785189394717307", "🔥")
 E_RAINBOW = PE("6266969287638913443", "🌈")
 E_TARGET = PE("5231012545799666522", "🎯")
 E_FLAG = PE("6284779941489812433", "🏁")
 E_KEY = PE("5316522278056399236", "🔑")
 E_HEART = PE("6264785189394717307", "❤️")
 E_GEAR = PE("5462921117423384478", "⚙️")
-E_MAIL = PE("5249053508681883137", "📧")
 E_GLOBE = PE("6284779941489812433", "🌐")
 E_COMPASS = PE("5391032818111363540", "🧭")
 E_BOOK = PE("5260561650213220533", "📖")
 E_BELL = PE("5382194935057372936", "🔔")
-E_MIC = PE("5406809207947142040", "🎤")
-E_CAMERA = PE("5253752975997803460", "📷")
-E_VIDEO = PE("5947494995798789024", "🎥")
-E_MUSIC = PE("6264785189394717307", "🎵")
-E_GAME = PE("5195033767969839232", "🎮")
-E_COFFEE = PE("5386367538735104399", "☕")
-E_CAKE = PE("5203996991054432397", "🎂")
-E_PIZZA = PE("6267068789146260253", "🍕")
-E_BURGER = PE("5280955052582785391", "🍔")
 E_PARTY = PE("5203996991054432397", "🎉")
-E_WAVE = PE("6147892053796725336", "👋")
-E_HANDSHAKE = PE("5244933196230972438", "🤝")
 E_TROPHY = PE("6267128480601741166", "🏆")
 E_MEDAL = PE("6264791387032523779", "🏅")
 E_SHIELD = PE("5316522278056399236", "🛡️")
-E_SWORD = PE("6264785189394717307", "⚔️")
-E_DAGGER = PE("6267039884016358504", "🗡️")
-E_SKULL = PE("6267000941547885720", "💀")
-E_GHOST = PE("5231012545799666522", "👻")
 E_ROBOT = PE("5462921117423384478", "🤖")
 E_CYBER = PE("5321141214735508486", "💻")
 E_WIFI = PE("6147892053796725336", "📶")
@@ -154,28 +132,31 @@ E_CLOUD = PE("5386367538735104399", "☁️")
 E_SUN = PE("6266969287638913443", "☀️")
 E_MOON = PE("5382194935057372936", "🌙")
 E_STARS = PE("5467683093693354332", "🌠")
-E_TREE = PE("5280955052582785391", "🌳")
-E_FLOWER = PE("5391032818111363540", "🌸")
-E_LEAF = PE("6264785189394717307", "🍃")
 E_OCEAN = PE("6284779941489812433", "🌊")
 E_MOUNTAIN = PE("5253752975997803460", "🏔️")
 E_CITY = PE("5388927107315283144", "🏙️")
 E_AIRPLANE = PE("5195033767969839232", "✈️")
-E_ROCKET2 = PE("5195033767969839232", "🚀")
 E_SATELLITE = PE("5321141214735508486", "🛰️")
 E_ALIEN = PE("5467683093693354332", "👽")
+E_MAGIC = PE("5467683093693354332", "🔮")
+E_WAVE = PE("6147892053796725336", "👋")
+E_HANDSHAKE = PE("5244933196230972438", "🤝")
+E_SWORD = PE("6264785189394717307", "⚔️")
+E_GHOST = PE("5231012545799666522", "👻")
+E_FLOWER = PE("5391032818111363540", "🌸")
+E_LEAF = PE("6264785189394717307", "🍃")
+E_COFFEE = PE("5386367538735104399", "☕")
+E_CAKE = PE("5203996991054432397", "🎂")
+E_PIZZA = PE("6267068789146260253", "🍕")
+E_BURGER = PE("5280955052582785391", "🍔")
 
 # --- BUTTON ICON IDs ---
-ICON_TG = 5947494995798789024
 ICON_IFSC = 5264895611517300926
-ICON_BYPASS = 5271604874419647061
 ICON_AADHAAR = 5260561650213220533
 ICON_INDIA = 6284779941489812433
 ICON_RC = 5253752975997803460
 ICON_GST = 5260561650213220533
 ICON_PAK = 5913705895375672082
-ICON_INDNUM = 5406809207947142040
-ICON_INDTRACK = 6284779941489812433
 ICON_INVITE = 5244933196230972438
 ICON_REDEEM = 5285515895534278367
 ICON_ADMIN = 6267128480601741166
@@ -291,20 +272,16 @@ def get_settings():
     except:
         d = {
             "bypass_maintenance": False,
-            "tgid_enabled": True,
             "ifsc_enabled": True,
-            "bypass_enabled": True,
             "mobile_enabled": True,
             "aadhaar_enabled": True,
             "rc_enabled": True,
             "gst_enabled": True,
             "pak_enabled": True,
-            "indnum_enabled": True,
-            "indnum3_enabled": True,
             "maintenance_mode": False,
             "page": 1
         }
-        for k in ["tgid", "ifsc", "bypass", "mobile", "aadhaar", "rc", "gst", "pak", "indnum", "indnum3"]:
+        for k in ["ifsc", "mobile", "aadhaar", "rc", "gst", "pak"]:
             d[f"maint_msg_{k}"] = f"{E_TOOLS} {k} is under maintenance."
             d[f"maint_{k}"] = False
         save_json(SETTINGS_FILE, d)
@@ -432,42 +409,28 @@ def create_main_menu(is_admin=False, settings=None):
     
     if page == 1:
         row1 = []
-        if settings.get("tgid_enabled", True):
-            row1.append(create_colored_button("TG ID Lookup", 'primary', ICON_TG))
         if settings.get("ifsc_enabled", True):
             row1.append(create_colored_button("IFSC Lookup", 'primary', ICON_IFSC))
+        if settings.get("aadhaar_enabled", True):
+            row1.append(create_colored_button("Aadhar Lookup", 'primary', ICON_AADHAAR))
         if row1:
             rows.append(KeyboardButtonRow(buttons=row1))
         
-        if settings.get("bypass_enabled", True):
-            rows.append(KeyboardButtonRow(buttons=[create_colored_button("Link Bypass", 'primary', ICON_BYPASS)]))
+        row2 = []
+        if settings.get("mobile_enabled", True):
+            row2.append(create_colored_button("India Number", 'primary', ICON_INDIA))
+        if settings.get("rc_enabled", True):
+            row2.append(create_colored_button("RC Check", 'primary', ICON_RC))
+        if row2:
+            rows.append(KeyboardButtonRow(buttons=row2))
         
         row3 = []
-        if settings.get("aadhaar_enabled", True):
-            row3.append(create_colored_button("Aadhar Lookup", 'primary', ICON_AADHAAR))
-        if settings.get("mobile_enabled", True):
-            row3.append(create_colored_button("India Number", 'primary', ICON_INDIA))
+        if settings.get("gst_enabled", True):
+            row3.append(create_colored_button("GST Verify", 'primary', ICON_GST))
+        if settings.get("pak_enabled", True):
+            row3.append(create_colored_button("Pakistan Number", 'primary', ICON_PAK))
         if row3:
             rows.append(KeyboardButtonRow(buttons=row3))
-        
-        row4 = []
-        if settings.get("rc_enabled", True):
-            row4.append(create_colored_button("RC Check", 'primary', ICON_RC))
-        if settings.get("gst_enabled", True):
-            row4.append(create_colored_button("GST Verify", 'primary', ICON_GST))
-        if row4:
-            rows.append(KeyboardButtonRow(buttons=row4))
-        
-        row5 = []
-        if settings.get("pak_enabled", True):
-            row5.append(create_colored_button("Pakistan Number", 'primary', ICON_PAK))
-        if settings.get("indnum_enabled", True):
-            row5.append(create_colored_button("India Number 2", 'primary', ICON_INDNUM))
-        if row5:
-            rows.append(KeyboardButtonRow(buttons=row5))
-        
-        if settings.get("indnum3_enabled", True):
-            rows.append(KeyboardButtonRow(buttons=[create_colored_button("India Tracking", 'primary', ICON_INDTRACK)]))
         
         rows.append(KeyboardButtonRow(buttons=[
             create_colored_button("Invite & Earn", 'primary', ICON_INVITE),
@@ -596,23 +559,6 @@ async def safe_api_fetch(session, url, timeout=20):
             await asyncio.sleep(1)
     return None
 
-async def chatid_lookup(session, query):
-    data = await safe_api_fetch(session, f"{LOOKUP_API}{query}")
-    if not data:
-        return f"{E_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
-    if isinstance(data, dict) and not data.get("raw_text") and data.get("success"):
-        d = data.get("data", data)
-        if isinstance(d, dict):
-            result = f"{E_SPARKLE} {E_PHONE} ᴛᴇʟᴇɢʀᴀᴍ ɪᴅ ɪɴꜰᴏ {E_SPARKLE}\n"
-            if d.get('chat_id') or d.get('userid'):
-                result += f"{E_SEARCH} ᴄʜᴀᴛ ɪᴅ: {d.get('chat_id', d.get('userid', query))}\n"
-            if d.get('number'):
-                result += f"{E_PHONE2} ᴘʜᴏɴᴇ: {d['number']}\n"
-            if d.get('name'):
-                result += f"{E_USER} ɴᴀᴍᴇ: {d['name']}\n"
-            return result
-    return f"{E_CROSS} ɴᴏᴛ ꜰᴏᴜɴᴅ"
-
 async def ifsc_lookup(session, code):
     data = await safe_api_fetch(session, f"{IFSC_API}{code.upper()}")
     if not data or isinstance(data, dict) and data.get("raw_text"):
@@ -624,18 +570,6 @@ async def ifsc_lookup(session, code):
                 f"{E_CARD} ɪꜰꜱᴄ: {data.get('IFSC',code.upper())}\n"
                 f"{E_LOCATION} ᴀᴅᴅʀᴇꜱꜱ: {data.get('ADDRESS','N/A')}")
     return f"{E_CROSS} ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ"
-
-async def bypass_lookup(session, link):
-    s = get_settings()
-    if s.get("bypass_maintenance", False):
-        return f"{E_TOOLS} ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ"
-    data = await safe_api_fetch(session, f"{SHORTLINK_API}{link}", timeout=20)
-    if not data or isinstance(data, dict) and data.get("raw_text"):
-        return f"{E_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
-    if isinstance(data, dict):
-        r = data.get('bypassed_url') or data.get('url') or str(data)
-        return f"{E_SPARKLE} {E_LINK} ʟɪɴᴋ ʙʏᴘᴀꜱꜱᴇᴅ {E_SPARKLE}\n{E_LINK} ᴜʀʟ: {str(r)}"
-    return f"{E_LINK} ʀᴇꜱᴜʟᴛ: {str(data)}"
 
 async def gst_lookup(session, gst_number):
     data = await safe_api_fetch(session, f"{GST_API}{gst_number.upper()}", timeout=20)
@@ -677,90 +611,24 @@ async def pakistan_lookup(session, number):
     except:
         return f"{E_CROSS} ᴇʀʀᴏʀ"
 
-async def indnum_lookup(session, number):
-    for attempt in range(3):
-        data = await safe_api_fetch(session, f"{IND_NUM_API}{number}", timeout=30)
-        if data and isinstance(data, dict) and not data.get("raw_text") and data.get("results"):
-            break
-        if attempt < 2:
-            await asyncio.sleep(2)
-    if not data or isinstance(data, dict) and data.get("raw_text"):
-        return f"{E_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
-    results = data.get("results", {})
-    if not results:
-        return f"{E_CROSS} ɴᴏ ʀᴇꜱᴜʟᴛꜱ"
-    result = f"{E_SPARKLE} {E_PHONE2} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴀᴅᴠᴀɴᴄᴇᴅ {E_SPARKLE}\n{E_PHONE2} ɴᴜᴍʙᴇʀ: {number}\n"
-    found = False
-    s3 = results.get("source_3", {}).get("data", {})
-    if isinstance(s3, dict):
-        for k, e in [("SIM card", E_SIM), ("Connection", E_SIGNAL), ("Mobile State", E_LOCATION), ("Hometown", E_HOME)]:
-            if s3.get(k):
-                result += f"{e} {k}: {str(s3[k])[:200]}\n"
-                found = True
-    s4 = results.get("source_4", {}).get("data", {})
-    if isinstance(s4, dict) and s4.get("carrier"):
-        result += f"{E_NETWORK} ᴄᴀʀʀɪᴇʀ: {s4['carrier']}\n"
-        found = True
-    return result if found else f"{E_CROSS} ɴᴏ ᴅᴀᴛᴀ"
-
-async def indnum3_lookup(session, number):
-    url = f"{IND_NUM_API_3}{number}"
-    try:
-        headers = {'User-Agent': 'Mozilla/5.0', 'Accept': '*/*'}
-        async with session.get(url, timeout=aiohttp.ClientTimeout(total=25), headers=headers, allow_redirects=True) as r:
-            text = await r.text()
-            if not text or len(text) < 20:
-                return f"{E_CROSS} ᴇᴍᴘᴛʏ ʀᴇꜱᴘᴏɴꜱᴇ"
-            try:
-                data = json.loads(text)
-                if isinstance(data, dict):
-                    result = f"{E_SPARKLE} {E_INDIA} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴛʀᴀᴄᴋɪɴɢ {E_SPARKLE}\n{E_PHONE2} ɴᴜᴍʙᴇʀ: {number}\n"
-                    for k, v in data.items():
-                        if v and str(v).strip():
-                            result += f"{E_SEARCH} {k}: {str(v)[:200]}\n"
-                    return result
-            except:
-                pass
-            clean = re.sub(r'<[^>]+>', '\n', text)
-            lines = [l.strip() for l in clean.split('\n') if l.strip() and len(l.strip()) > 1]
-            result = f"{E_SPARKLE} {E_INDIA} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴛʀᴀᴄᴋɪɴɢ {E_SPARKLE}\n{E_PHONE2} ɴᴜᴍʙᴇʀ: {number}\n"
-            found = 0
-            for line in lines[:20]:
-                if ':' in line:
-                    parts = line.split(':', 1)
-                    key, val = parts[0].strip(), parts[1].strip() if len(parts) > 1 else ''
-                    if val:
-                        e = E_USER if any(w in key.lower() for w in ['name', 'nama']) else E_NETWORK if any(w in key.lower() for w in ['carrier', 'operator', 'network', 'sim']) else E_LOCATION if any(w in key.lower() for w in ['location', 'address', 'city', 'state', 'area']) else E_PHONE2 if any(w in key.lower() for w in ['phone', 'mobile', 'number', 'no']) else E_SEARCH
-                        result += f"{e} {key}: {val[:200]}\n"
-                        found += 1
-            if found == 0:
-                result += f"{E_CARD} ʀᴀᴡ: {clean[:500]}\n"
-            return result
-    except:
-        return f"{E_CROSS} ᴛɪᴍᴇᴏᴜᴛ"
-
 # --- 👑 ADMIN ---
 
 async def admin_panel(event):
     if event.sender_id != ADMIN_ID:
         return
     s = get_settings()
-    ms = lambda key: f"{E_DANGER}" if s.get(f"maint_{key}") else f"{E_CHECK}"
+    ms = lambda key: f"{E_CROSS}" if s.get(f"maint_{key}") else f"{E_CHECK}"
     
     buttons = [
         [KeyboardButtonCallback(text="Generate Code", data=b"ad_gen"), KeyboardButtonCallback(text="List Codes", data=b"ad_codes")],
         [KeyboardButtonCallback(text="Add Credits", data=b"ad_credit"), KeyboardButtonCallback(text="Broadcast", data=b"ad_bcast")],
-        [KeyboardButtonCallback(text=f"{E_DANGER if s.get('maintenance_mode') else E_CHECK} Global", data=b"ad_maint")],
-        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('tgid_enabled',True) else E_DANGER} TG", data=b"ad_tgid"), KeyboardButtonCallback(text=f"{ms('tgid')} M", data=b"ad_maint_tgid")],
-        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('ifsc_enabled',True) else E_DANGER} IF", data=b"ad_ifsc"), KeyboardButtonCallback(text=f"{ms('ifsc')} M", data=b"ad_maint_ifsc")],
-        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('bypass_enabled',True) else E_DANGER} BY", data=b"ad_bypass_toggle"), KeyboardButtonCallback(text=f"{ms('bypass')} M", data=b"ad_maint_bypass")],
-        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('mobile_enabled',True) else E_DANGER} MO", data=b"ad_mobile"), KeyboardButtonCallback(text=f"{ms('mobile')} M", data=b"ad_maint_mobile")],
-        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('aadhaar_enabled',True) else E_DANGER} AA", data=b"ad_aadhaar"), KeyboardButtonCallback(text=f"{ms('aadhaar')} M", data=b"ad_maint_aadhaar")],
-        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('rc_enabled',True) else E_DANGER} RC", data=b"ad_rc"), KeyboardButtonCallback(text=f"{ms('rc')} M", data=b"ad_maint_rc")],
-        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('gst_enabled',True) else E_DANGER} GS", data=b"ad_gst"), KeyboardButtonCallback(text=f"{ms('gst')} M", data=b"ad_maint_gst")],
-        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('pak_enabled',True) else E_DANGER} PA", data=b"ad_pak"), KeyboardButtonCallback(text=f"{ms('pak')} M", data=b"ad_maint_pak")],
-        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('indnum_enabled',True) else E_DANGER} IN2", data=b"ad_indnum"), KeyboardButtonCallback(text=f"{ms('indnum')} M", data=b"ad_maint_indnum")],
-        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('indnum3_enabled',True) else E_DANGER} IN3", data=b"ad_indnum3"), KeyboardButtonCallback(text=f"{ms('indnum3')} M", data=b"ad_maint_indnum3")],
+        [KeyboardButtonCallback(text=f"{E_CROSS if s.get('maintenance_mode') else E_CHECK} Global", data=b"ad_maint")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('ifsc_enabled',True) else E_CROSS} IF", data=b"ad_ifsc"), KeyboardButtonCallback(text=f"{ms('ifsc')} M", data=b"ad_maint_ifsc")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('mobile_enabled',True) else E_CROSS} MO", data=b"ad_mobile"), KeyboardButtonCallback(text=f"{ms('mobile')} M", data=b"ad_maint_mobile")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('aadhaar_enabled',True) else E_CROSS} AA", data=b"ad_aadhaar"), KeyboardButtonCallback(text=f"{ms('aadhaar')} M", data=b"ad_maint_aadhaar")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('rc_enabled',True) else E_CROSS} RC", data=b"ad_rc"), KeyboardButtonCallback(text=f"{ms('rc')} M", data=b"ad_maint_rc")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('gst_enabled',True) else E_CROSS} GS", data=b"ad_gst"), KeyboardButtonCallback(text=f"{ms('gst')} M", data=b"ad_maint_gst")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('pak_enabled',True) else E_CROSS} PA", data=b"ad_pak"), KeyboardButtonCallback(text=f"{ms('pak')} M", data=b"ad_maint_pak")],
         [KeyboardButtonCallback(text="Close", data=b"ad_close")]
     ]
     
@@ -817,16 +685,12 @@ async def admin_callback(event):
         await admin_panel(event)
     elif d.startswith("ad_"):
         toggle_map = {
-            "ad_tgid": "tgid_enabled",
             "ad_ifsc": "ifsc_enabled",
-            "ad_bypass_toggle": "bypass_enabled",
             "ad_mobile": "mobile_enabled",
             "ad_aadhaar": "aadhaar_enabled",
             "ad_rc": "rc_enabled",
             "ad_gst": "gst_enabled",
-            "ad_pak": "pak_enabled",
-            "ad_indnum": "indnum_enabled",
-            "ad_indnum3": "indnum3_enabled"
+            "ad_pak": "pak_enabled"
         }
         if d in toggle_map:
             k = toggle_map[d]
@@ -907,6 +771,39 @@ async def handle_url_callback(event):
     elif event.data == b"url2":
         await event.answer(f"{E_LINK} ᴊᴏɪɴ: {LINK_2}", alert=True)
 
+async def welcome_message(event):
+    """Beautiful welcome message with Telegram Quote UI"""
+    user = event.sender
+    first_name = user.first_name or "User"
+    
+    welcome_text = (
+        f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
+        f"{E_WAVE} ᴡᴇʟᴄᴏᴍᴇ <b>{first_name}</b> {E_HEART}\n\n"
+        f"{E_COMPASS} ʏᴏᴜʀ ᴜʟᴛɪᴍᴀᴛᴇ ᴏꜱɪɴᴛ ᴛᴏᴏʟ\n"
+        f"{E_TARGET} ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴀᴅᴠᴀɴᴄᴇᴅ ᴀᴘɪꜱ\n"
+        f"{E_ROBOT} ꜱᴍᴀʀᴛ ᴅᴀᴛᴀ ʀᴇᴛʀɪᴇᴠᴀʟ\n\n"
+        f"<blockquote>{E_STAR2} ᴀʙᴏᴜᴛ ᴛʜɪꜱ ʙᴏᴛ</blockquote>\n"
+        f"{E_SHIELD} ꜱᴇᴄᴜʀᴇ & ʀᴇʟɪᴀʙʟᴇ\n"
+        f"{E_GLOBE} ɢʟᴏʙᴀʟ ᴅᴀᴛᴀ ᴀᴄᴄᴇꜱꜱ\n"
+        f"{E_CLOUD} ʀᴇᴀʟ-ᴛɪᴍᴇ ʟᴏᴏᴋᴜᴘꜱ\n"
+        f"{E_CYBER} ᴇɴᴄʀʏᴘᴛᴇᴅ ᴄᴏɴɴᴇᴄᴛɪᴏɴꜱ\n\n"
+        f"<blockquote>{E_GIFT} ʜᴏᴡ ᴛᴏ ᴜꜱᴇ</blockquote>\n"
+        f"{E_KEY} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ꜰʀᴏᴍ ᴍᴇɴᴜ\n"
+        f"{E_PHONE2} ᴇɴᴛᴇʀ ʏᴏᴜʀ Qᴜᴇʀʏ\n"
+        f"{E_BELL} ɢᴇᴛ ɪɴꜱᴛᴀɴᴛ ʀᴇꜱᴜʟᴛꜱ\n"
+        f"{E_PARTY} ᴇɴᴊᴏʏ ꜰʀᴇᴇ {DAILY_FREE_CREDITS} ᴄʀᴇᴅɪᴛꜱ ᴅᴀɪʟʏ\n\n"
+        f"<blockquote>{E_STAR} ꜰᴇᴀᴛᴜʀᴇꜱ</blockquote>\n"
+        f"{E_BANK} ɪꜰꜱᴄ ʟᴏᴏᴋᴜᴘ\n"
+        f"{E_CARD} ᴀᴀᴅʜᴀʀ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ\n"
+        f"{E_INDIA} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴅᴇᴛᴀɪʟꜱ\n"
+        f"{E_CAR} ᴠᴇʜɪᴄʟᴇ ʀᴄ ᴄʜᴇᴄᴋ\n"
+        f"{E_BOOK} ɢꜱᴛ ʙᴜꜱɪɴᴇꜱꜱ ɪɴꜰᴏ\n"
+        f"{E_PAK} ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ ʟᴏᴏᴋᴜᴘ\n\n"
+        f"{E_ROCKET} ꜱᴛᴀʀᴛ ᴇxᴘʟᴏʀɪɴɢ ɴᴏᴡ! {E_FIRE}"
+    )
+    
+    return welcome_text
+
 async def main_menu(event):
     is_admin = event.sender_id == ADMIN_ID
     user = get_user(event.sender_id)
@@ -921,21 +818,20 @@ async def main_menu(event):
     markup = create_main_menu(is_admin, s)
     cr = user.get("credits", 0)
     
-    txt = (
-        f"<blockquote>{E_DIAMOND} ᴘʀᴇᴍɪᴜᴍ ʜᴜʙ {E_DIAMOND}</blockquote>\n"
-        f"{E_USER} ᴡᴇʟᴄᴏᴍᴇ ʙᴀᴄᴋ, <b>{event.sender.first_name}</b>\n\n"
-        f"<blockquote>{E_CHART} ʏᴏᴜʀ ꜱᴛᴀᴛɪꜱᴛɪᴄꜱ</blockquote>\n"
+    # Show welcome message + stats
+    welcome = await welcome_message(event)
+    
+    stats = (
+        f"\n\n<blockquote>{E_CHART} ʏᴏᴜʀ ꜱᴛᴀᴛꜱ</blockquote>\n"
         f"{E_CREDIT} ᴄʀᴇᴅɪᴛꜱ: <b>{cr}</b>\n"
         f"{E_SEARCH} Qᴜᴇʀɪᴇꜱ: <b>{user.get('total_queries',0)}</b>\n"
         f"{E_USERS} ɪɴᴠɪᴛᴇꜱ: <b>{user.get('invites',0)}</b>\n\n"
-        f"<blockquote>{E_GIFT} ʀᴇᴡᴀʀᴅꜱ</blockquote>\n"
-        f"{E_REFRESH} +{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ ꜰʀᴇᴇ\n"
-        f"{E_USERS} +{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ\n"
-        f"{E_CLOCK} {AUTO_DELETE_TIME}ꜱ ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ\n\n"
         f"{E_STAR2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ {E_STAR2}"
     )
     
-    msg = await send_html(event.chat_id, txt, reply_markup=markup)
+    full_text = welcome + stats
+    
+    msg = await send_html(event.chat_id, full_text, reply_markup=markup)
     asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
 
 @client.on(events.NewMessage)
@@ -1025,16 +921,12 @@ async def msg_handler(event):
             return
         
         feature_map = {
-            "TG ID Lookup": ("TG", "tgid"),
             "IFSC Lookup": ("IFSC", "ifsc"),
-            "Link Bypass": ("SHORTLINK", "bypass"),
-            "India Number": ("MOBILE", "mobile"),
             "Aadhar Lookup": ("AADHAAR", "aadhaar"),
+            "India Number": ("MOBILE", "mobile"),
             "RC Check": ("VEHICLE", "rc"),
             "GST Verify": ("GST", "gst"),
             "Pakistan Number": ("PAK", "pak"),
-            "India Number 2": ("INDNUM", "indnum"),
-            "India Tracking": ("INDNUM3", "indnum3"),
             "Invite & Earn": ("INVITE", None),
             "Redeem Code": ("REDEEM", None)
         }
@@ -1070,16 +962,12 @@ async def msg_handler(event):
             USER_MODES[str(uid)] = mode
             
             prompts = {
-                "TG": f"{E_PHONE} ᴇɴᴛᴇʀ ᴛɢ ɪᴅ:\n7123181749, 6884112825",
                 "IFSC": f"{E_BANK} ᴇɴᴛᴇʀ ɪꜰꜱᴄ:\nSBIN0001234, HDFC0001234",
-                "SHORTLINK": f"{E_LINK} ᴇɴᴛᴇʀ ʟɪɴᴋ:\nhttps://indianshortner.in/xxxx",
-                "MOBILE": f"{E_INDIA} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n9876543210, 8123456789",
                 "AADHAAR": f"{E_CARD} ᴇɴᴛᴇʀ ᴀᴀᴅʜᴀʀ:\n123456789012",
+                "MOBILE": f"{E_INDIA} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n9876543210, 8123456789",
                 "VEHICLE": f"{E_CAR} ᴇɴᴛᴇʀ ᴠᴇʜɪᴄʟᴇ:\nKA01AB3256, DL1CX1234",
                 "GST": f"{E_CARD} ᴇɴᴛᴇʀ ɢꜱᴛ:\n19BOKPS7056D1ZI",
-                "PAK": f"{E_PAK} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n923078750447",
-                "INDNUM": f"{E_PHONE2} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n6363016966, 9876543210",
-                "INDNUM3": f"{E_INDIA} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n6363016966, 9876543210"
+                "PAK": f"{E_PAK} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n923078750447"
             }
             if mode in prompts:
                 m = await send_html(event.chat_id, prompts[mode])
@@ -1143,20 +1031,12 @@ async def run_query(event, mode, query):
                 result = f"{E_CROSS} Script failed"
         else:
             async with aiohttp.ClientSession() as s:
-                if mode == 'TG':
-                    result = await chatid_lookup(s, query)
-                elif mode == 'IFSC':
+                if mode == 'IFSC':
                     result = await ifsc_lookup(s, query)
-                elif mode == 'SHORTLINK':
-                    result = await bypass_lookup(s, query)
                 elif mode == 'GST':
                     result = await gst_lookup(s, query)
                 elif mode == 'PAK':
                     result = await pakistan_lookup(s, query)
-                elif mode == 'INDNUM':
-                    result = await indnum_lookup(s, query)
-                elif mode == 'INDNUM3':
-                    result = await indnum3_lookup(s, query)
                 else:
                     result = f"{E_CROSS}"
             
@@ -1165,13 +1045,13 @@ async def run_query(event, mode, query):
                 credit_deducted = True
         
         user = get_user(event.sender_id)
-        final = f"{result}\n{SEP}\n{E_CREDIT} {'ᴄʀ: '+str(user.get('credits',0)) if credit_deducted else 'ɴᴏ ᴄʀ ᴅᴇᴅᴜᴄᴛᴇᴅ'} | {E_CLOCK} {AUTO_DELETE_TIME}ꜱ{FOOTER}"
+        final = f"{result}\n{SEP}\n{E_CREDIT} {'ᴄʀ: '+str(user.get('credits',0)) if credit_deducted else 'ɴᴏ ᴄʀ ᴅᴇᴅᴜᴄᴛᴇᴅ'} | {E_CLOCK} {AUTO_DELETE_TIME}ꜱ\n\n{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}"
         sent = await edit_html(st, final)
         asyncio.create_task(schedule_delete(sent))
     except Exception as e:
         logger.error(f"Query error: {e}")
         try:
-            await edit_html(st, f"{E_WARN} Error{FOOTER}")
+            await edit_html(st, f"{E_WARN} Error\n\n{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
         except:
             pass
 
