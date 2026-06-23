@@ -1,4 +1,4 @@
-# bot.py - Hex Terminal COMPLETE with Working Verification
+# bot.py - Hex Terminal with Separate Icons & Working Features
 
 import logging
 import asyncio
@@ -19,10 +19,10 @@ try:
     from telethon.tl.types import (
         KeyboardButton, KeyboardButtonRow, ReplyKeyboardMarkup,
         KeyboardButtonStyle, KeyboardButtonCallback, ReplyInlineMarkup,
-        KeyboardButtonUrl, MessageEntityTextUrl
+        KeyboardButtonUrl
     )
     from telethon.tl.functions.channels import GetParticipantRequest
-    from telethon.errors import ChannelPrivateError, UserNotParticipantError
+    from telethon.errors import UserNotParticipantError, ChannelPrivateError
     HAS_BUTTON_STYLE = True
 except ImportError:
     print("Installing Telethon from master branch...")
@@ -31,10 +31,10 @@ except ImportError:
     from telethon.tl.types import (
         KeyboardButton, KeyboardButtonRow, ReplyKeyboardMarkup,
         KeyboardButtonStyle, KeyboardButtonCallback, ReplyInlineMarkup,
-        KeyboardButtonUrl, MessageEntityTextUrl
+        KeyboardButtonUrl
     )
     from telethon.tl.functions.channels import GetParticipantRequest
-    from telethon.errors import ChannelPrivateError, UserNotParticipantError
+    from telethon.errors import UserNotParticipantError, ChannelPrivateError
     HAS_BUTTON_STYLE = True
 
 # --- ⚙️ CONFIGURATION ---
@@ -116,11 +116,24 @@ EMOJI_NETWORK = PE("5321141214735508486", "📡")
 EMOJI_SIGNAL = PE("6147892053796725336", "📶")
 EMOJI_SIM = PE("5800717980266403037", "💳")
 EMOJI_CHART = PE("6093382540784046658", "📊")
+EMOJI_ROCKET2 = PE("5195033767969839232", "🚀")
+EMOJI_CLOCK2 = PE("5382194935057372936", "⏱")
 
-# --- BUTTON ICON IDs (3 IDs for all colored buttons) ---
-EMOJI_PRIMARY = 5258096772776991776
-EMOJI_SUCCESS = 5258503720928288433
-EMOJI_DANGER = 5258331647358540449
+# --- SEPARATE ICON IDs FOR EACH BUTTON ---
+ICON_TG = 5947494995798789024
+ICON_IFSC = 5264895611517300926
+ICON_BYPASS = 5271604874419647061
+ICON_AADHAAR = 5260561650213220533
+ICON_INDIA = 6284779941489812433
+ICON_RC = 5253752975997803460
+ICON_GST = 5260561650213220533
+ICON_PAK = 5913705895375672082
+ICON_INDNUM = 5406809207947142040
+ICON_INDTRACK = 6284779941489812433
+ICON_INVITE = 5244933196230972438
+ICON_REDEEM = 5285515895534278367
+ICON_ADMIN = 6267128480601741166
+ICON_NEXT = 5258331647358540449
 
 DISCLAIMER = f"\n\n<b>{EMOJI_WARN} ᴅɪꜱᴄʟᴀɪᴍᴇʀ:</b>\n<i>ᴇᴅᴜᴄᴀᴛɪᴏɴᴀʟ ᴘᴜʀᴘᴏꜱᴇꜱ ᴏɴʟʏ. ᴜꜱᴇ ʀᴇꜱᴘᴏɴꜱɪʙʟʏ.</i>"
 
@@ -244,7 +257,8 @@ def get_settings():
             "pak_enabled": True,
             "indnum_enabled": True,
             "indnum3_enabled": True,
-            "maintenance_mode": False
+            "maintenance_mode": False,
+            "page": 1
         }
         for k in ["tgid", "ifsc", "bypass", "mobile", "aadhaar", "rc", "gst", "pak", "indnum", "indnum3"]:
             d[f"maint_msg_{k}"] = f"{EMOJI_TOOLS} {k} is under maintenance."
@@ -255,23 +269,19 @@ def get_settings():
 def save_settings(data):
     save_json(SETTINGS_FILE, data)
 
-# --- 🔍 VERIFY - FIXED WORKING VERSION ---
+# --- 🔍 VERIFY ---
 
 async def check_channel_member(channel_id, user_id):
-    """Check if a user is a member of a channel using GetParticipantRequest"""
+    """Check if a user is a member of a channel"""
     try:
-        # Try to get participant info
         result = await client(GetParticipantRequest(
             channel=channel_id,
             participant=user_id
         ))
-        # If we get here, user is a participant
         return True
     except UserNotParticipantError:
-        # User is not a participant
         return False
     except ChannelPrivateError:
-        # Bot doesn't have access to the channel
         logger.error(f"Bot cannot access channel {channel_id}")
         return False
     except Exception as e:
@@ -374,7 +384,7 @@ def check_feature_maintenance(feature_key):
     return False, ""
 
 async def show_verification_page(event):
-    """Show verification page with JOIN buttons that redirect to channels"""
+    """Show verification page with JOIN buttons"""
     try:
         txt = (
             f"<b>{EMOJI_DIAMOND} {BOT_NAME} {EMOJI_DIAMOND}</b>\n"
@@ -392,7 +402,6 @@ async def show_verification_page(event):
             f"<i>{EMOJI_WARN} ᴍɪꜱᴜꜱᴇ ᴍᴀʏ ʟᴇᴀᴅ ᴛᴏ ʟᴇɢᴀʟ ᴀᴄᴛɪᴏɴ</i>"
         )
         
-        # Use KeyboardButtonUrl for direct channel redirect
         button1 = KeyboardButtonUrl(
             text="📢 ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷",
             url=LINK_1
@@ -431,61 +440,83 @@ def create_main_menu(is_admin=False, settings=None):
     if settings is None:
         settings = get_settings()
     
+    page = settings.get("page", 1)
     rows = []
     
-    # Row 1: TG ID & IFSC
-    row1 = []
-    if settings.get("tgid_enabled", True):
-        row1.append(create_colored_button("📱 ᴛɢ ɪᴅ ➜ 📞 ɴᴜᴍʙᴇʀ 🔍", 'primary', EMOJI_PRIMARY))
-    if settings.get("ifsc_enabled", True):
-        row1.append(create_colored_button("🏦 ɪꜰꜱᴄ ɪɴꜰᴏ➜🔎", 'success', EMOJI_SUCCESS))
-    if row1:
-        rows.append(KeyboardButtonRow(buttons=row1))
+    if page == 1:
+        # Page 1 - All Blue buttons (primary)
+        # Row 1: TG ID & IFSC
+        row1 = []
+        if settings.get("tgid_enabled", True):
+            row1.append(create_colored_button("TG ID -> Phone Number", 'primary', ICON_TG))
+        if settings.get("ifsc_enabled", True):
+            row1.append(create_colored_button("IFSC Info", 'primary', ICON_IFSC))
+        if row1:
+            rows.append(KeyboardButtonRow(buttons=row1))
+        
+        # Row 2: Link Bypass
+        if settings.get("bypass_enabled", True):
+            rows.append(KeyboardButtonRow(buttons=[create_colored_button("Link Bypass", 'primary', ICON_BYPASS)]))
+        
+        # Row 3: Aadhaar & India Number Info
+        row3 = []
+        if settings.get("aadhaar_enabled", True):
+            row3.append(create_colored_button("Aadhar Info", 'primary', ICON_AADHAAR))
+        if settings.get("mobile_enabled", True):
+            row3.append(create_colored_button("India Number Info", 'primary', ICON_INDIA))
+        if row3:
+            rows.append(KeyboardButtonRow(buttons=row3))
+        
+        # Row 4: RC Details & GST Lookup
+        row4 = []
+        if settings.get("rc_enabled", True):
+            row4.append(create_colored_button("RC Details", 'primary', ICON_RC))
+        if settings.get("gst_enabled", True):
+            row4.append(create_colored_button("GST Lookup", 'primary', ICON_GST))
+        if row4:
+            rows.append(KeyboardButtonRow(buttons=row4))
+        
+        # Row 5: Pakistan Number Info & India Number Info 2
+        row5 = []
+        if settings.get("pak_enabled", True):
+            row5.append(create_colored_button("Pakistan Number Info", 'primary', ICON_PAK))
+        if settings.get("indnum_enabled", True):
+            row5.append(create_colored_button("India Number Info 2", 'primary', ICON_INDNUM))
+        if row5:
+            rows.append(KeyboardButtonRow(buttons=row5))
+        
+        # Row 6: India Number Tracking (Full width)
+        if settings.get("indnum3_enabled", True):
+            rows.append(KeyboardButtonRow(buttons=[create_colored_button("India Number Tracking", 'primary', ICON_INDTRACK)]))
+        
+        # Row 7: Invite & Redeem
+        rows.append(KeyboardButtonRow(buttons=[
+            create_colored_button("Invite & Earn", 'primary', ICON_INVITE),
+            create_colored_button("Redeem Code", 'primary', ICON_REDEEM)
+        ]))
+        
+        # Row 8: Next Page (Red) & Admin Panel (Red)
+        next_row = []
+        next_row.append(create_colored_button("Next Page ➜", 'danger', ICON_NEXT))
+        if is_admin:
+            next_row.append(create_colored_button("Admin Panel", 'danger', ICON_ADMIN))
+        rows.append(KeyboardButtonRow(buttons=next_row))
     
-    # Row 2: Link Bypass
-    if settings.get("bypass_enabled", True):
-        rows.append(KeyboardButtonRow(buttons=[create_colored_button("🔗 ʟɪɴᴋ ʙʏᴘᴀꜱꜱ", 'primary', EMOJI_PRIMARY)]))
-    
-    # Row 3: Aadhaar & Mobile
-    row3 = []
-    if settings.get("aadhaar_enabled", True):
-        row3.append(create_colored_button("🪪 ᴀᴀᴅʜᴀʀ ɪɴꜰᴏ➜👤", 'success', EMOJI_SUCCESS))
-    if settings.get("mobile_enabled", True):
-        row3.append(create_colored_button("🇮🇳 ɪɴᴅ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ➜👤", 'primary', EMOJI_PRIMARY))
-    if row3:
-        rows.append(KeyboardButtonRow(buttons=row3))
-    
-    # Row 4: RC & GST
-    row4 = []
-    if settings.get("rc_enabled", True):
-        row4.append(create_colored_button("🚘 ʀᴄ ᴅᴇᴛᴀɪʟꜱ", 'danger', EMOJI_DANGER))
-    if settings.get("gst_enabled", True):
-        row4.append(create_colored_button("📋 ɢꜱᴛ ʟᴏᴏᴋᴜᴘ", 'success', EMOJI_SUCCESS))
-    if row4:
-        rows.append(KeyboardButtonRow(buttons=row4))
-    
-    # Row 5: PAK & IND NUM
-    row5 = []
-    if settings.get("pak_enabled", True):
-        row5.append(create_colored_button("🇵🇰 ᴘᴀᴋ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ", 'danger', EMOJI_DANGER))
-    if settings.get("indnum_enabled", True):
-        row5.append(create_colored_button("📲 ɪɴᴅ ɴᴜᴍ ɪɴꜰᴏ 𝟸", 'primary', EMOJI_PRIMARY))
-    if row5:
-        rows.append(KeyboardButtonRow(buttons=row5))
-    
-    # Row 6: IND NUM 3
-    if settings.get("indnum3_enabled", True):
-        rows.append(KeyboardButtonRow(buttons=[create_colored_button("🇮🇳 ɪɴᴅ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ 𝟹 ➜👤", 'success', EMOJI_SUCCESS)]))
-    
-    # Row 7: Invite & Redeem
-    rows.append(KeyboardButtonRow(buttons=[
-        create_colored_button("👥 ɪɴᴠɪᴛᴇ & ᴇᴀʀɴ", 'primary', EMOJI_PRIMARY),
-        create_colored_button("🎫 ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ", 'success', EMOJI_SUCCESS)
-    ]))
-    
-    # Row 8: Admin Panel
-    if is_admin:
-        rows.append(KeyboardButtonRow(buttons=[create_colored_button("👑 ᴀᴅᴍɪɴ ᴘᴀɴᴇʟ", 'danger', EMOJI_DANGER)]))
+    else:
+        # Page 2 - All Blue buttons (primary)
+        # Row 1: Service 1
+        rows.append(KeyboardButtonRow(buttons=[create_colored_button("Service 1", 'primary', ICON_PRIMARY)]))
+        rows.append(KeyboardButtonRow(buttons=[create_colored_button("Service 2", 'primary', ICON_PRIMARY)]))
+        rows.append(KeyboardButtonRow(buttons=[create_colored_button("Service 3", 'primary', ICON_PRIMARY)]))
+        rows.append(KeyboardButtonRow(buttons=[create_colored_button("Service 4", 'primary', ICON_PRIMARY)]))
+        rows.append(KeyboardButtonRow(buttons=[create_colored_button("Service 5", 'primary', ICON_PRIMARY)]))
+        
+        # Row: Previous Page (Red)
+        prev_row = []
+        prev_row.append(create_colored_button("◀ Previous Page", 'danger', ICON_NEXT))
+        if is_admin:
+            prev_row.append(create_colored_button("Admin Panel", 'danger', ICON_ADMIN))
+        rows.append(KeyboardButtonRow(buttons=prev_row))
     
     return ReplyKeyboardMarkup(rows=rows, resize=True)
 
@@ -604,9 +635,9 @@ async def chatid_lookup(session, query):
             if d.get('chat_id') or d.get('userid'):
                 result += f"<blockquote>{EMOJI_SEARCH} ᴄʜᴀᴛ ɪᴅ: <code>{d.get('chat_id', d.get('userid', query))}</code></blockquote>\n"
             if d.get('number'):
-                result += f"<blockquote>{EMOJI_PHONE2} ᴘʜᴏɴᴇ ɴᴜᴍʙᴇʀ: <code>{d['number']}</code></blockquote>\n"
+                result += f"<blockquote>{EMOJI_PHONE2} ᴘʜᴏɴᴇ: <code>{d['number']}</code></blockquote>\n"
             if d.get('name'):
-                result += f"<blockquote>{EMOJI_USER} ᴘʀᴏꜰɪʟᴇ ɴᴀᴍᴇ: <code>{d['name']}</code></blockquote>\n"
+                result += f"<blockquote>{EMOJI_USER} ɴᴀᴍᴇ: <code>{d['name']}</code></blockquote>\n"
             return result
     return f"<blockquote>{EMOJI_CROSS} ɴᴏᴛ ꜰᴏᴜɴᴅ</blockquote>"
 
@@ -616,9 +647,9 @@ async def ifsc_lookup(session, code):
         return f"<blockquote>{EMOJI_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ</blockquote>"
     if isinstance(data, dict):
         return (f"<blockquote expandable>{EMOJI_SPARKLE} {EMOJI_BANK} ʙᴀɴᴋ ɪꜰꜱᴄ ᴅᴇᴛᴀɪʟꜱ {EMOJI_SPARKLE}</blockquote>\n"
-                f"<blockquote>{EMOJI_BANK} ʙᴀɴᴋ ɴᴀᴍᴇ: <code>{data.get('BANK','N/A')}</code></blockquote>\n"
+                f"<blockquote>{EMOJI_BANK} ʙᴀɴᴋ: <code>{data.get('BANK','N/A')}</code></blockquote>\n"
                 f"<blockquote>{EMOJI_LOCATION} ʙʀᴀɴᴄʜ: <code>{data.get('BRANCH','N/A')}</code></blockquote>\n"
-                f"<blockquote>{EMOJI_CARD} ɪꜰꜱᴄ ᴄᴏᴅᴇ: <code>{data.get('IFSC',code.upper())}</code></blockquote>\n"
+                f"<blockquote>{EMOJI_CARD} ɪꜰꜱᴄ: <code>{data.get('IFSC',code.upper())}</code></blockquote>\n"
                 f"<blockquote>{EMOJI_LOCATION} ᴀᴅᴅʀᴇꜱꜱ: <code>{data.get('ADDRESS','N/A')}</code></blockquote>")
     return f"<blockquote>{EMOJI_CROSS} ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ</blockquote>"
 
@@ -631,7 +662,7 @@ async def bypass_lookup(session, link):
         return f"<blockquote>{EMOJI_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ</blockquote>"
     if isinstance(data, dict):
         r = data.get('bypassed_url') or data.get('url') or str(data)
-        return f"<blockquote expandable>{EMOJI_SPARKLE} {EMOJI_LINK} ʟɪɴᴋ ʙʏᴘᴀꜱꜱᴇᴅ {EMOJI_SPARKLE}</blockquote>\n<blockquote>{EMOJI_LINK} ᴏʀɪɢɪɴᴀʟ ᴜʀʟ: <code>{str(r)}</code></blockquote>"
+        return f"<blockquote expandable>{EMOJI_SPARKLE} {EMOJI_LINK} ʟɪɴᴋ ʙʏᴘᴀꜱꜱᴇᴅ {EMOJI_SPARKLE}</blockquote>\n<blockquote>{EMOJI_LINK} ᴜʀʟ: <code>{str(r)}</code></blockquote>"
     return f"<blockquote>{EMOJI_LINK} ʀᴇꜱᴜʟᴛ: <code>{str(data)}</code></blockquote>"
 
 async def gst_lookup(session, gst_number):
@@ -640,11 +671,11 @@ async def gst_lookup(session, gst_number):
         return f"<blockquote>{EMOJI_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ</blockquote>"
     if isinstance(data, dict) and data.get("status") == "success" and data.get("data"):
         d = data["data"]
-        result = f"<blockquote expandable>{EMOJI_SPARKLE} {EMOJI_CARD} ɢꜱᴛ ʙᴜꜱɪɴᴇꜱꜱ ɪɴꜰᴏ {EMOJI_SPARKLE}</blockquote>\n"
+        result = f"<blockquote expandable>{EMOJI_SPARKLE} {EMOJI_CARD} ɢꜱᴛ ɪɴꜰᴏ {EMOJI_SPARKLE}</blockquote>\n"
         if d.get('TradeName'):
-            result += f"<blockquote>{EMOJI_BANK} ʙᴜꜱɪɴᴇꜱꜱ ɴᴀᴍᴇ: <code>{d['TradeName']}</code></blockquote>\n"
+            result += f"<blockquote>{EMOJI_BANK} ʙᴜꜱɪɴᴇꜱꜱ: <code>{d['TradeName']}</code></blockquote>\n"
         if d.get('Gstin'):
-            result += f"<blockquote>{EMOJI_CARD} ɢꜱᴛ ɴᴜᴍʙᴇʀ: <code>{d['Gstin']}</code></blockquote>\n"
+            result += f"<blockquote>{EMOJI_CARD} ɢꜱᴛ: <code>{d['Gstin']}</code></blockquote>\n"
         return result
     return f"<blockquote>{EMOJI_CROSS} ɪɴᴠᴀʟɪᴅ ɢꜱᴛ</blockquote>"
 
@@ -734,7 +765,7 @@ async def indnum3_lookup(session, number):
                         result += f"<blockquote>{e} {key}: <code>{val[:200]}</code></blockquote>\n"
                         found += 1
             if found == 0:
-                result += f"<blockquote>{EMOJI_CARD} ʀᴀᴡ ᴅᴀᴛᴀ: <code>{clean[:500]}</code></blockquote>\n"
+                result += f"<blockquote>{EMOJI_CARD} ʀᴀᴡ: <code>{clean[:500]}</code></blockquote>\n"
             return result
     except:
         return f"<blockquote>{EMOJI_CROSS} ᴛɪᴍᴇᴏᴜᴛ</blockquote>"
@@ -748,20 +779,20 @@ async def admin_panel(event):
     ms = lambda key: "🔴" if s.get(f"maint_{key}") else "🟢"
     
     buttons = [
-        [KeyboardButtonCallback(text="🎫 ɢᴇɴ ᴄᴏᴅᴇ", data=b"ad_gen"), KeyboardButtonCallback(text="📋 ᴄᴏᴅᴇꜱ", data=b"ad_codes")],
-        [KeyboardButtonCallback(text="🎁 ᴀᴅᴅ ᴄʀ", data=b"ad_credit"), KeyboardButtonCallback(text="📢 ʙᴄᴀꜱᴛ", data=b"ad_bcast")],
-        [KeyboardButtonCallback(text=f"{'🔴' if s.get('maintenance_mode') else '🟢'} ɢʟᴏʙᴀʟ", data=b"ad_maint")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('tgid_enabled',True) else '🔴'} ᴛɢ", data=b"ad_tgid"), KeyboardButtonCallback(text=f"{ms('tgid')} ᴍ", data=b"ad_maint_tgid")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('ifsc_enabled',True) else '🔴'} ɪꜰ", data=b"ad_ifsc"), KeyboardButtonCallback(text=f"{ms('ifsc')} ᴍ", data=b"ad_maint_ifsc")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('bypass_enabled',True) else '🔴'} ʙʏ", data=b"ad_bypass_toggle"), KeyboardButtonCallback(text=f"{ms('bypass')} ᴍ", data=b"ad_maint_bypass")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('mobile_enabled',True) else '🔴'} ᴍᴏ", data=b"ad_mobile"), KeyboardButtonCallback(text=f"{ms('mobile')} ᴍ", data=b"ad_maint_mobile")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('aadhaar_enabled',True) else '🔴'} ᴀᴀ", data=b"ad_aadhaar"), KeyboardButtonCallback(text=f"{ms('aadhaar')} ᴍ", data=b"ad_maint_aadhaar")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('rc_enabled',True) else '🔴'} ʀᴄ", data=b"ad_rc"), KeyboardButtonCallback(text=f"{ms('rc')} ᴍ", data=b"ad_maint_rc")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('gst_enabled',True) else '🔴'} ɢꜱ", data=b"ad_gst"), KeyboardButtonCallback(text=f"{ms('gst')} ᴍ", data=b"ad_maint_gst")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('pak_enabled',True) else '🔴'} ᴘᴀ", data=b"ad_pak"), KeyboardButtonCallback(text=f"{ms('pak')} ᴍ", data=b"ad_maint_pak")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('indnum_enabled',True) else '🔴'} ɪɴ2", data=b"ad_indnum"), KeyboardButtonCallback(text=f"{ms('indnum')} ᴍ", data=b"ad_maint_indnum")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('indnum3_enabled',True) else '🔴'} ɪɴ3", data=b"ad_indnum3"), KeyboardButtonCallback(text=f"{ms('indnum3')} ᴍ", data=b"ad_maint_indnum3")],
-        [KeyboardButtonCallback(text="❌ ᴄʟᴏꜱᴇ", data=b"ad_close")]
+        [KeyboardButtonCallback(text="Generate Code", data=b"ad_gen"), KeyboardButtonCallback(text="List Codes", data=b"ad_codes")],
+        [KeyboardButtonCallback(text="Add Credits", data=b"ad_credit"), KeyboardButtonCallback(text="Broadcast", data=b"ad_bcast")],
+        [KeyboardButtonCallback(text=f"{'🔴' if s.get('maintenance_mode') else '🟢'} Global", data=b"ad_maint")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('tgid_enabled',True) else '🔴'} TG", data=b"ad_tgid"), KeyboardButtonCallback(text=f"{ms('tgid')} M", data=b"ad_maint_tgid")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('ifsc_enabled',True) else '🔴'} IF", data=b"ad_ifsc"), KeyboardButtonCallback(text=f"{ms('ifsc')} M", data=b"ad_maint_ifsc")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('bypass_enabled',True) else '🔴'} BY", data=b"ad_bypass_toggle"), KeyboardButtonCallback(text=f"{ms('bypass')} M", data=b"ad_maint_bypass")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('mobile_enabled',True) else '🔴'} MO", data=b"ad_mobile"), KeyboardButtonCallback(text=f"{ms('mobile')} M", data=b"ad_maint_mobile")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('aadhaar_enabled',True) else '🔴'} AA", data=b"ad_aadhaar"), KeyboardButtonCallback(text=f"{ms('aadhaar')} M", data=b"ad_maint_aadhaar")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('rc_enabled',True) else '🔴'} RC", data=b"ad_rc"), KeyboardButtonCallback(text=f"{ms('rc')} M", data=b"ad_maint_rc")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('gst_enabled',True) else '🔴'} GS", data=b"ad_gst"), KeyboardButtonCallback(text=f"{ms('gst')} M", data=b"ad_maint_gst")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('pak_enabled',True) else '🔴'} PA", data=b"ad_pak"), KeyboardButtonCallback(text=f"{ms('pak')} M", data=b"ad_maint_pak")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('indnum_enabled',True) else '🔴'} IN2", data=b"ad_indnum"), KeyboardButtonCallback(text=f"{ms('indnum')} M", data=b"ad_maint_indnum")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('indnum3_enabled',True) else '🔴'} IN3", data=b"ad_indnum3"), KeyboardButtonCallback(text=f"{ms('indnum3')} M", data=b"ad_maint_indnum3")],
+        [KeyboardButtonCallback(text="Close", data=b"ad_close")]
     ]
     
     rows = []
@@ -791,19 +822,19 @@ async def admin_callback(event):
         for c, v in list(codes.items())[-15:]:
             txt += f"<blockquote>{'✅' if not v.get('used') else '❌'} <code>{c}</code> | {v.get('credits')}cr</blockquote>\n"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]))
+        await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_gen":
         ADMIN_STATE[event.sender_id] = "gen"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit(f"<blockquote>{EMOJI_TICKET} ᴇɴᴛᴇʀ ᴄʀᴇᴅɪᴛꜱ:</blockquote>\n<i>100</i>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]))
+        await event.edit(f"<blockquote>{EMOJI_TICKET} ᴇɴᴛᴇʀ ᴄʀᴇᴅɪᴛꜱ:</blockquote>\n<i>100</i>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_credit":
         ADMIN_STATE[event.sender_id] = "credit"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit(f"<blockquote>{EMOJI_GIFT} ᴇɴᴛᴇʀ ɪᴅ ᴀᴍᴏᴜɴᴛ:</blockquote>\n<i>123456789 50</i>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]))
+        await event.edit(f"<blockquote>{EMOJI_GIFT} ᴇɴᴛᴇʀ ɪᴅ ᴀᴍᴏᴜɴᴛ:</blockquote>\n<i>123456789 50</i>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_bcast":
         ADMIN_STATE[event.sender_id] = "bcast"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit(f"<blockquote>{EMOJI_BOLT} ᴇɴᴛᴇʀ ᴍᴇꜱꜱᴀɢᴇ:</blockquote>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔄 ʙᴀᴄᴋ", data=b"ad_back")])]))
+        await event.edit(f"<blockquote>{EMOJI_BOLT} ᴇɴᴛᴇʀ ᴍᴇꜱꜱᴀɢᴇ:</blockquote>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_maint":
         s["maintenance_mode"] = not s.get("maintenance_mode", False)
         save_settings(s)
@@ -874,7 +905,6 @@ async def verify_cb(event):
     try:
         uid = event.sender_id
         
-        # Check if user is in both channels
         in_channel1, in_channel2 = await check_individual_channels(uid)
         
         if in_channel1 and in_channel2:
@@ -886,7 +916,6 @@ async def verify_cb(event):
                 await event.delete()
             except:
                 pass
-            # Delete the verification message
             try:
                 await event.message.delete()
             except:
@@ -914,7 +943,6 @@ async def main_menu(event):
     user = get_user(event.sender_id)
     s = get_settings()
     
-    # Re-verify user is still in channels
     if not await check_channels(event.sender_id):
         user["verified"] = False
         save_user(event.sender_id, user)
@@ -956,6 +984,18 @@ async def msg_handler(event):
         if s.get("maintenance_mode", False) and uid != ADMIN_ID:
             m = await send_html(event.chat_id, f"<blockquote>{EMOJI_TOOLS} Under maintenance</blockquote>")
             asyncio.create_task(schedule_delete(m))
+            return
+        
+        # Handle Page Navigation
+        if txt == "Next Page ➜":
+            s["page"] = 2
+            save_settings(s)
+            await main_menu(event)
+            return
+        elif txt == "◀ Previous Page":
+            s["page"] = 1
+            save_settings(s)
+            await main_menu(event)
             return
         
         if uid == ADMIN_ID and uid in ADMIN_STATE:
@@ -1004,7 +1044,7 @@ async def msg_handler(event):
                 return
         
         # Handle admin panel button
-        if txt == "👑 ᴀᴅᴍɪɴ ᴘᴀɴᴇʟ":
+        if txt == "Admin Panel":
             await admin_panel(event)
             return
         
@@ -1019,21 +1059,21 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
-        # Feature buttons mapping
+        # Feature buttons mapping - PLAIN TEXT buttons
         mode = None
         feature_map = {
-            "📱 ᴛɢ ɪᴅ ➜ 📞 ɴᴜᴍʙᴇʀ 🔍": ("TG", "tgid"),
-            "🏦 ɪꜰꜱᴄ ɪɴꜰᴏ➜🔎": ("IFSC", "ifsc"),
-            "🔗 ʟɪɴᴋ ʙʏᴘᴀꜱꜱ": ("SHORTLINK", "bypass"),
-            "🇮🇳 ɪɴᴅ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ➜👤": ("MOBILE", "mobile"),
-            "🪪 ᴀᴀᴅʜᴀʀ ɪɴꜰᴏ➜👤": ("AADHAAR", "aadhaar"),
-            "🚘 ʀᴄ ᴅᴇᴛᴀɪʟꜱ": ("VEHICLE", "rc"),
-            "📋 ɢꜱᴛ ʟᴏᴏᴋᴜᴘ": ("GST", "gst"),
-            "🇵🇰 ᴘᴀᴋ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ": ("PAK", "pak"),
-            "📲 ɪɴᴅ ɴᴜᴍ ɪɴꜰᴏ 𝟸": ("INDNUM", "indnum"),
-            "🇮🇳 ɪɴᴅ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ 𝟹 ➜👤": ("INDNUM3", "indnum3"),
-            "👥 ɪɴᴠɪᴛᴇ & ᴇᴀʀɴ": ("INVITE", None),
-            "🎫 ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ": ("REDEEM", None)
+            "TG ID -> Phone Number": ("TG", "tgid"),
+            "IFSC Info": ("IFSC", "ifsc"),
+            "Link Bypass": ("SHORTLINK", "bypass"),
+            "India Number Info": ("MOBILE", "mobile"),
+            "Aadhar Info": ("AADHAAR", "aadhaar"),
+            "RC Details": ("VEHICLE", "rc"),
+            "GST Lookup": ("GST", "gst"),
+            "Pakistan Number Info": ("PAK", "pak"),
+            "India Number Info 2": ("INDNUM", "indnum"),
+            "India Number Tracking": ("INDNUM3", "indnum3"),
+            "Invite & Earn": ("INVITE", None),
+            "Redeem Code": ("REDEEM", None)
         }
         
         if txt in feature_map:
@@ -1068,16 +1108,16 @@ async def msg_handler(event):
             # Set mode and prompt for input
             event.mode = mode
             prompts = {
-                "TG": f"<blockquote>{EMOJI_PHONE} ᴛᴇʟᴇɢʀᴀᴍ ɪᴅ ᴛᴏ ᴘʜᴏɴᴇ ɴᴜᴍʙᴇʀ</blockquote>\n<i>7123181749, 6884112825</i>",
-                "IFSC": f"<blockquote>{EMOJI_BANK} ʙᴀɴᴋ ɪꜰꜱᴄ ᴄᴏᴅᴇ</blockquote>\n<i>SBIN0001234, HDFC0001234</i>",
-                "SHORTLINK": f"<blockquote>{EMOJI_LINK} ʟɪɴᴋ ʙʏᴘᴀꜱꜱ</blockquote>\n<i>https://indianshortner.in/xxxx</i>",
-                "MOBILE": f"<blockquote>{EMOJI_INDIA} ɪɴᴅɪᴀɴ ᴍᴏʙɪʟᴇ ɴᴜᴍʙᴇʀ</blockquote>\n<i>9876543210, 8123456789</i>",
-                "AADHAAR": f"<blockquote>{EMOJI_CARD} ᴀᴀᴅʜᴀʀ ɴᴜᴍʙᴇʀ</blockquote>\n<i>123456789012</i>",
-                "VEHICLE": f"<blockquote>{EMOJI_CAR} ᴠᴇʜɪᴄʟᴇ ɴᴜᴍʙᴇʀ</blockquote>\n<i>KA01AB3256, DL1CX1234</i>",
-                "GST": f"<blockquote>{EMOJI_CARD} ɢꜱᴛ ɴᴜᴍʙᴇʀ</blockquote>\n<i>19BOKPS7056D1ZI</i>",
-                "PAK": f"<blockquote>{EMOJI_PAK} ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ</blockquote>\n<i>923078750447</i>",
-                "INDNUM": f"<blockquote>{EMOJI_PHONE2} ᴀᴅᴠᴀɴᴄᴇᴅ ɴᴜᴍʙᴇʀ</blockquote>\n<i>6363016966, 9876543210</i>",
-                "INDNUM3": f"<blockquote>{EMOJI_INDIA} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴛʀᴀᴄᴋɪɴɢ</blockquote>\n<i>6363016966, 9876543210</i>"
+                "TG": f"<blockquote>{EMOJI_PHONE} ᴇɴᴛᴇʀ ᴛɢ ɪᴅ:</blockquote>\n<i>7123181749, 6884112825</i>",
+                "IFSC": f"<blockquote>{EMOJI_BANK} ᴇɴᴛᴇʀ ɪꜰꜱᴄ:</blockquote>\n<i>SBIN0001234, HDFC0001234</i>",
+                "SHORTLINK": f"<blockquote>{EMOJI_LINK} ᴇɴᴛᴇʀ ʟɪɴᴋ:</blockquote>\n<i>https://indianshortner.in/xxxx</i>",
+                "MOBILE": f"<blockquote>{EMOJI_INDIA} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:</blockquote>\n<i>9876543210, 8123456789</i>",
+                "AADHAAR": f"<blockquote>{EMOJI_CARD} ᴇɴᴛᴇʀ ᴀᴀᴅʜᴀʀ:</blockquote>\n<i>123456789012</i>",
+                "VEHICLE": f"<blockquote>{EMOJI_CAR} ᴇɴᴛᴇʀ ᴠᴇʜɪᴄʟᴇ:</blockquote>\n<i>KA01AB3256, DL1CX1234</i>",
+                "GST": f"<blockquote>{EMOJI_CARD} ᴇɴᴛᴇʀ ɢꜱᴛ:</blockquote>\n<i>19BOKPS7056D1ZI</i>",
+                "PAK": f"<blockquote>{EMOJI_PAK} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:</blockquote>\n<i>923078750447</i>",
+                "INDNUM": f"<blockquote>{EMOJI_PHONE2} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:</blockquote>\n<i>6363016966, 9876543210</i>",
+                "INDNUM3": f"<blockquote>{EMOJI_INDIA} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:</blockquote>\n<i>6363016966, 9876543210</i>"
             }
             if mode in prompts:
                 m = await send_html(event.chat_id, prompts[mode])
@@ -1187,9 +1227,9 @@ async def run_query(event, mode, query):
 
 async def main():
     print("Hex Terminal COMPLETE Version")
-    print("Premium Emojis in Text | Colored Buttons with Icons")
+    print("Premium Emojis in Text | Separate Icons for Each Button")
+    print("Blue buttons | Red for Next Page & Admin")
     print("Working Verification - Must join BOTH channels")
-    print("Auto-detects if user leaves channels")
     
     try:
         subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4"], capture_output=True, timeout=30)
