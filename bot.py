@@ -425,22 +425,17 @@ def create_main_menu(is_admin=False, settings=None):
         ]))
         
         next_row = []
-        next_row.append(create_colored_button("Next Page ➜", 'danger', ICON_NEXT))
+        next_row.append(create_colored_button("Nᴇxᴛ Pᴀɢᴇ ➜", 'danger', ICON_NEXT))
         if is_admin:
-            next_row.append(create_colored_button("Admin Panel", 'danger', ICON_ADMIN))
+            next_row.append(create_colored_button("Aᴅᴍɪɴ Pᴀɴᴇʟ", 'danger', ICON_ADMIN))
         rows.append(KeyboardButtonRow(buttons=next_row))
     
     else:
-        rows.append(KeyboardButtonRow(buttons=[create_colored_button("Service 1", 'primary', ICON_PRIMARY)]))
-        rows.append(KeyboardButtonRow(buttons=[create_colored_button("Service 2", 'primary', ICON_PRIMARY)]))
-        rows.append(KeyboardButtonRow(buttons=[create_colored_button("Service 3", 'primary', ICON_PRIMARY)]))
-        rows.append(KeyboardButtonRow(buttons=[create_colored_button("Service 4", 'primary', ICON_PRIMARY)]))
-        rows.append(KeyboardButtonRow(buttons=[create_colored_button("Service 5", 'primary', ICON_PRIMARY)]))
-        
+        # Page 2 - only back button and admin panel
         prev_row = []
-        prev_row.append(create_colored_button("◀ Previous Page", 'danger', ICON_NEXT))
+        prev_row.append(create_colored_button("◀ Pʀᴇᴠɪᴏᴜs Pᴀɢᴇ", 'danger', ICON_NEXT))
         if is_admin:
-            prev_row.append(create_colored_button("Admin Panel", 'danger', ICON_ADMIN))
+            prev_row.append(create_colored_button("Aᴅᴍɪɴ Pᴀɴᴇʟ", 'danger', ICON_ADMIN))
         rows.append(KeyboardButtonRow(buttons=prev_row))
     
     return ReplyKeyboardMarkup(rows=rows, resize=True)
@@ -829,12 +824,12 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
-        if txt == "Next Page ➜":
+        if txt == "Nᴇxᴛ Pᴀɢᴇ ➜":
             s["page"] = 2
             save_settings(s)
             await main_menu(event)
             return
-        elif txt == "◀ Previous Page":
+        elif txt == "◀ Pʀᴇᴠɪᴏᴜs Pᴀɢᴇ":
             s["page"] = 1
             save_settings(s)
             await main_menu(event)
@@ -884,11 +879,10 @@ async def msg_handler(event):
                 await show_verification_page(event)
                 return
         
-        if txt == "Admin Panel":
+        if txt == "Aᴅᴍɪɴ Pᴀɴᴇʟ":
             await admin_panel(event)
             return
         
-        # Remove redeem_mode and replace with upgrade
         if hasattr(event, 'upgrade_mode') and event.upgrade_mode:
             event.upgrade_mode = False
             m = await send_html(event.chat_id, f"<blockquote>{E_UPGRADE} Premium Upgrade</blockquote><blockquote>Contact @Hexh4ckerOFC for premium access!</blockquote>")
@@ -926,7 +920,15 @@ async def msg_handler(event):
                 return
             elif mode == "UPGRADE":
                 event.upgrade_mode = True
-                m = await send_html(event.chat_id, f"<blockquote>{E_UPGRADE} Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ</blockquote><blockquote>Contact @Hexh4ckerOFC to upgrade your account!</blockquote><blockquote>🌟 Premium Benefits:</blockquote><blockquote>• Unlimited Credits</blockquote><blockquote>• All Services Access</blockquote><blockquote>• Priority Support</blockquote><blockquote>• Exclusive Features</blockquote>")
+                m = await send_html(event.chat_id, 
+                    f"<blockquote>{E_UPGRADE} Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ</blockquote>"
+                    f"<blockquote>Contact @Hexh4ckerOFC to upgrade your account!</blockquote>"
+                    f"<blockquote>🌟 Premium Benefits:</blockquote>"
+                    f"<blockquote>• Unlimited Credits</blockquote>"
+                    f"<blockquote>• All Services Access</blockquote>"
+                    f"<blockquote>• Priority Support</blockquote>"
+                    f"<blockquote>• Exclusive Features</blockquote>"
+                )
                 asyncio.create_task(schedule_delete(m, 60))
                 return
             
@@ -1010,7 +1012,6 @@ async def msg_handler(event):
         if uid_str in USER_MODES and USER_MODES[uid_str]:
             mode = USER_MODES[uid_str]
             
-            # Remove redeem code check
             user = get_user(uid)
             if user.get("credits", 0) <= 0:
                 m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} No credits! +10 daily | +3 invite</blockquote>")
