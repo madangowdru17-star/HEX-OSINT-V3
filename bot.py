@@ -112,19 +112,8 @@ E_CHART = PE("6093382540784046658", "📊")
 E_SPARKLE = PE("5467683093693354332", "✨")
 E_ROCKET = PE("5195033767969839232", "🚀")
 E_STAR2 = PE("6266969287638913443", "🌟")
-E_WELCOME = PE("6266969287638913443", "✨")
-E_CROISSANT = PE("5203996991054432397", "🥐")
-E_CROWN2 = PE("6267128480601741166", "👑")
-E_DICE = PE("5231012545799666522", "🎲")
-E_INFINITY = PE("6266969287638913443", "∞")
-E_STAR3 = PE("6266969287638913443", "⭐️")
-E_BABY = PE("6264785189394717307", "🍼")
-E_CHECK2 = PE("6267008582294705964", "✅")
-E_BAR = PE("6267039884016358504", "➖")
-E_BOLT2 = PE("6284971355297290197", "⚡")
-E_GEAR = PE("5462921117423384478", "⚙️")
-E_STAR5 = PE("6266969287638913443", "⭐")
 E_LINK = PE("5271604874419647061", "🔗")
+E_BABY = PE("6264785189394717307", "🍼")
 
 # --- BUTTON ICON IDs ---
 ICON_IFSC = 5264895611517300926
@@ -313,7 +302,6 @@ async def schedule_delete(msg, delay=AUTO_DELETE_TIME):
     except:
         pass
 
-# FIX: Use client.send_message for HTML parse_mode
 async def send_html(chat_id, text, reply_markup=None):
     return await client.send_message(
         chat_id,
@@ -473,12 +461,12 @@ def parse_all_india_records(raw):
             continue
         record = {}
         for field, label in {
-            'Name': f'{E_USER} NAME',
-            "Father's Name": f'{E_HOME} FATHER',
-            'Mobile': f'{E_PHONE2} MOBILE',
-            'Address': f'{E_LOCATION} ADDRESS',
-            'Circle': f'{E_NETWORK} CIRCLE',
-            'State': f'{E_STATE} STATE'
+            'Name': 'NAME',
+            "Father's Name": 'FATHER',
+            'Mobile': 'MOBILE',
+            'Address': 'ADDRESS',
+            'Circle': 'CIRCLE',
+            'State': 'STATE'
         }.items():
             match = re.search(rf'{re.escape(field)}:\s*([^\n]+)', section, re.IGNORECASE)
             if match and match.group(1).strip() not in ['None', '', 'N/A', 'null']:
@@ -768,22 +756,20 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     name = event.sender.first_name or "User"
     
+    # CLEAN SIMPLE WELCOME - NO SPECIAL CHARACTERS
     welcome_text = (
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-        f"<blockquote>{E_WELCOME} Welcome To Our Information Bot {E_CROISSANT}</blockquote>\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
-        f"<blockquote>{E_CROWN2} Hey <b>{name}</b> !! {E_CHECK2}</blockquote>\n\n"
-        f"<blockquote>{E_BOLT2} Your Dashboard</blockquote>\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-        f"<blockquote>│ {E_CREDIT} Credits      » {cr}</blockquote>\n"
-        f"<blockquote>│ {E_CROWN} Premium    » {E_INFINITY} Search</blockquote>\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
-        f"<blockquote>{E_GEAR} Use the buttons below</blockquote>\n"
-        f"<blockquote>{E_STAR3} /help to see all commands</blockquote>\n\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-        f"<blockquote>{E_BABY} Dev » {DEV_NAME} {E_CHECK2}</blockquote>\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
-        f"{E_STAR2} Select a service below {E_STAR2}"
+        f"{E_DIAMOND} {BOT_NAME} {E_DIAMOND}\n"
+        f"@{BOT_USERNAME}\n\n"
+        f"{E_WARN} Welcome {name}!\n\n"
+        f"{E_BOLT} Your Dashboard\n"
+        f"━━━━━━━━━━━━━━━━━━━\n"
+        f"{E_CREDIT} Credits: {cr}\n"
+        f"{E_CROWN} Premium: Unlimited\n"
+        f"━━━━━━━━━━━━━━━━━━━\n\n"
+        f"{E_GEAR} Use the buttons below\n"
+        f"{E_STAR} /help for commands\n\n"
+        f"{E_BABY} Dev: {DEV_NAME}\n\n"
+        f"{E_STAR2} Select a service below"
     )
     
     msg = await send_html(event.chat_id, welcome_text, reply_markup=markup)
@@ -897,12 +883,11 @@ async def msg_handler(event):
                 link = f"https://t.me/{bot_username}?start={user['invite_code']}"
                 
                 invite_msg = (
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
-                    f"<blockquote>{E_STAR} Invite & Earn {E_STAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
-                    f"<blockquote>{E_USERS} +{INVITE_CREDITS} Credits per invite</blockquote>\n"
-                    f"<blockquote>{E_LINK} <code>{link}</code></blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by : {DEV_NAME} {E_STAR}</blockquote>"
+                    f"{E_STAR} Invite & Earn {E_STAR}\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"{E_USERS} +{INVITE_CREDITS} Credits per invite\n"
+                    f"{E_LINK} {link}\n\n"
+                    f"{E_BABY} Bot made by: {DEV_NAME} {E_STAR}"
                 )
                 m = await send_html(event.chat_id, invite_msg)
                 asyncio.create_task(schedule_delete(m, 120))
@@ -929,65 +914,59 @@ async def msg_handler(event):
             
             prompts = {
                 "IFSC": (
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
-                    f"<blockquote>{E_STAR} IFSC Lookup {E_STAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Send IFSC code</blockquote>\n"
-                    f"<blockquote>Example: SBIN0001234, HDFC0001234</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point : 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost : 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by : {DEV_NAME} {E_STAR}</blockquote>"
+                    f"{E_STAR} IFSC Lookup {E_STAR}\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"Send IFSC code\n"
+                    f"Example: SBIN0001234\n\n"
+                    f"Total Point: 2 Point\n"
+                    f"Search Cost: 1 Point\n\n"
+                    f"Bot made by: {DEV_NAME}"
                 ),
                 "AADHAAR": (
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
-                    f"<blockquote>{E_STAR} Aadhar Lookup {E_STAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Send 12-digit Aadhar number</blockquote>\n"
-                    f"<blockquote>Example: 123456789012</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point : 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost : 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by : {DEV_NAME} {E_STAR}</blockquote>"
+                    f"{E_STAR} Aadhar Lookup {E_STAR}\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"Send 12-digit Aadhar number\n"
+                    f"Example: 123456789012\n\n"
+                    f"Total Point: 2 Point\n"
+                    f"Search Cost: 1 Point\n\n"
+                    f"Bot made by: {DEV_NAME}"
                 ),
                 "MOBILE": (
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
-                    f"<blockquote>{E_STAR} Number Info {E_STAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Send 10-digit mobile number</blockquote>\n"
-                    f"<blockquote>Example: 9876543210</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Tip: with or without +91</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point : 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost : 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by : {DEV_NAME} {E_STAR}</blockquote>"
+                    f"{E_STAR} Number Info {E_STAR}\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"Send 10-digit mobile number\n"
+                    f"Example: 9876543210\n\n"
+                    f"Tip: with or without +91\n\n"
+                    f"Total Point: 2 Point\n"
+                    f"Search Cost: 1 Point\n\n"
+                    f"Bot made by: {DEV_NAME}"
                 ),
                 "VEHICLE": (
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
-                    f"<blockquote>{E_STAR} RC Check {E_STAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Send vehicle number</blockquote>\n"
-                    f"<blockquote>Example: KA01AB3256, DL1CX1234</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point : 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost : 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by : {DEV_NAME} {E_STAR}</blockquote>"
+                    f"{E_STAR} RC Check {E_STAR}\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"Send vehicle number\n"
+                    f"Example: KA01AB3256\n\n"
+                    f"Total Point: 2 Point\n"
+                    f"Search Cost: 1 Point\n\n"
+                    f"Bot made by: {DEV_NAME}"
                 ),
                 "GST": (
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
-                    f"<blockquote>{E_STAR} GST Verify {E_STAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Send GST number</blockquote>\n"
-                    f"<blockquote>Example: 19BOKPS7056D1ZI</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point : 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost : 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by : {DEV_NAME} {E_STAR}</blockquote>"
+                    f"{E_STAR} GST Verify {E_STAR}\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"Send GST number\n"
+                    f"Example: 19BOKPS7056D1ZI\n\n"
+                    f"Total Point: 2 Point\n"
+                    f"Search Cost: 1 Point\n\n"
+                    f"Bot made by: {DEV_NAME}"
                 ),
                 "PAK": (
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
-                    f"<blockquote>{E_STAR} Pakistan Number {E_STAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Send Pakistan number</blockquote>\n"
-                    f"<blockquote>Example: 923078750447</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point : 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost : 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by : {DEV_NAME} {E_STAR}</blockquote>"
+                    f"{E_STAR} Pakistan Number {E_STAR}\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"Send Pakistan number\n"
+                    f"Example: 923078750447\n\n"
+                    f"Total Point: 2 Point\n"
+                    f"Search Cost: 1 Point\n\n"
+                    f"Bot made by: {DEV_NAME}"
                 )
             }
             if mode in prompts:
