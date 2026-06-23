@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot FINAL WORKING with Premium UI
+# bot.py - Hex OSINT Bot FINAL WORKING with Telegram Quote Format
 
 import logging
 import asyncio
@@ -75,7 +75,6 @@ BOT_USERNAME = "Hex_Terminal_bot"
 # --- ALL PREMIUM EMOJI IDs ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
-# Main Emojis
 E_STAR = PE("6266969287638913443", "⭐")
 E_DIAMOND = PE("6264791387032523779", "💎")
 E_CROWN = PE("6267128480601741166", "👑")
@@ -113,11 +112,8 @@ E_SPARKLE = PE("5467683093693354332", "✨")
 E_ROCKET = PE("5195033767969839232", "🚀")
 E_STAR2 = PE("6266969287638913443", "🌟")
 E_LINK = PE("5271604874419647061", "🔗")
-E_BABY = PE("6264785189394717307", "🍼")
 E_GEAR = PE("5462921117423384478", "⚙️")
 E_WELCOME = PE("6266969287638913443", "✨")
-E_MAGIC = PE("6264785189394717307", "🪄")
-E_SHIELD = PE("6267128480601741166", "🛡️")
 E_INFO = PE("5231012545799666522", "ℹ️")
 E_LIST = PE("6093382540784046658", "📋")
 E_PIN = PE("5280955052582785391", "📌")
@@ -130,6 +126,8 @@ E_TROPHY = PE("6267128480601741166", "🏆")
 E_BOOKMARK = PE("5271604874419647061", "🔖")
 E_TARGET = PE("5231012545799666522", "🎯")
 E_FLAG = PE("6284779941489812433", "🏁")
+E_BABY = PE("6264785189394717307", "🍼")
+E_MAGIC = PE("6264785189394717307", "🪄")
 
 # --- BUTTON ICON IDs ---
 ICON_IFSC = 5264895611517300926
@@ -340,16 +338,16 @@ def check_feature_maintenance(feature_key):
         return True, s.get(f"maint_msg_{feature_key}", f"{E_TOOLS} Under maintenance.")
     return False, ""
 
-# --- 📋 UI FORMAT HELPERS ---
+# --- 📋 TELEGRAM QUOTE FORMAT HELPERS ---
 
-def header(title, emoji=None):
-    """Create a header with emoji"""
-    if emoji:
-        return f"{emoji} <b>{title}</b> {emoji}"
-    return f"<b>{title}</b>"
+def quote(msg):
+    """Create a telegram quote-style message with border"""
+    border = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+    return f"{border}\n{msg}\n{border}"
 
-def section(title, content, emoji=None):
-    """Create a section with title and content"""
+def quote_box(title, content, emoji=None):
+    """Create a premium quote box with title and content"""
+    border = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
     lines = []
     if emoji:
         lines.append(f"{emoji} <b>{title}</b> {emoji}")
@@ -360,10 +358,14 @@ def section(title, content, emoji=None):
         lines.extend(content)
     else:
         lines.append(str(content))
-    return "\n".join(lines)
+    lines.append("")
+    lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+    msg = "\n".join(lines)
+    return f"{border}\n{msg}\n{border}"
 
-def info_message(title, instruction, example, tip=None):
-    """Create info message format"""
+def info_quote(title, instruction, example, tip=None):
+    """Create info message with quote format"""
+    border = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
     lines = []
     lines.append(f"<b>{title}</b>")
     lines.append("")
@@ -377,10 +379,12 @@ def info_message(title, instruction, example, tip=None):
     lines.append(f"<b>ꜱᴇᴀʀᴄʜ ᴄᴏꜱᴛ:</b> 1 ᴩᴏɪɴᴛ")
     lines.append("")
     lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
-    return "\n".join(lines)
+    msg = "\n".join(lines)
+    return f"{border}\n{msg}\n{border}"
 
-def result_message(title, records, emoji=None):
-    """Create result message format"""
+def result_quote(title, records, emoji=None):
+    """Create result message with quote format"""
+    border = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
     lines = []
     if emoji:
         lines.append(f"{emoji} <b>{title}</b> {emoji}")
@@ -389,25 +393,24 @@ def result_message(title, records, emoji=None):
     lines.append("")
     lines.append(f"<b>ᴛᴏᴛᴀʟ:</b> {len(records)}")
     lines.append("")
-    
     for i, record in enumerate(records, 1):
         lines.append(f"<b>ʀᴇᴄᴏʀᴅ {i}</b>")
         if isinstance(record, dict):
             for key, value in record.items():
-                # Clean key names
                 clean_key = key.replace('🏦', '').replace('📍', '').replace('🪪', '').replace('👤', '').replace('📲', '').replace('📡', '').replace('🏛', '').strip()
                 lines.append(f"<b>{clean_key}:</b> {value}")
         else:
             lines.append(str(record))
         if i < len(records):
             lines.append("")
-    
     lines.append("")
     lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
-    return "\n".join(lines)
+    msg = "\n".join(lines)
+    return f"{border}\n{msg}\n{border}"
 
-def simple_box(title, content, emoji=None):
-    """Create a simple box message"""
+def simple_quote(title, content, emoji=None):
+    """Create simple quote message"""
+    border = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
     lines = []
     if emoji:
         lines.append(f"{emoji} <b>{title}</b> {emoji}")
@@ -420,7 +423,8 @@ def simple_box(title, content, emoji=None):
         lines.append(str(content))
     lines.append("")
     lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
-    return "\n".join(lines)
+    msg = "\n".join(lines)
+    return f"{border}\n{msg}\n{border}"
 
 # --- 🎨 COLORED REPLY BUTTONS ---
 
@@ -566,7 +570,7 @@ def format_records_result(records, search_type):
         'vehicle': f'{E_CAR} ᴠᴇʜɪᴄʟᴇ'
     }.get(search_type, f'{E_CHART} ʀᴇꜱᴜʟᴛ')
     
-    return result_message(title, records, E_SPARKLE)
+    return result_quote(title, records, E_SPARKLE)
 
 # --- 🔗 API FUNCTIONS ---
 
@@ -599,7 +603,7 @@ async def ifsc_lookup(session, code):
             "ɪꜰꜱᴄ": data.get('IFSC',code.upper()),
             "ᴀᴅᴅʀᴇꜱꜱ": data.get('ADDRESS','N/A')
         }
-        return result_message("ʙᴀɴᴋ ɪꜰꜱᴄ ᴅᴇᴛᴀɪʟꜱ", [record], E_SPARKLE)
+        return result_quote("ʙᴀɴᴋ ɪꜰꜱᴄ ᴅᴇᴛᴀɪʟꜱ", [record], E_SPARKLE)
     return f"{E_CROSS} ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ"
 
 async def gst_lookup(session, gst_number):
@@ -613,7 +617,7 @@ async def gst_lookup(session, gst_number):
             record["ʙᴜꜱɪɴᴇꜱꜱ"] = d['TradeName']
         if d.get('Gstin'):
             record["ɢꜱᴛ"] = d['Gstin']
-        return result_message("ɢꜱᴛ ɪɴꜰᴏ", [record], E_SPARKLE)
+        return result_quote("ɢꜱᴛ ɪɴꜰᴏ", [record], E_SPARKLE)
     return f"{E_CROSS} ɪɴᴠᴀʟɪᴅ ɢꜱᴛ"
 
 async def pakistan_lookup(session, number):
@@ -640,7 +644,7 @@ async def pakistan_lookup(session, number):
                 if record:
                     records.append(record)
             
-            return result_message(f"{E_PAK} ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ", records, E_SPARKLE)
+            return result_quote(f"{E_PAK} ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ", records, E_SPARKLE)
         return f"{E_CROSS} ɴᴏ ᴅᴀᴛᴀ"
     except:
         return f"{E_CROSS} ᴇʀʀᴏʀ"
@@ -672,7 +676,7 @@ async def admin_panel(event):
     
     markup = ReplyInlineMarkup(rows=rows)
     
-    txt = simple_box(
+    txt = simple_quote(
         "ᴀᴅᴍɪɴ ᴘᴀɴᴇʟ",
         [
             f"{E_USERS} <b>ᴜꜱᴇʀꜱ:</b> {len(load_json(USERS_FILE))}",
@@ -701,13 +705,13 @@ async def admin_callback(event):
         for c, v in list(codes.items())[-15:]:
             status = f"{E_CHECK}" if not v.get('used') else f"{E_CROSS}"
             content.append(f"{status} <code>{c}</code> | {v.get('credits')}ᴄʀ")
-        txt = simple_box("ᴄᴏᴅᴇꜱ", content, E_TICKET)
+        txt = simple_quote("ᴄᴏᴅᴇꜱ", content, E_TICKET)
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
         await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_gen":
         ADMIN_STATE[event.sender_id] = "gen"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        txt = simple_box(
+        txt = simple_quote(
             "ɢᴇɴᴇʀᴀᴛᴇ ᴄᴏᴅᴇ",
             "ꜱᴇɴᴅ ɴᴜᴍʙᴇʀ ᴏꜰ ᴄʀᴇᴅɪᴛꜱ:\n<code>100</code>",
             E_TICKET
@@ -716,7 +720,7 @@ async def admin_callback(event):
     elif d == "ad_credit":
         ADMIN_STATE[event.sender_id] = "credit"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        txt = simple_box(
+        txt = simple_quote(
             "ᴀᴅᴅ ᴄʀᴇᴅɪᴛꜱ",
             "ꜱᴇɴᴅ ꜰᴏʀᴍᴀᴛ:\n<code>ᴜꜱᴇʀ_ɪᴅ ᴀᴍᴏᴜɴᴛ</code>",
             E_GIFT
@@ -725,7 +729,7 @@ async def admin_callback(event):
     elif d == "ad_bcast":
         ADMIN_STATE[event.sender_id] = "bcast"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        txt = simple_box(
+        txt = simple_quote(
             "ʙʀᴏᴀᴅᴄᴀꜱᴛ",
             "ꜱᴇɴᴅ ʏᴏᴜʀ ʙʀᴏᴀᴅᴄᴀꜱᴛ ᴍᴇꜱꜱᴀɢᴇ:",
             E_BOLT
@@ -849,7 +853,7 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     name = event.sender.first_name or "User"
     
-    txt = simple_box(
+    txt = simple_quote(
         f"{BOT_NAME}",
         [
             f"@{BOT_USERNAME}",
@@ -885,7 +889,7 @@ async def msg_handler(event):
         s = get_settings()
         
         if s.get("maintenance_mode", False) and uid != ADMIN_ID:
-            m = await send_html(event.chat_id, simple_box(
+            m = await send_html(event.chat_id, simple_quote(
                 "ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ",
                 "ʙᴏᴛ ɪꜱ ᴄᴜʀʀᴇɴᴛʟʏ ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ.",
                 E_TOOLS
@@ -910,7 +914,7 @@ async def msg_handler(event):
                 try:
                     cr = int(txt)
                     code = generate_redeem_code(cr)
-                    msg = await send_html(event.chat_id, simple_box(
+                    msg = await send_html(event.chat_id, simple_quote(
                         "ᴄᴏᴅᴇ ɢᴇɴᴇʀᴀᴛᴇᴅ",
                         [
                             f"<code>{code}</code>",
@@ -919,7 +923,7 @@ async def msg_handler(event):
                         E_CHECK
                     ))
                 except:
-                    msg = await send_html(event.chat_id, simple_box(
+                    msg = await send_html(event.chat_id, simple_quote(
                         "ᴇʀʀᴏʀ",
                         "ɪɴᴠᴀʟɪᴅ ɴᴜᴍʙᴇʀ ꜰᴏʀᴍᴀᴛ!",
                         E_CROSS
@@ -930,7 +934,7 @@ async def msg_handler(event):
                 p = txt.split()
                 if len(p) >= 2:
                     bal = add_credits(p[0], int(p[1]))
-                    msg = await send_html(event.chat_id, simple_box(
+                    msg = await send_html(event.chat_id, simple_quote(
                         "ᴄʀᴇᴅɪᴛꜱ ᴀᴅᴅᴇᴅ",
                         [
                             f"<b>ᴜꜱᴇʀ:</b> {p[0]}",
@@ -940,7 +944,7 @@ async def msg_handler(event):
                         E_CHECK
                     ))
                 else:
-                    msg = await send_html(event.chat_id, simple_box(
+                    msg = await send_html(event.chat_id, simple_quote(
                         "ᴇʀʀᴏʀ",
                         "ꜰᴏʀᴍᴀᴛ: <code>ᴜꜱᴇʀ_ɪᴅ ᴀᴍᴏᴜɴᴛ</code>",
                         E_CROSS
@@ -952,7 +956,7 @@ async def msg_handler(event):
                 cnt = 0
                 for u in users:
                     try:
-                        await send_html(int(u), simple_box(
+                        await send_html(int(u), simple_quote(
                             "ʙʀᴏᴀᴅᴄᴀꜱᴛ",
                             txt,
                             E_BOLT
@@ -960,7 +964,7 @@ async def msg_handler(event):
                         cnt += 1
                     except:
                         pass
-                msg = await send_html(event.chat_id, simple_box(
+                msg = await send_html(event.chat_id, simple_quote(
                     "ʙʀᴏᴀᴅᴄᴀꜱᴛ ꜱᴇɴᴛ",
                     f"<b>ᴅᴇʟɪᴠᴇʀᴇᴅ ᴛᴏ:</b> {cnt} ᴜꜱᴇʀꜱ",
                     E_CHECK
@@ -989,7 +993,7 @@ async def msg_handler(event):
                 success, msg = redeem_code(uid, txt)
                 m = await send_html(event.chat_id, msg)
             else:
-                m = await send_html(event.chat_id, simple_box(
+                m = await send_html(event.chat_id, simple_quote(
                     "ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ",
                     "ᴄᴏᴅᴇ ᴍᴜꜱᴛ ꜱᴛᴀʀᴛ ᴡɪᴛʜ <code>HEX-</code>",
                     E_CROSS
@@ -1016,7 +1020,7 @@ async def msg_handler(event):
                 bot_username = BOT_USERNAME
                 link = f"https://t.me/{bot_username}?start={user['invite_code']}"
                 
-                invite_msg = simple_box(
+                invite_msg = simple_quote(
                     "ɪɴᴠɪᴛᴇ & ᴇᴀʀɴ",
                     [
                         f"{E_USERS} +{INVITE_CREDITS} ᴄʀᴇᴅɪᴛꜱ ᴘᴇʀ ɪɴᴠɪᴛᴇ",
@@ -1029,7 +1033,7 @@ async def msg_handler(event):
                 return
             elif mode == "REDEEM":
                 event.redeem_mode = True
-                m = await send_html(event.chat_id, simple_box(
+                m = await send_html(event.chat_id, simple_quote(
                     "ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ",
                     "ꜱᴇɴᴅ ʏᴏᴜʀ ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ:\n<code>HEX-XXXXXXXXXX</code>",
                     E_TICKET
@@ -1038,7 +1042,7 @@ async def msg_handler(event):
                 return
             
             if feature and not s.get(f"{feature}_enabled", True):
-                m = await send_html(event.chat_id, simple_box(
+                m = await send_html(event.chat_id, simple_quote(
                     "ꜱᴇʀᴠɪᴄᴇ ᴅɪꜱᴀʙʟᴇᴅ",
                     "ᴛʜɪꜱ ꜱᴇʀᴠɪᴄᴇ ɪꜱ ᴄᴜʀʀᴇɴᴛʟʏ ᴅɪꜱᴀʙʟᴇᴅ.",
                     E_DISABLED
@@ -1049,7 +1053,7 @@ async def msg_handler(event):
             if feature:
                 maint, msg = check_feature_maintenance(feature)
                 if maint:
-                    m = await send_html(event.chat_id, simple_box(
+                    m = await send_html(event.chat_id, simple_quote(
                         "ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ",
                         msg,
                         E_TOOLS
@@ -1094,7 +1098,7 @@ async def msg_handler(event):
             }
             if mode in prompts:
                 p = prompts[mode]
-                m = await send_html(event.chat_id, info_message(
+                m = await send_html(event.chat_id, info_quote(
                     p['title'],
                     p['instruction'],
                     p['example'],
@@ -1116,7 +1120,7 @@ async def msg_handler(event):
             
             user = get_user(uid)
             if user.get("credits", 0) <= 0:
-                m = await send_html(event.chat_id, simple_box(
+                m = await send_html(event.chat_id, simple_quote(
                     "ɪɴꜱᴜꜰꜰɪᴄɪᴇɴᴛ ᴄʀᴇᴅɪᴛꜱ",
                     [
                         "ɴᴏ ᴄʀᴇᴅɪᴛꜱ ʟᴇꜰᴛ!",
@@ -1138,7 +1142,7 @@ async def msg_handler(event):
 
 async def run_query(event, mode, query):
     if not await net_ok():
-        m = await send_html(event.chat_id, simple_box(
+        m = await send_html(event.chat_id, simple_quote(
             "ɴᴏ ɪɴᴛᴇʀɴᴇᴛ",
             "ᴘʟᴇᴀꜱᴇ ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴄᴏɴɴᴇᴄᴛɪᴏɴ.",
             E_CROSS
@@ -1146,7 +1150,7 @@ async def run_query(event, mode, query):
         asyncio.create_task(schedule_delete(m))
         return
     
-    st = await send_html(event.chat_id, simple_box(
+    st = await send_html(event.chat_id, simple_quote(
         "ꜱᴇᴀʀᴄʜɪɴɢ",
         "ᴘʀᴏᴄᴇꜱꜱɪɴɢ ʏᴏᴜʀ ʀᴇQᴜᴇꜱᴛ...",
         E_SEARCH
@@ -1154,7 +1158,7 @@ async def run_query(event, mode, query):
     
     for i in range(5):
         try:
-            await edit_html(st, simple_box(
+            await edit_html(st, simple_quote(
                 "ꜱᴇᴀʀᴄʜɪɴɢ",
                 f"ᴘʀᴏᴄᴇꜱꜱɪɴɢ... {i+1}/5",
                 E_SEARCH
@@ -1176,7 +1180,7 @@ async def run_query(event, mode, query):
                     use_credit(event.sender_id)
                     credit_deducted = True
             else:
-                result = simple_box(
+                result = simple_quote(
                     "ᴇʀʀᴏʀ",
                     "ꜱᴄʀɪᴘᴛ ꜰᴀɪʟᴇᴅ ᴛᴏ ᴇxᴇᴄᴜᴛᴇ.",
                     E_CROSS
@@ -1190,7 +1194,7 @@ async def run_query(event, mode, query):
                 elif mode == 'PAK':
                     result = await pakistan_lookup(s, query)
                 else:
-                    result = simple_box(
+                    result = simple_quote(
                         "ᴇʀʀᴏʀ",
                         "ᴜɴᴋɴᴏᴡɴ ꜱᴇʀᴠɪᴄᴇ.",
                         E_CROSS
@@ -1213,7 +1217,7 @@ async def run_query(event, mode, query):
     except Exception as e:
         logger.error(f"Query error: {e}")
         try:
-            await edit_html(st, simple_box(
+            await edit_html(st, simple_quote(
                 "ᴇʀʀᴏʀ",
                 "ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜɪʟᴇ ᴘʀᴏᴄᴇꜱꜱɪɴɢ.",
                 E_WARN
@@ -1225,7 +1229,7 @@ async def run_query(event, mode, query):
 
 async def show_verification_page(event):
     try:
-        txt = simple_box(
+        txt = simple_quote(
             f"{BOT_NAME}",
             [
                 f"@{BOT_USERNAME}",
