@@ -68,7 +68,7 @@ AUTO_DELETE_TIME = 60
 BOT_NAME = "𝗛𝗲𝘅 𝗧𝗲𝗿𝗺𝗶𝗻𝗮𝗹"
 BOT_USERNAME = "Hex_Terminal_bot"
 
-# --- PREMIUM EMOJIS FOR TEXT MESSAGES (FROM OLD CODE) ---
+# --- PREMIUM EMOJIS FOR TEXT MESSAGES ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
 EMOJI_WARN = PE("6267039884016358504", "⚠️")
@@ -275,19 +275,39 @@ async def schedule_delete(msg, delay=AUTO_DELETE_TIME):
     except:
         pass
 
+# FIXED: Use functions.messages.SendMessageRequest with reply_markup
 async def send_message(chat_id, text, reply_markup=None):
+    return await client(functions.messages.SendMessageRequest(
+        peer=chat_id,
+        message=text,
+        random_id=random.getrandbits(63),
+        reply_markup=reply_markup
+    ))
+
+# FIXED: Use functions.messages.EditMessageRequest
+async def edit_message(msg, text, reply_markup=None):
+    return await client(functions.messages.EditMessageRequest(
+        peer=msg.peer_id,
+        id=msg.id,
+        message=text,
+        reply_markup=reply_markup
+    ))
+
+# NEW: Send message with HTML parse mode
+async def send_html(chat_id, text, reply_markup=None):
     return await client.send_message(
         chat_id,
         text,
-        reply_markup=reply_markup,
+        buttons=reply_markup,
         parse_mode='html'
     )
 
-async def edit_message(msg, text, reply_markup=None):
+# NEW: Edit message with HTML parse mode
+async def edit_html(msg, text, reply_markup=None):
     return await client.edit_message(
         msg,
         text,
-        reply_markup=reply_markup,
+        buttons=reply_markup,
         parse_mode='html'
     )
 
@@ -307,7 +327,7 @@ async def loading_animation(msg, name):
     percentages = ["0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"]
     for i, bar in enumerate(bars):
         try:
-            await edit_message(msg, f"<blockquote>{EMOJI_BOLT} {name}</blockquote>\n<code>{bar} {percentages[i]}</code>")
+            await edit_html(msg, f"<blockquote>{EMOJI_BOLT} {name}</blockquote>\n<code>{bar} {percentages[i]}</code>")
             await asyncio.sleep(0.2)
         except:
             break
@@ -357,7 +377,7 @@ async def show_verification_page(event):
             KeyboardButtonRow(buttons=[button3])
         ])
         
-        await send_message(event.chat_id, txt, reply_markup=markup)
+        await send_html(event.chat_id, txt, reply_markup=markup)
     except Exception as e:
         logger.error(f"Verification page: {e}")
 
@@ -719,7 +739,7 @@ async def admin_panel(event):
     if hasattr(event, 'data'):
         await event.edit(txt, buttons=markup)
     else:
-        await send_message(event.chat_id, txt, reply_markup=markup)
+        await send_html(event.chat_id, txt, reply_markup=markup)
 
 async def admin_callback(event):
     if event.sender_id != ADMIN_ID:
@@ -796,7 +816,7 @@ async def start(event):
                 if data.get("invite_code") == args[1] and inviter != str(uid):
                     cr = process_invite(inviter, uid)
                     try:
-                        await send_message(int(inviter), f"<blockquote>{EMOJI_GIFT} +{cr} ᴄʀᴇᴅɪᴛꜱ! ɴᴇᴡ ᴜꜱᴇʀ ᴊᴏɪɴᴇᴅ!</blockquote>")
+                        await send_html(int(inviter), f"<blockquote>{EMOJI_GIFT} +{cr} ᴄʀᴇᴅɪᴛꜱ! ɴᴇᴡ ᴜꜱᴇʀ ᴊᴏɪɴᴇᴅ!</blockquote>")
                     except:
                         pass
                     break
@@ -858,7 +878,7 @@ async def main_menu(event):
         f"<b>{EMOJI_STAR} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ {EMOJI_STAR}</b>"
     )
     
-    msg = await send_message(event.chat_id, txt, reply_markup=markup)
+    msg = await send_html(event.chat_id, txt, reply_markup=markup)
     asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
 
 @client.on(events.NewMessage)
@@ -874,7 +894,7 @@ async def msg_handler(event):
         s = get_settings()
         
         if s.get("maintenance_mode", False) and uid != ADMIN_ID:
-            m = await send_message(event.chat_id, f"<blockquote>{EMOJI_TOOLS} Under maintenance</blockquote>")
+            m = await send_html(event.chat_id, f"<blockquote>{EMOJI_TOOLS} Under maintenance</blockquote>")
             asyncio.create_task(schedule_delete(m))
             return
         
@@ -884,18 +904,18 @@ async def msg_handler(event):
                 try:
                     cr = int(txt)
                     code = generate_redeem_code(cr)
-                    msg = await send_message(event.chat_id, f"<blockquote>{EMOJI_CHECK} <code>{code}</code> | {EMOJI_CREDIT} {cr}cr</blockquote>")
+                    msg = await send_html(event.chat_id, f"<blockquote>{EMOJI_CHECK} <code>{code}</code> | {EMOJI_CREDIT} {cr}cr</blockquote>")
                 except:
-                    msg = await send_message(event.chat_id, f"<blockquote>{EMOJI_CROSS} Number</blockquote>")
+                    msg = await send_html(event.chat_id, f"<blockquote>{EMOJI_CROSS} Number</blockquote>")
                 asyncio.create_task(schedule_delete(msg))
                 return
             elif state == "credit":
                 p = txt.split()
                 if len(p) >= 2:
                     bal = add_credits(p[0], int(p[1]))
-                    msg = await send_message(event.chat_id, f"<blockquote>{EMOJI_CHECK} +{p[1]} | {bal}</blockquote>")
+                    msg = await send_html(event.chat_id, f"<blockquote>{EMOJI_CHECK} +{p[1]} | {bal}</blockquote>")
                 else:
-                    msg = await send_message(event.chat_id, f"<blockquote>{EMOJI_CROSS} Format: ID AMOUNT</blockquote>")
+                    msg = await send_html(event.chat_id, f"<blockquote>{EMOJI_CROSS} Format: ID AMOUNT</blockquote>")
                 asyncio.create_task(schedule_delete(msg))
                 return
             elif state == "bcast":
@@ -903,11 +923,11 @@ async def msg_handler(event):
                 cnt = 0
                 for u in users:
                     try:
-                        await send_message(int(u), f"{EMOJI_BOLT} {txt}")
+                        await send_html(int(u), f"{EMOJI_BOLT} {txt}")
                         cnt += 1
                     except:
                         pass
-                msg = await send_message(event.chat_id, f"<blockquote>{EMOJI_CHECK} Sent: {cnt}</blockquote>")
+                msg = await send_html(event.chat_id, f"<blockquote>{EMOJI_CHECK} Sent: {cnt}</blockquote>")
                 asyncio.create_task(schedule_delete(msg))
                 return
         
@@ -933,9 +953,9 @@ async def msg_handler(event):
             event.redeem_mode = False
             if txt.upper().startswith("HEX-"):
                 success, msg = redeem_code(uid, txt)
-                m = await send_message(event.chat_id, f"<blockquote>{msg}</blockquote>")
+                m = await send_html(event.chat_id, f"<blockquote>{msg}</blockquote>")
             else:
-                m = await send_message(event.chat_id, f"<blockquote>{EMOJI_CROSS} Invalid code!</blockquote>")
+                m = await send_html(event.chat_id, f"<blockquote>{EMOJI_CROSS} Invalid code!</blockquote>")
             asyncio.create_task(schedule_delete(m))
             return
         
@@ -963,25 +983,25 @@ async def msg_handler(event):
                 user = get_user(uid)
                 bot_username = BOT_USERNAME
                 link = f"https://t.me/{bot_username}?start={user['invite_code']}"
-                m = await send_message(event.chat_id, f"<blockquote>{EMOJI_INVITE} ɪɴᴠɪᴛᴇ (+{INVITE_CREDITS}ᴄʀ)</blockquote>\n<blockquote><code>{link}</code></blockquote>")
+                m = await send_html(event.chat_id, f"<blockquote>{EMOJI_INVITE} ɪɴᴠɪᴛᴇ (+{INVITE_CREDITS}ᴄʀ)</blockquote>\n<blockquote><code>{link}</code></blockquote>")
                 asyncio.create_task(schedule_delete(m, 120))
                 return
             elif mode == "REDEEM":
                 event.redeem_mode = True
-                m = await send_message(event.chat_id, f"<blockquote>{EMOJI_TICKET} ᴇɴᴛᴇʀ ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ:</blockquote>\n<i>HEX-XXXXXXXXXX</i>")
+                m = await send_html(event.chat_id, f"<blockquote>{EMOJI_TICKET} ᴇɴᴛᴇʀ ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ:</blockquote>\n<i>HEX-XXXXXXXXXX</i>")
                 asyncio.create_task(schedule_delete(m, 30))
                 return
             
             # Check if feature is enabled
             if feature and not s.get(f"{feature}_enabled", True):
-                m = await send_message(event.chat_id, f"<blockquote>{EMOJI_DISABLED} Disabled</blockquote>")
+                m = await send_html(event.chat_id, f"<blockquote>{EMOJI_DISABLED} Disabled</blockquote>")
                 asyncio.create_task(schedule_delete(m))
                 return
             
             if feature:
                 maint, msg = check_feature_maintenance(feature)
                 if maint:
-                    m = await send_message(event.chat_id, f"<blockquote>{EMOJI_TOOLS} {msg}</blockquote>")
+                    m = await send_html(event.chat_id, f"<blockquote>{EMOJI_TOOLS} {msg}</blockquote>")
                     asyncio.create_task(schedule_delete(m))
                     return
             
@@ -1000,7 +1020,7 @@ async def msg_handler(event):
                 "INDNUM3": f"<blockquote>{EMOJI_INDIA} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴛʀᴀᴄᴋɪɴɢ</blockquote>\n<i>6363016966, 9876543210</i>"
             }
             if mode in prompts:
-                m = await send_message(event.chat_id, prompts[mode])
+                m = await send_html(event.chat_id, prompts[mode])
                 asyncio.create_task(schedule_delete(m))
             return
         
@@ -1009,14 +1029,14 @@ async def msg_handler(event):
             mode = event.mode
             if txt.upper().startswith("HEX-"):
                 success, msg = redeem_code(uid, txt)
-                m = await send_message(event.chat_id, f"<blockquote>{msg}</blockquote>")
+                m = await send_html(event.chat_id, f"<blockquote>{msg}</blockquote>")
                 asyncio.create_task(schedule_delete(m))
                 event.mode = None
                 return
             
             user = get_user(uid)
             if user.get("credits", 0) <= 0:
-                m = await send_message(event.chat_id, f"<blockquote>{EMOJI_CROSS} No credits! +10 daily | +3 invite</blockquote>")
+                m = await send_html(event.chat_id, f"<blockquote>{EMOJI_CROSS} No credits! +10 daily | +3 invite</blockquote>")
                 asyncio.create_task(schedule_delete(m))
                 event.mode = None
                 return
@@ -1029,7 +1049,7 @@ async def msg_handler(event):
 
 async def run_query(event, mode, query):
     if not await net_ok():
-        m = await send_message(event.chat_id, f"<blockquote>{EMOJI_CROSS} No internet</blockquote>")
+        m = await send_html(event.chat_id, f"<blockquote>{EMOJI_CROSS} No internet</blockquote>")
         asyncio.create_task(schedule_delete(m))
         return
     
@@ -1046,7 +1066,7 @@ async def run_query(event, mode, query):
         'INDNUM3': f'{EMOJI_INDIA}'
     }
     
-    st = await send_message(event.chat_id, f"<blockquote>{EMOJI_GREEN} ꜱᴇᴀʀᴄʜɪɴɢ...</blockquote>")
+    st = await send_html(event.chat_id, f"<blockquote>{EMOJI_GREEN} ꜱᴇᴀʀᴄʜɪɴɢ...</blockquote>")
     lt = asyncio.create_task(loading_animation(st, names.get(mode, '')))
     credit_deducted = False
     
@@ -1093,13 +1113,13 @@ async def run_query(event, mode, query):
         
         user = get_user(event.sender_id)
         final = f"{result}\n{SEP}\n<blockquote>{EMOJI_CREDIT} {'ᴄʀ: '+str(user.get('credits',0)) if credit_deducted else 'ɴᴏ ᴄʀ ᴅᴇᴅᴜᴄᴛᴇᴅ'} | {EMOJI_CLOCK} {AUTO_DELETE_TIME}ꜱ</blockquote>{DISCLAIMER}{FOOTER}"
-        sent = await edit_message(st, final)
+        sent = await edit_html(st, final)
         asyncio.create_task(schedule_delete(sent))
     except Exception as e:
         lt.cancel()
         logger.error(f"Query: {e}")
         try:
-            await edit_message(st, f"<blockquote>{EMOJI_WARN} ᴇʀʀᴏʀ</blockquote>{FOOTER}")
+            await edit_html(st, f"<blockquote>{EMOJI_WARN} ᴇʀʀᴏʀ</blockquote>{FOOTER}")
         except:
             pass
 
