@@ -799,23 +799,19 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     name = event.sender.first_name or "User"
     
+    # SIMPLE CLEAN WELCOME MESSAGE - NO SPECIAL CHARACTERS
     welcome_text = (
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-        f"<blockquote>{E_WELCOME} Wᴇʟᴄᴏᴍᴇ Tᴏ Oᴜʀ Iɴꜰᴏʀᴍᴀᴛɪᴏɴ Bᴏᴛ {E_CROISSANT}</blockquote>\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
-        f"<blockquote>{E_CROWN2} Hᴇʏ <b>{name}</b> !! {E_CHECK2}</blockquote>\n\n"
-        f"<blockquote>{E_BOLT2} ʏᴏᴜʀ ᴅᴀꜱʜʙᴏᴀʀᴅ</blockquote>\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-        f"<blockquote>│ {E_CREDIT} ᴄʀᴇᴅɪᴛꜱ      » {cr}</blockquote>\n"
-        f"<blockquote>│ {E_DICE} ᴅᴀɪʟʏ ꜱᴘɪɴ  » +{DAILY_FREE_CREDITS} ꜰʀᴇᴇ</blockquote>\n"
-        f"<blockquote>│ {E_CROWN} ᴘʀᴇᴍɪᴜᴍ    » {E_INFINITY} ꜱᴇᴀʀᴄʜ</blockquote>\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
-        f"<blockquote>{E_GEAR} ᴜꜱᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴꜱ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ</blockquote>\n"
-        f"<blockquote>{E_STAR3} /help ᴛᴏ ꜱᴇᴇ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅꜱ</blockquote>\n\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-        f"<blockquote>{E_BABY} ᴅᴇᴠ » {DEV_NAME} {E_CHECK2}</blockquote>\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
-        f"{E_STAR2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ {E_STAR2}"
+        f"<b>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</b>\n"
+        f"<b>@{BOT_USERNAME}</b>\n\n"
+        f"<b>{E_WAVE} Welcome {name}!</b>\n\n"
+        f"<b>{E_BOLT} Your Dashboard</b>\n"
+        f"{E_CREDIT} Credits: {cr}\n"
+        f"{E_DICE} Daily Spin: +{DAILY_FREE_CREDITS} free\n"
+        f"{E_CROWN} Premium: Unlimited search\n\n"
+        f"<b>{E_GEAR} Use the buttons below</b>\n"
+        f"{E_STAR} /help for commands\n\n"
+        f"{E_BABY} Dev: {DEV_NAME}\n\n"
+        f"{E_STAR2} Select a service below {E_STAR2}"
     )
     
     msg = await send_html(event.chat_id, welcome_text, reply_markup=markup)
@@ -992,12 +988,12 @@ async def run_query(event, mode, query):
         asyncio.create_task(schedule_delete(m))
         return
     
-    st = await send_html(event.chat_id, f"{E_SEARCH} ꜱᴇᴀʀᴄʜɪɴɢ...")
+    st = await send_html(event.chat_id, f"{E_SEARCH} Searching...")
     
     # Loading animation
     for i in range(5):
         try:
-            await edit_html(st, f"{E_SEARCH} ꜱᴇᴀʀᴄʜɪɴɢ... {i+1}/5")
+            await edit_html(st, f"{E_SEARCH} Searching... {i+1}/5")
             await asyncio.sleep(0.4)
         except:
             pass
@@ -1032,13 +1028,13 @@ async def run_query(event, mode, query):
                 credit_deducted = True
         
         user = get_user(event.sender_id)
-        final = f"{result}\n{SEP}\n{E_CREDIT} {'ᴄʀ: '+str(user.get('credits',0)) if credit_deducted else 'ɴᴏ ᴄʀ ᴅᴇᴅᴜᴄᴛᴇᴅ'} | {E_CLOCK} {AUTO_DELETE_TIME}ꜱ\n\n{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}"
+        final = f"{result}\n{SEP}\n{E_CREDIT} {'Credits: '+str(user.get('credits',0)) if credit_deducted else 'No credit deducted'} | {E_CLOCK} {AUTO_DELETE_TIME}s\n\n{E_DIAMOND} Powered by @Hexh4ckerOFC {E_DIAMOND}"
         sent = await edit_html(st, final)
         asyncio.create_task(schedule_delete(sent))
     except Exception as e:
         logger.error(f"Query error: {e}")
         try:
-            await edit_html(st, f"{E_WARN} Error\n\n{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+            await edit_html(st, f"{E_WARN} Error\n\n{E_DIAMOND} Powered by @Hexh4ckerOFC {E_DIAMOND}")
         except:
             pass
 
