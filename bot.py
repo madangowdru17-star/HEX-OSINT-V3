@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot FINAL WORKING with Perfect Quote Format
+# bot.py - Hex OSINT Bot with Your Exact Quote Format
 
 import logging
 import asyncio
@@ -48,9 +48,6 @@ CHANNEL_2_ID = int(os.environ.get('CHANNEL_2_ID', '-1003806004135'))
 LINK_1 = os.environ.get('LINK_1', 'https://t.me/+dP7xLb3AoE1jNmRl')
 LINK_2 = os.environ.get('LINK_2', 'https://t.me/+9vuPcr9LJ8piODdl')
 
-FOOTER = "\n\n💎 ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC 💎"
-SEP = "━━━━━━━━━━━━━━━━━━━"
-
 # APIs
 LOOKUP_API = "https://toxic-tg.vercel.app/?userid="
 IFSC_API = "https://ifsc.razorpay.com/"
@@ -70,15 +67,23 @@ INVITE_CREDITS = 3
 AUTO_DELETE_TIME = 60
 
 BOT_NAME = "𝗛𝗲𝘅 𝗢𝗦𝗜𝗡𝗧 𝗕𝗼𝘁"
-BOT_USERNAME = "Hex_Terminal_bot"
 
-# --- ALL PREMIUM EMOJI IDs ---
+# --- YOUR PREMIUM EMOJI IDs ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
-E_STAR = PE("6266969287638913443", "⭐")
-E_DIAMOND = PE("6264791387032523779", "💎")
+# Your exact emoji IDs from the image
+E_DIAMOND = PE("6314557546753440004", "💎")
+E_LION = PE("5802980697886954454", "🦁")
+E_HAPPY = PE("5802980697886954454", "🥹")
+E_WALLET = PE("5256186332669035163", "👛")
 E_CROWN = PE("6267128480601741166", "👑")
-E_FIRE = PE("6264785189394717307", "🔥")
+E_CAMERA = PE("6267128480601741166", "📸")
+E_ARROW = PE("5875450995332353523", "➡️")
+E_DIAMOND2 = PE("4961143940817355662", "💠")
+E_STAR = PE("5289898724976240966", "⭐")
+E_BOLT = PE("5377834924776627189", "⚡")
+
+# Additional emojis
 E_CHECK = PE("6267008582294705964", "✅")
 E_CROSS = PE("6267000941547885720", "❌")
 E_WARN = PE("6267039884016358504", "⚠️")
@@ -94,40 +99,26 @@ E_INDIA = PE("6284779941489812433", "🇮🇳")
 E_PAK = PE("5913705895375672082", "🇵🇰")
 E_SEARCH = PE("5231012545799666522", "🔍")
 E_CREDIT = PE("6267068789146260253", "💰")
-E_REFRESH = PE("5375338737028841420", "🔄")
 E_CLOCK = PE("5382194935057372936", "⏱")
-E_BOLT = PE("6284971355297290197", "⚡")
 E_GIFT = PE("5203996991054432397", "🎁")
 E_TICKET = PE("5285515895534278367", "🎫")
 E_TOOLS = PE("5462921117423384478", "🛠️")
 E_DISABLED = PE("5373165973203348165", "📴")
 E_LOCATION = PE("5391032818111363540", "📍")
-E_HOME = PE("5280955052582785391", "🏠")
 E_STATE = PE("5388927107315283144", "🏛")
 E_NETWORK = PE("5321141214735508486", "📡")
-E_SIGNAL = PE("6147892053796725336", "📶")
-E_SIM = PE("5800717980266403037", "💳")
 E_CHART = PE("6093382540784046658", "📊")
 E_SPARKLE = PE("5467683093693354332", "✨")
-E_ROCKET = PE("5195033767969839232", "🚀")
-E_STAR2 = PE("6266969287638913443", "🌟")
 E_LINK = PE("5271604874419647061", "🔗")
 E_GEAR = PE("5462921117423384478", "⚙️")
-E_WELCOME = PE("6266969287638913443", "✨")
 E_INFO = PE("5231012545799666522", "ℹ️")
 E_LIST = PE("6093382540784046658", "📋")
-E_PIN = PE("5280955052582785391", "📌")
 E_BOOK = PE("5285515895534278367", "📖")
 E_COIN = PE("6267068789146260253", "🪙")
-E_WALLET = PE("6267068789146260253", "👛")
 E_DOC = PE("5260561650213220533", "📄")
 E_POINT = PE("6266969287638913443", "🔹")
-E_TROPHY = PE("6267128480601741166", "🏆")
-E_BOOKMARK = PE("5271604874419647061", "🔖")
 E_TARGET = PE("5231012545799666522", "🎯")
-E_FLAG = PE("6284779941489812433", "🏁")
 E_BABY = PE("6264785189394717307", "🍼")
-E_MAGIC = PE("6264785189394717307", "🪄")
 
 # --- BUTTON ICON IDs ---
 ICON_IFSC = 5264895611517300926
@@ -338,73 +329,65 @@ def check_feature_maintenance(feature_key):
         return True, s.get(f"maint_msg_{feature_key}", f"{E_TOOLS} Under maintenance.")
     return False, ""
 
-# --- 📋 PERFECT QUOTE FORMAT ---
+# --- 📋 YOUR QUOTE FORMAT HELPERS ---
 
-def quote_format(content):
-    """
-    Creates a perfect quote format:
-    First line: border
-    Second line: empty
-    Then: content
-    Last line: empty
-    Last line: border
-    """
-    border = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
-    
-    # If content is a list, join with newlines
-    if isinstance(content, list):
-        content = "\n".join(content)
-    
-    return f"{border}\n\n{content}\n\n{border}"
+def quote_format(lines):
+    """Format message with your exact quote style - no borders"""
+    return "\n".join(lines)
 
-def quote_box(title, content, emoji=None):
-    """Create a quote box with title and content"""
-    lines = []
-    if emoji:
-        lines.append(f"{emoji} <b>{title}</b> {emoji}")
-    else:
-        lines.append(f"<b>{title}</b>")
-    lines.append("")
-    if isinstance(content, list):
-        lines.extend(content)
-    else:
-        lines.append(str(content))
-    lines.append("")
-    lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
-    
-    return quote_format("\n".join(lines))
+def main_quote(name, credits, premium="ᴜɴʟɪᴍɪᴛᴇᴅ"):
+    """Your exact main menu quote format"""
+    lines = [
+        f"{E_DIAMOND} Hᴇx Osɪɴᴛ Bᴏᴛ {E_LION}",
+        "",
+        f"{E_HAPPY} ᴡᴇʟᴄᴏᴍᴇ #define 𝚮 𝚬 𝚾! {E_HAPPY}",
+        "",
+        f"{E_WALLET} ᴄʀᴇᴅɪᴛꜱ: {credits}",
+        "",
+        f"{E_CROWN} ᴘʀᴇᴍɪᴜᴍ: {premium}",
+        "",
+        f"{E_CAMERA} ᴜꜱᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴꜱ ʙᴇʟᴏᴡ",
+        f"{E_ARROW} /ʜᴇʟᴘ ꜰᴏʀ ᴄᴏᴍᴍᴀɴᴅꜱ",
+        "",
+        f"{E_DIAMOND2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ",
+        "",
+        f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}"
+    ]
+    return quote_format(lines)
 
 def info_quote(title, instruction, example, tip=None):
-    """Create info message with quote format"""
-    lines = []
-    lines.append(f"<b>{title}</b>")
-    lines.append("")
-    lines.append(instruction)
-    lines.append("")
-    lines.append(f"ᴇxᴀᴍᴩʟᴇ: {example}")
+    """Your exact info quote format"""
+    lines = [
+        f"{E_INFO} {title} {E_INFO}",
+        "",
+        instruction,
+        "",
+        f"ᴇxᴀᴍᴩʟᴇ: {example}"
+    ]
     if tip:
         lines.append(f"ᴛɪᴩ: {tip}")
-    lines.append("")
-    lines.append(f"<b>ᴛᴏᴛᴀʟ ᴩᴏɪɴᴛꜱ:</b> 2 ᴩᴏɪɴᴛ")
-    lines.append(f"<b>ꜱᴇᴀʀᴄʜ ᴄᴏꜱᴛ:</b> 1 ᴩᴏɪɴᴛ")
-    lines.append("")
-    lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
-    
-    return quote_format("\n".join(lines))
+    lines.extend([
+        "",
+        f"{E_COIN} ᴛᴏᴛᴀʟ ᴩᴏɪɴᴛꜱ: 2 ᴩᴏɪɴᴛ",
+        f"{E_WALLET} ꜱᴇᴀʀᴄʜ ᴄᴏꜱᴛ: 1 ᴩᴏɪɴᴛ",
+        "",
+        f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}"
+    ])
+    return quote_format(lines)
 
 def result_quote(title, records, emoji=None):
-    """Create result message with quote format"""
+    """Your exact result quote format"""
     lines = []
     if emoji:
-        lines.append(f"{emoji} <b>{title}</b> {emoji}")
+        lines.append(f"{emoji} {title} {emoji}")
     else:
-        lines.append(f"<b>{title}</b>")
+        lines.append(f"{title}")
     lines.append("")
-    lines.append(f"<b>ᴛᴏᴛᴀʟ:</b> {len(records)}")
+    lines.append(f"{E_LIST} ᴛᴏᴛᴀʟ: {len(records)}")
     lines.append("")
     
     for i, record in enumerate(records, 1):
-        lines.append(f"<b>ʀᴇᴄᴏʀᴅ {i}</b>")
+        lines.append(f"{E_DOC} ʀᴇᴄᴏʀᴅ {i}")
         if isinstance(record, dict):
             for key, value in record.items():
                 clean_key = key.replace('🏦', '').replace('📍', '').replace('🪪', '').replace('👤', '').replace('📲', '').replace('📡', '').replace('🏛', '').strip()
@@ -415,26 +398,24 @@ def result_quote(title, records, emoji=None):
             lines.append("")
     
     lines.append("")
-    lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
-    
-    return quote_format("\n".join(lines))
+    lines.append(f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}")
+    return quote_format(lines)
 
 def simple_quote(title, content, emoji=None):
-    """Create simple quote message"""
+    """Simple quote format"""
     lines = []
     if emoji:
-        lines.append(f"{emoji} <b>{title}</b> {emoji}")
+        lines.append(f"{emoji} {title} {emoji}")
     else:
-        lines.append(f"<b>{title}</b>")
+        lines.append(f"{title}")
     lines.append("")
     if isinstance(content, list):
         lines.extend(content)
     else:
         lines.append(str(content))
     lines.append("")
-    lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
-    
-    return quote_format("\n".join(lines))
+    lines.append(f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}")
+    return quote_format(lines)
 
 # --- 🎨 COLORED REPLY BUTTONS ---
 
@@ -861,25 +842,9 @@ async def main_menu(event):
     
     markup = create_main_menu(is_admin, s)
     cr = user.get("credits", 0)
-    name = event.sender.first_name or "User"
     
-    txt = simple_quote(
-        f"{BOT_NAME}",
-        [
-            f"@{BOT_USERNAME}",
-            "",
-            f"{E_WARN} <b>ᴡᴇʟᴄᴏᴍᴇ</b> {name}!",
-            "",
-            f"{E_CREDIT} <b>ᴄʀᴇᴅɪᴛꜱ:</b> {cr}",
-            f"{E_CROWN} <b>ᴘʀᴇᴍɪᴜᴍ:</b> ᴜɴʟɪᴍɪᴛᴇᴅ",
-            "",
-            f"{E_GEAR} ᴜꜱᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴꜱ ʙᴇʟᴏᴡ",
-            f"{E_STAR} /ʜᴇʟᴘ ꜰᴏʀ ᴄᴏᴍᴍᴀɴᴅꜱ",
-            "",
-            f"{E_STAR2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ"
-        ],
-        E_DIAMOND
-    )
+    # Your exact main menu format
+    txt = main_quote(cr)
     
     msg = await send_html(event.chat_id, txt, reply_markup=markup)
     asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
@@ -1027,7 +992,7 @@ async def msg_handler(event):
             
             if mode == "INVITE":
                 user = get_user(uid)
-                bot_username = BOT_USERNAME
+                bot_username = "Hex_Terminal_bot"
                 link = f"https://t.me/{bot_username}?start={user['invite_code']}"
                 
                 invite_msg = simple_quote(
@@ -1216,8 +1181,9 @@ async def run_query(event, mode, query):
         
         user = get_user(event.sender_id)
         
-        if f"{E_DIAMOND}" not in str(result):
-            credit_line = f"{E_CREDIT} <b>ᴄʀᴇᴅɪᴛꜱ:</b> {user.get('credits', 0)}" if credit_deducted else "<b>ꜱᴛᴀᴛᴜꜱ:</b> ɴᴏ ᴄʀᴇᴅɪᴛ ᴅᴇᴅᴜᴄᴛᴇᴅ"
+        # Add credit info if not already in result
+        if f"{E_BOLT}" not in str(result):
+            credit_line = f"{E_WALLET} <b>ᴄʀᴇᴅɪᴛꜱ:</b> {user.get('credits', 0)}" if credit_deducted else "<b>ꜱᴛᴀᴛᴜꜱ:</b> ɴᴏ ᴄʀᴇᴅɪᴛ ᴅᴇᴅᴜᴄᴛᴇᴅ"
             final = f"{result}\n\n{credit_line}"
         else:
             final = result
@@ -1247,12 +1213,12 @@ async def show_verification_page(event):
                 f"{E_LOCK} <b>ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ʀᴇQᴜɪʀᴇᴅ</b>",
                 "ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ᴛᴏ ᴜɴʟᴏᴄᴋ",
                 "",
-                f"{E_STAR2} <b>ɢᴜɪᴅᴇʟɪɴᴇꜱ:</b>",
+                f"{E_STAR} <b>ɢᴜɪᴅᴇʟɪɴᴇꜱ:</b>",
                 "• ᴇᴅᴜᴄᴀᴛɪᴏɴᴀʟ ᴘᴜʀᴘᴏꜱᴇꜱ ᴏɴʟʏ",
                 "• ᴜꜱᴇ ᴏɴ ʏᴏᴜʀ ᴏᴡɴ ᴅᴀᴛᴀ",
                 "• ʀᴇꜱᴘᴇᴄᴛ ᴘʀɪᴠᴀᴄʏ ʟᴀᴡꜱ",
                 "",
-                f"{E_GIFT} +{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ {E_STAR}",
+                f"{E_GIFT} +{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ",
                 f"{E_USERS} +{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ",
                 f"{E_CLOCK} {AUTO_DELETE_TIME}ꜱ ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ",
                 "",
