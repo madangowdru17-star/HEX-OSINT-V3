@@ -67,6 +67,7 @@ INVITE_CREDITS = 3
 AUTO_DELETE_TIME = 60
 
 BOT_NAME = "𝗛𝗲𝘅 𝗢𝗦𝗜𝗡𝗧 𝗕𝗼𝘁"
+BOT_USERNAME = "Hex_Terminal_bot"
 
 # --- YOUR PREMIUM EMOJI IDs ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
@@ -335,7 +336,7 @@ def quote_format(lines):
     """Format message with your exact quote style - no borders"""
     return "\n".join(lines)
 
-def main_quote(name, credits, premium="ᴜɴʟɪᴍɪᴛᴇᴅ"):
+def main_quote(credits, premium="ᴜɴʟɪᴍɪᴛᴇᴅ"):
     """Your exact main menu quote format"""
     lines = [
         f"{E_DIAMOND} Hᴇx Osɪɴᴛ Bᴏᴛ {E_LION}",
