@@ -18,8 +18,11 @@ try:
     from telethon import TelegramClient, events, functions
     from telethon.tl.types import (
         KeyboardButton, KeyboardButtonRow, ReplyKeyboardMarkup,
-        KeyboardButtonStyle, KeyboardButtonCallback, ReplyInlineMarkup
+        KeyboardButtonStyle, KeyboardButtonCallback, ReplyInlineMarkup,
+        KeyboardButtonUrl, MessageEntityTextUrl
     )
+    from telethon.tl.functions.channels import GetParticipantRequest
+    from telethon.errors import ChannelPrivateError, UserNotParticipantError
     HAS_BUTTON_STYLE = True
 except ImportError:
     print("Installing Telethon from master branch...")
@@ -27,8 +30,11 @@ except ImportError:
     from telethon import TelegramClient, events, functions
     from telethon.tl.types import (
         KeyboardButton, KeyboardButtonRow, ReplyKeyboardMarkup,
-        KeyboardButtonStyle, KeyboardButtonCallback, ReplyInlineMarkup
+        KeyboardButtonStyle, KeyboardButtonCallback, ReplyInlineMarkup,
+        KeyboardButtonUrl, MessageEntityTextUrl
     )
+    from telethon.tl.functions.channels import GetParticipantRequest
+    from telethon.errors import ChannelPrivateError, UserNotParticipantError
     HAS_BUTTON_STYLE = True
 
 # --- ⚙️ CONFIGURATION ---
@@ -251,23 +257,32 @@ def save_settings(data):
 
 # --- 🔍 VERIFY - FIXED WORKING VERSION ---
 
+async def check_channel_member(channel_id, user_id):
+    """Check if a user is a member of a channel using GetParticipantRequest"""
+    try:
+        # Try to get participant info
+        result = await client(GetParticipantRequest(
+            channel=channel_id,
+            participant=user_id
+        ))
+        # If we get here, user is a participant
+        return True
+    except UserNotParticipantError:
+        # User is not a participant
+        return False
+    except ChannelPrivateError:
+        # Bot doesn't have access to the channel
+        logger.error(f"Bot cannot access channel {channel_id}")
+        return False
+    except Exception as e:
+        logger.error(f"Error checking channel {channel_id}: {e}")
+        return False
+
 async def check_channels(uid):
     """Check if user is in BOTH channels"""
     try:
-        # Check channel 1
-        try:
-            m1 = await client.get_permissions(CHANNEL_1_ID, uid)
-            in_channel1 = m1.is_member if hasattr(m1, 'is_member') else m1.status in ['member', 'administrator', 'creator']
-        except:
-            in_channel1 = False
-        
-        # Check channel 2
-        try:
-            m2 = await client.get_permissions(CHANNEL_2_ID, uid)
-            in_channel2 = m2.is_member if hasattr(m2, 'is_member') else m2.status in ['member', 'administrator', 'creator']
-        except:
-            in_channel2 = False
-        
+        in_channel1 = await check_channel_member(CHANNEL_1_ID, uid)
+        in_channel2 = await check_channel_member(CHANNEL_2_ID, uid)
         return in_channel1 and in_channel2
     except Exception as e:
         logger.error(f"Check channels error: {e}")
@@ -276,20 +291,8 @@ async def check_channels(uid):
 async def check_individual_channels(uid):
     """Check each channel separately"""
     try:
-        # Check channel 1
-        try:
-            m1 = await client.get_permissions(CHANNEL_1_ID, uid)
-            in_channel1 = m1.is_member if hasattr(m1, 'is_member') else m1.status in ['member', 'administrator', 'creator']
-        except:
-            in_channel1 = False
-        
-        # Check channel 2
-        try:
-            m2 = await client.get_permissions(CHANNEL_2_ID, uid)
-            in_channel2 = m2.is_member if hasattr(m2, 'is_member') else m2.status in ['member', 'administrator', 'creator']
-        except:
-            in_channel2 = False
-        
+        in_channel1 = await check_channel_member(CHANNEL_1_ID, uid)
+        in_channel2 = await check_channel_member(CHANNEL_2_ID, uid)
         return in_channel1, in_channel2
     except Exception as e:
         logger.error(f"Check individual channels error: {e}")
@@ -389,19 +392,17 @@ async def show_verification_page(event):
             f"<i>{EMOJI_WARN} ᴍɪꜱᴜꜱᴇ ᴍᴀʏ ʟᴇᴀᴅ ᴛᴏ ʟᴇɢᴀʟ ᴀᴄᴛɪᴏɴ</i>"
         )
         
-        from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow, KeyboardButtonUrl
-        
-        # Use KeyboardButtonUrl for channel redirects
+        # Use KeyboardButtonUrl for direct channel redirect
         button1 = KeyboardButtonUrl(
-            text=f"{EMOJI_PRIMARY} ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷",
+            text="📢 ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷",
             url=LINK_1
         )
         button2 = KeyboardButtonUrl(
-            text=f"{EMOJI_SUCCESS} ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟸",
+            text="📢 ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟸",
             url=LINK_2
         )
         button3 = KeyboardButtonCallback(
-            text=f"{EMOJI_CHECK} ɪ'ᴠᴇ ᴊᴏɪɴᴇᴅ - ᴠᴇʀɪꜰʏ",
+            text="✅ ɪ'ᴠᴇ ᴊᴏɪɴᴇᴅ - ᴠᴇʀɪꜰʏ",
             data=b"verify"
         )
         
@@ -411,7 +412,6 @@ async def show_verification_page(event):
             KeyboardButtonRow(buttons=[button3])
         ])
         
-        # Send as message (not reply)
         await send_html(event.chat_id, txt, reply_markup=markup)
     except Exception as e:
         logger.error(f"Verification page error: {e}")
