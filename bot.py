@@ -73,123 +73,100 @@ BOT_NAME = "𝗛𝗲𝘅 𝗢𝗦𝗜𝗡𝗧 𝗕𝗼𝘁"
 BOT_USERNAME = "Hex_Terminal_bot"
 DEV_NAME = "@HeX_CiPhEr"
 
-# --- ALL PREMIUM EMOJI IDs ---
+# --- ALL PREMIUM EMOJI IDs (UNIQUE FOR EACH) ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
-# Star Emojis
-E_STAR = PE("6266969287638913443", "⭐")
-E_STAR2 = PE("6266969287638913443", "🌟")
-E_STAR3 = PE("6266969287638913443", "⭐️")
-E_STAR4 = PE("6266969287638913443", "✨")
-E_STAR5 = PE("6266969287638913443", "🌟")
-
-# Main Emojis
+# Welcome & Dashboard Emojis
+E_WELCOME = PE("6266969287638913443", "✨")
 E_DIAMOND = PE("6264791387032523779", "💎")
 E_CROWN = PE("6267128480601741166", "👑")
-E_FIRE = PE("6264785189394717307", "🔥")
+E_STAR = PE("6266969287638913443", "⭐")
+E_STAR2 = PE("6266969287638913443", "🌟")
+E_BOLT = PE("6284971355297290197", "⚡")
+E_GEAR = PE("5462921117423384478", "⚙️")
+E_BABY = PE("6264785189394717307", "🍼")
 E_CHECK = PE("6267008582294705964", "✅")
 E_CROSS = PE("6267000941547885720", "❌")
 E_WARN = PE("6267039884016358504", "⚠️")
 E_LOCK = PE("5316522278056399236", "🔒")
-E_BOLT = PE("6284971355297290197", "⚡")
-E_BOLT2 = PE("6284971355297290197", "⚡")
-E_GEAR = PE("5462921117423384478", "⚙️")
-E_TOOLS = PE("5462921117423384478", "🛠️")
-E_DISABLED = PE("5373165973203348165", "📴")
-
-# Phone & Contact Emojis
-E_PHONE = PE("5947494995798789024", "📞")
-E_PHONE2 = PE("5406809207947142040", "📲")
-E_SIM = PE("5800717980266403037", "💳")
-E_SIGNAL = PE("6147892053796725336", "📶")
-E_NETWORK = PE("5321141214735508486", "📡")
-
-# Money & Credit Emojis
 E_CREDIT = PE("6267068789146260253", "💰")
+E_CLOCK = PE("5382194935057372936", "⏱")
+E_REFRESH = PE("5375338737028841420", "🔄")
+E_USERS = PE("5244933196230972438", "👥")
+E_USER = PE("5249053508681883137", "👤")
+E_LINK = PE("5271604874419647061", "🔗")
 E_GIFT = PE("5203996991054432397", "🎁")
 E_TICKET = PE("5285515895534278367", "🎫")
-E_REFRESH = PE("5375338737028841420", "🔄")
-
-# Time Emojis
-E_CLOCK = PE("5382194935057372936", "⏱")
-E_CLOCK2 = PE("5382194935057372936", "⏰")
-
-# Location Emojis
-E_LOCATION = PE("5391032818111363540", "📍")
-E_HOME = PE("5280955052582785391", "🏠")
-E_STATE = PE("5388927107315283144", "🏛")
-E_CITY = PE("5388927107315283144", "🏙️")
-E_GLOBE = PE("6284779941489812433", "🌐")
-E_COMPASS = PE("5391032818111363540", "🧭")
-E_FLAG = PE("6284779941489812433", "🏁")
-
-# People Emojis
-E_USER = PE("5249053508681883137", "👤")
-E_USERS = PE("5244933196230972438", "👥")
-E_BABY = PE("6264785189394717307", "🍼")
-E_HANDSHAKE = PE("5244933196230972438", "🤝")
-E_WAVE = PE("6147892053796725336", "👋")
-
-# Country Emojis
-E_INDIA = PE("6284779941489812433", "🇮🇳")
-E_PAK = PE("5913705895375672082", "🇵🇰")
-
-# Object Emojis
-E_BANK = PE("5264895611517300926", "🏦")
-E_CAR = PE("5253752975997803460", "🚘")
-E_CARD = PE("5260561650213220533", "🪪")
-E_BOOK = PE("5260561650213220533", "📖")
-E_BOOK2 = PE("5260561650213220533", "📚")
-E_LINK = PE("5271604874419647061", "🔗")
-E_KEY = PE("5316522278056399236", "🔑")
-E_SHIELD = PE("5316522278056399236", "🛡️")
-E_SWORD = PE("6264785189394717307", "⚔️")
-E_TARGET = PE("5231012545799666522", "🎯")
-E_TARGET2 = PE("5231012545799666522", "🎯")
-E_SEARCH = PE("5231012545799666522", "🔍")
-E_CHART = PE("6093382540784046658", "📊")
+E_TOOLS = PE("5462921117423384478", "🛠️")
+E_DISABLED = PE("5373165973203348165", "📴")
 E_SPARKLE = PE("5467683093693354332", "✨")
 E_ROCKET = PE("5195033767969839232", "🚀")
-E_ROCKET2 = PE("5195033767969839232", "🚀")
-E_MAGIC = PE("5467683093693354332", "🔮")
-E_RAINBOW = PE("6266969287638913443", "🌈")
+E_FIRE = PE("6264785189394717307", "🔥")
+E_SEARCH = PE("5231012545799666522", "🔍")
+E_BELL = PE("5382194935057372936", "🔔")
+E_PARTY = PE("5203996991054432397", "🎉")
+E_TROPHY = PE("6267128480601741166", "🏆")
+E_MEDAL = PE("6264791387032523779", "🏅")
+E_SHIELD = PE("5316522278056399236", "🛡️")
+E_ROBOT = PE("5462921117423384478", "🤖")
+E_CYBER = PE("5321141214735508486", "💻")
+E_CLOUD = PE("5386367538735104399", "☁️")
 E_SUN = PE("6266969287638913443", "☀️")
 E_MOON = PE("5382194935057372936", "🌙")
 E_STARS = PE("5467683093693354332", "🌠")
 E_OCEAN = PE("6284779941489812433", "🌊")
-E_CLOUD = PE("5386367538735104399", "☁️")
+E_CITY = PE("5388927107315283144", "🏙️")
+E_WAVE = PE("6147892053796725336", "👋")
+E_HANDSHAKE = PE("5244933196230972438", "🤝")
+E_SWORD = PE("6264785189394717307", "⚔️")
+E_GHOST = PE("5231012545799666522", "👻")
 E_FLOWER = PE("5391032818111363540", "🌸")
 E_LEAF = PE("6264785189394717307", "🍃")
-E_TREE = PE("5280955052582785391", "🌳")
-E_MOUNTAIN = PE("5253752975997803460", "🏔️")
-E_AIRPLANE = PE("5195033767969839232", "✈️")
-E_SATELLITE = PE("5321141214735508486", "🛰️")
-E_ALIEN = PE("5467683093693354332", "👽")
-E_ROBOT = PE("5462921117423384478", "🤖")
-E_CYBER = PE("5321141214735508486", "💻")
-E_GHOST = PE("5231012545799666522", "👻")
-
-# Food Emojis
 E_COFFEE = PE("5386367538735104399", "☕")
 E_CAKE = PE("5203996991054432397", "🎂")
 E_PIZZA = PE("6267068789146260253", "🍕")
 E_BURGER = PE("5280955052582785391", "🍔")
 E_CANDY = PE("5203996991054432397", "🍬")
 E_COOKIE = PE("6267068789146260253", "🍪")
-
-# Welcome Message Emojis
-E_WELCOME = PE("6266969287638913443", "✨")
+E_MAGIC = PE("5467683093693354332", "🔮")
 E_CROISSANT = PE("5203996991054432397", "🥐")
-E_CROWN2 = PE("6267128480601741166", "👑")
-E_DICE = PE("5231012545799666522", "🎲")
-E_INFINITY = PE("6266969287638913443", "∞")
-E_CHECK2 = PE("6267008582294705964", "✅")
 E_BAR = PE("6267039884016358504", "➖")
-E_PARTY = PE("5203996991054432397", "🎉")
-E_TROPHY = PE("6267128480601741166", "🏆")
-E_MEDAL = PE("6264791387032523779", "🏅")
-E_BELL = PE("5382194935057372936", "🔔")
+E_INFINITY = PE("6266969287638913443", "∞")
+E_PHONE = PE("5947494995798789024", "📞")
+E_PHONE2 = PE("5406809207947142040", "📲")
+E_BANK = PE("5264895611517300926", "🏦")
+E_CAR = PE("5253752975997803460", "🚘")
+E_CARD = PE("5260561650213220533", "🪪")
+E_INDIA = PE("6284779941489812433", "🇮🇳")
+E_PAK = PE("5913705895375672082", "🇵🇰")
+E_LOCATION = PE("5391032818111363540", "📍")
+E_HOME = PE("5280955052582785391", "🏠")
+E_STATE = PE("5388927107315283144", "🏛")
+E_NETWORK = PE("5321141214735508486", "📡")
+E_SIGNAL = PE("6147892053796725336", "📶")
+E_SIM = PE("5800717980266403037", "💳")
+E_CHART = PE("6093382540784046658", "📊")
+E_BOOK = PE("5260561650213220533", "📖")
+E_TARGET = PE("5231012545799666522", "🎯")
+E_FLAG = PE("6284779941489812433", "🏁")
+E_KEY = PE("5316522278056399236", "🔑")
 E_HEART = PE("6264785189394717307", "❤️")
+E_GLOBE = PE("6284779941489812433", "🌐")
+E_COMPASS = PE("5391032818111363540", "🧭")
+E_BOLT2 = PE("6284971355297290197", "⚡")
+E_CROWN2 = PE("6267128480601741166", "👑")
+E_CHECK2 = PE("6267008582294705964", "✅")
+E_STAR3 = PE("6266969287638913443", "⭐️")
+E_IFSC = PE("5264895611517300926", "🏦")
+E_AADHAAR = PE("5260561650213220533", "🪪")
+E_INDIA_NUM = PE("6284779941489812433", "🇮🇳")
+E_RC = PE("5253752975997803460", "🚘")
+E_GST = PE("5260561650213220533", "📋")
+E_PAK_NUM = PE("5913705895375672082", "🇵🇰")
+E_INVITE = PE("5244933196230972438", "👥")
+E_REDEEM = PE("5285515895534278367", "🎫")
+E_ADMIN = PE("6267128480601741166", "👑")
+E_NEXT = PE("5258331647358540449", "➡️")
 
 # --- BUTTON ICON IDs ---
 ICON_IFSC = 5264895611517300926
@@ -404,17 +381,17 @@ async def show_verification_page(event):
     try:
         txt = (
             f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
-            f"<blockquote>@{BOT_USERNAME}</blockquote>\n\n"
-            f"<blockquote>{E_LOCK} <b>VERIFICATION REQUIRED</b></blockquote>\n"
-            f"<blockquote>JOIN BOTH CHANNELS TO UNLOCK</blockquote>\n\n"
-            f"<blockquote>{E_STAR2} <b>GUIDELINES:</b></blockquote>\n"
-            f"<blockquote>• EDUCATIONAL PURPOSES ONLY</blockquote>\n"
-            f"<blockquote>• USE ON YOUR OWN DATA</blockquote>\n"
-            f"<blockquote>• RESPECT PRIVACY LAWS</blockquote>\n\n"
+            f"<b>@{BOT_USERNAME}</b>\n\n"
+            f"<blockquote>{E_LOCK} VERIFICATION REQUIRED</blockquote>\n"
+            f"JOIN BOTH CHANNELS TO UNLOCK\n\n"
+            f"<blockquote>{E_STAR2} GUIDELINES:</blockquote>\n"
+            f"• EDUCATIONAL PURPOSES ONLY\n"
+            f"• USE ON YOUR OWN DATA\n"
+            f"• RESPECT PRIVACY LAWS\n\n"
             f"<blockquote>{E_GIFT} +{DAILY_FREE_CREDITS} DAILY {E_STAR}</blockquote>\n"
             f"<blockquote>{E_USERS} +{INVITE_CREDITS} PER INVITE</blockquote>\n"
             f"<blockquote>{E_CLOCK} {AUTO_DELETE_TIME}s AUTO DELETE</blockquote>\n\n"
-            f"<blockquote>{E_CROWN} <b>OWNER: @Hexh4ckerOFC</b></blockquote>"
+            f"<blockquote>{E_CROWN} OWNER: @Hexh4ckerOFC</blockquote>"
         )
         
         button1 = KeyboardButtonUrl(text="📢 JOIN CHANNEL 1", url=LINK_1)
@@ -569,16 +546,16 @@ def format_records_result(records, search_type):
     if not records:
         return f"<blockquote>{E_CROSS} NO RECORDS FOUND</blockquote>"
     title = {
-        'aadhaar': f'{E_CARD} AADHAR',
-        'mobile': f'{E_INDIA} INDIAN NUMBER',
-        'vehicle': f'{E_CAR} VEHICLE'
+        'aadhaar': f'{E_AADHAAR} AADHAR',
+        'mobile': f'{E_INDIA_NUM} INDIAN NUMBER',
+        'vehicle': f'{E_RC} VEHICLE'
     }.get(search_type, f'{E_CHART} RESULT')
     result = f"<blockquote>{E_SPARKLE} {title} {E_SPARKLE}</blockquote>\n"
     result += f"<blockquote>{E_CHART} TOTAL: {len(records)}</blockquote>\n"
     for i, record in enumerate(records, 1):
         result += f"\n<blockquote>━━ {E_USER} RECORD {i} ━━</blockquote>\n"
         for key, value in record.items():
-            result += f"<blockquote>{key}: {value}</blockquote>\n"
+            result += f"<blockquote>{key}: <code>{value}</code></blockquote>\n"
     return result
 
 # --- 🔗 API FUNCTIONS ---
@@ -606,11 +583,11 @@ async def ifsc_lookup(session, code):
     if not data or isinstance(data, dict) and data.get("raw_text"):
         return f"<blockquote>{E_CROSS} SERVICE UNAVAILABLE</blockquote>"
     if isinstance(data, dict):
-        return (f"<blockquote>{E_SPARKLE} {E_BANK} BANK IFSC DETAILS {E_SPARKLE}</blockquote>\n"
-                f"<blockquote>{E_BANK} BANK: {data.get('BANK','N/A')}</blockquote>\n"
-                f"<blockquote>{E_LOCATION} BRANCH: {data.get('BRANCH','N/A')}</blockquote>\n"
-                f"<blockquote>{E_CARD} IFSC: {data.get('IFSC',code.upper())}</blockquote>\n"
-                f"<blockquote>{E_LOCATION} ADDRESS: {data.get('ADDRESS','N/A')}</blockquote>")
+        return (f"<blockquote>{E_SPARKLE} {E_IFSC} BANK IFSC DETAILS {E_SPARKLE}</blockquote>\n"
+                f"<blockquote>{E_BANK} BANK: <code>{data.get('BANK','N/A')}</code></blockquote>\n"
+                f"<blockquote>{E_LOCATION} BRANCH: <code>{data.get('BRANCH','N/A')}</code></blockquote>\n"
+                f"<blockquote>{E_CARD} IFSC: <code>{data.get('IFSC',code.upper())}</code></blockquote>\n"
+                f"<blockquote>{E_LOCATION} ADDRESS: <code>{data.get('ADDRESS','N/A')}</code></blockquote>")
     return f"<blockquote>{E_CROSS} INVALID CODE</blockquote>"
 
 async def gst_lookup(session, gst_number):
@@ -619,11 +596,11 @@ async def gst_lookup(session, gst_number):
         return f"<blockquote>{E_CROSS} SERVICE UNAVAILABLE</blockquote>"
     if isinstance(data, dict) and data.get("status") == "success" and data.get("data"):
         d = data["data"]
-        result = f"<blockquote>{E_SPARKLE} {E_CARD} GST INFO {E_SPARKLE}</blockquote>\n"
+        result = f"<blockquote>{E_SPARKLE} {E_GST} GST INFO {E_SPARKLE}</blockquote>\n"
         if d.get('TradeName'):
-            result += f"<blockquote>{E_BANK} BUSINESS: {d['TradeName']}</blockquote>\n"
+            result += f"<blockquote>{E_BANK} BUSINESS: <code>{d['TradeName']}</code></blockquote>\n"
         if d.get('Gstin'):
-            result += f"<blockquote>{E_CARD} GST: {d['Gstin']}</blockquote>\n"
+            result += f"<blockquote>{E_CARD} GST: <code>{d['Gstin']}</code></blockquote>\n"
         return result
     return f"<blockquote>{E_CROSS} INVALID GST</blockquote>"
 
@@ -636,18 +613,18 @@ async def pakistan_lookup(session, number):
             valid = [r for r in data["data"] if isinstance(r, dict) and any(r.get(k) for k in ['name', 'number', 'cnic', 'address'])]
             if not valid:
                 return f"<blockquote>{E_CROSS} NO DATA</blockquote>"
-            result = f"<blockquote>{E_SPARKLE} {E_PAK} PAKISTAN NUMBER INFO {E_SPARKLE}</blockquote>\n"
+            result = f"<blockquote>{E_SPARKLE} {E_PAK_NUM} PAKISTAN NUMBER INFO {E_SPARKLE}</blockquote>\n"
             for i, r in enumerate(valid[:3], 1):
                 if len(valid) > 1:
                     result += f"\n<blockquote>━━ {E_USER} RECORD {i} ━━</blockquote>\n"
                 if r.get('number'):
-                    result += f"<blockquote>{E_PHONE2} PHONE: {r['number']}</blockquote>\n"
+                    result += f"<blockquote>{E_PHONE2} PHONE: <code>{r['number']}</code></blockquote>\n"
                 if r.get('name'):
-                    result += f"<blockquote>{E_USER} NAME: {r['name']}</blockquote>\n"
+                    result += f"<blockquote>{E_USER} NAME: <code>{r['name']}</code></blockquote>\n"
                 if r.get('cnic'):
-                    result += f"<blockquote>{E_CARD} CNIC: {r['cnic']}</blockquote>\n"
+                    result += f"<blockquote>{E_CARD} CNIC: <code>{r['cnic']}</code></blockquote>\n"
                 if r.get('address'):
-                    result += f"<blockquote>{E_LOCATION} ADDRESS: {r['address'][:200]}</blockquote>\n"
+                    result += f"<blockquote>{E_LOCATION} ADDRESS: <code>{r['address'][:200]}</code></blockquote>\n"
             return result
         return f"<blockquote>{E_CROSS} NO DATA</blockquote>"
     except:
@@ -679,7 +656,7 @@ async def admin_panel(event):
         rows.append(KeyboardButtonRow(buttons=row))
     
     markup = ReplyInlineMarkup(rows=rows)
-    txt = f"<blockquote>{E_CROWN} ADMIN PANEL {E_CROWN}</blockquote>\n<blockquote>{E_USERS} USERS: {len(load_json(USERS_FILE))} | {E_TICKET} CODES: {len(load_json(REDEEM_FILE))}</blockquote>"
+    txt = f"<blockquote>{E_ADMIN} ADMIN PANEL {E_ADMIN}</blockquote>\n<blockquote>{E_USERS} USERS: {len(load_json(USERS_FILE))} | {E_TICKET} CODES: {len(load_json(REDEEM_FILE))}</blockquote>"
     
     if hasattr(event, 'data'):
         await event.edit(txt, buttons=markup)
@@ -705,11 +682,11 @@ async def admin_callback(event):
     elif d == "ad_gen":
         ADMIN_STATE[event.sender_id] = "gen"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit(f"<blockquote>{E_TICKET} ENTER CREDITS:</blockquote>\n<blockquote>100</blockquote>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
+        await event.edit(f"<blockquote>{E_TICKET} ENTER CREDITS:</blockquote>\n<i>100</i>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_credit":
         ADMIN_STATE[event.sender_id] = "credit"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit(f"<blockquote>{E_GIFT} ENTER ID AMOUNT:</blockquote>\n<blockquote>123456789 50</blockquote>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
+        await event.edit(f"<blockquote>{E_GIFT} ENTER ID AMOUNT:</blockquote>\n<i>123456789 50</i>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_bcast":
         ADMIN_STATE[event.sender_id] = "bcast"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
@@ -758,7 +735,7 @@ async def start(event):
                 if data.get("invite_code") == args[1] and inviter != str(uid):
                     cr = process_invite(inviter, uid)
                     try:
-                        await send_html(int(inviter), f"{E_GIFT} +{cr} CREDITS! NEW USER JOINED!")
+                        await send_html(int(inviter), f"<blockquote>{E_GIFT} +{cr} CREDITS! NEW USER JOINED!</blockquote>")
                     except:
                         pass
                     break
@@ -833,19 +810,20 @@ async def main_menu(event):
     name = event.sender.first_name or "User"
     
     welcome_text = (
+        f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
+        f"<blockquote>@{BOT_USERNAME}</blockquote>\n\n"
+        f"<blockquote>{E_WAVE} Welcome <b>{name}</b>!</blockquote>\n\n"
+        f"<blockquote>{E_BOLT} Your Dashboard</blockquote>\n"
         f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-        f"<blockquote>{E_WELCOME} Welcome To Our Information Bot {E_CROISSANT}</blockquote>\n"
+        f"<blockquote>{E_CREDIT} Credits: <b>{cr}</b></blockquote>\n"
+        f"<blockquote>{E_CROWN} Premium: <b>{E_INFINITY} Search</b></blockquote>\n"
+        f"<blockquote>{E_CHART} Queries: <b>{user.get('total_queries',0)}</b></blockquote>\n"
+        f"<blockquote>{E_USERS} Invites: <b>{user.get('invites',0)}</b></blockquote>\n"
         f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
-        f"<blockquote>{E_CROWN2} Hey <b>{name}</b> !! {E_CHECK2}</blockquote>\n\n"
-        f"<blockquote>{E_BOLT2} Your Dashboard</blockquote>\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-        f"<blockquote>│ {E_CREDIT} Credits      » {cr}</blockquote>\n"
-        f"<blockquote>│ {E_CROWN} Premium    » {E_INFINITY} Search</blockquote>\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
         f"<blockquote>{E_GEAR} Use the buttons below</blockquote>\n"
-        f"<blockquote>{E_STAR3} /help to see all commands</blockquote>\n\n"
+        f"<blockquote>{E_STAR} /help for commands</blockquote>\n\n"
         f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-        f"<blockquote>{E_BABY} Dev » {DEV_NAME} {E_CHECK2}</blockquote>\n"
+        f"<blockquote>{E_BABY} Dev: {DEV_NAME} {E_CHECK}</blockquote>\n"
         f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
         f"{E_STAR2} Select a service below {E_STAR2}"
     )
@@ -908,7 +886,7 @@ async def msg_handler(event):
                 cnt = 0
                 for u in users:
                     try:
-                        await send_html(int(u), f"{E_BOLT} {txt}")
+                        await send_html(int(u), f"<blockquote>{E_BOLT} {txt}</blockquote>")
                         cnt += 1
                     except:
                         pass
@@ -961,19 +939,18 @@ async def msg_handler(event):
                 link = f"https://t.me/{bot_username}?start={user['invite_code']}"
                 
                 invite_msg = (
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
-                    f"<blockquote>{E_STAR} Invite & Earn {E_STAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
+                    f"<blockquote>{E_INVITE} Invite & Earn {E_INVITE}</blockquote>\n"
+                    f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
                     f"<blockquote>{E_USERS} +{INVITE_CREDITS} Credits per invite</blockquote>\n"
                     f"<blockquote>{E_LINK} <code>{link}</code></blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by : {DEV_NAME} {E_STAR}</blockquote>"
+                    f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
                 )
                 m = await send_html(event.chat_id, invite_msg)
                 asyncio.create_task(schedule_delete(m, 120))
                 return
             elif mode == "REDEEM":
                 event.redeem_mode = True
-                m = await send_html(event.chat_id, f"<blockquote>{E_TICKET} Enter redeem code:</blockquote>\n<blockquote>HEX-XXXXXXXXXX</blockquote>")
+                m = await send_html(event.chat_id, f"<blockquote>{E_REDEEM} Enter redeem code:</blockquote>\n<i>HEX-XXXXXXXXXX</i>")
                 asyncio.create_task(schedule_delete(m, 30))
                 return
             
@@ -993,65 +970,59 @@ async def msg_handler(event):
             
             prompts = {
                 "IFSC": (
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
-                    f"<blockquote>{E_STAR} IFSC Lookup {E_STAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
+                    f"<blockquote>{E_IFSC} IFSC Lookup {E_IFSC}</blockquote>\n"
+                    f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
                     f"<blockquote>{E_STAR} Send IFSC code</blockquote>\n"
                     f"<blockquote>Example: SBIN0001234, HDFC0001234</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point : 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost : 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by : {DEV_NAME} {E_STAR}</blockquote>"
+                    f"<blockquote>{E_STAR} Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>{E_STAR} Search Cost: 1 Point</blockquote>\n\n"
+                    f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
                 ),
                 "AADHAAR": (
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
-                    f"<blockquote>{E_STAR} Aadhar Lookup {E_STAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
+                    f"<blockquote>{E_AADHAAR} Aadhar Lookup {E_AADHAAR}</blockquote>\n"
+                    f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
                     f"<blockquote>{E_STAR} Send 12-digit Aadhar number</blockquote>\n"
                     f"<blockquote>Example: 123456789012</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point : 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost : 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by : {DEV_NAME} {E_STAR}</blockquote>"
+                    f"<blockquote>{E_STAR} Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>{E_STAR} Search Cost: 1 Point</blockquote>\n\n"
+                    f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
                 ),
                 "MOBILE": (
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
-                    f"<blockquote>{E_STAR} Number Info {E_STAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
+                    f"<blockquote>{E_INDIA_NUM} Number Info {E_INDIA_NUM}</blockquote>\n"
+                    f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
                     f"<blockquote>{E_STAR} Send 10-digit mobile number</blockquote>\n"
                     f"<blockquote>Example: 9876543210</blockquote>\n\n"
                     f"<blockquote>{E_STAR} Tip: with or without +91</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point : 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost : 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by : {DEV_NAME} {E_STAR}</blockquote>"
+                    f"<blockquote>{E_STAR} Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>{E_STAR} Search Cost: 1 Point</blockquote>\n\n"
+                    f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
                 ),
                 "VEHICLE": (
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
-                    f"<blockquote>{E_STAR} RC Check {E_STAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
+                    f"<blockquote>{E_RC} RC Check {E_RC}</blockquote>\n"
+                    f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
                     f"<blockquote>{E_STAR} Send vehicle number</blockquote>\n"
                     f"<blockquote>Example: KA01AB3256, DL1CX1234</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point : 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost : 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by : {DEV_NAME} {E_STAR}</blockquote>"
+                    f"<blockquote>{E_STAR} Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>{E_STAR} Search Cost: 1 Point</blockquote>\n\n"
+                    f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
                 ),
                 "GST": (
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
-                    f"<blockquote>{E_STAR} GST Verify {E_STAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
+                    f"<blockquote>{E_GST} GST Verify {E_GST}</blockquote>\n"
+                    f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
                     f"<blockquote>{E_STAR} Send GST number</blockquote>\n"
                     f"<blockquote>Example: 19BOKPS7056D1ZI</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point : 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost : 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by : {DEV_NAME} {E_STAR}</blockquote>"
+                    f"<blockquote>{E_STAR} Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>{E_STAR} Search Cost: 1 Point</blockquote>\n\n"
+                    f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
                 ),
                 "PAK": (
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
-                    f"<blockquote>{E_STAR} Pakistan Number {E_STAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
+                    f"<blockquote>{E_PAK_NUM} Pakistan Number {E_PAK_NUM}</blockquote>\n"
+                    f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
                     f"<blockquote>{E_STAR} Send Pakistan number</blockquote>\n"
                     f"<blockquote>Example: 923078750447</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point : 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost : 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by : {DEV_NAME} {E_STAR}</blockquote>"
+                    f"<blockquote>{E_STAR} Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>{E_STAR} Search Cost: 1 Point</blockquote>\n\n"
+                    f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
                 )
             }
             if mode in prompts:
@@ -1092,17 +1063,9 @@ async def run_query(event, mode, query):
     
     st = await send_html(event.chat_id, f"<blockquote>{E_SEARCH} Searching...</blockquote>")
     
-    # Loading animation with premium emojis
-    loading_msgs = [
-        f"{E_STAR4} Searching... 1/5",
-        f"{E_STAR4} Searching... 2/5",
-        f"{E_STAR4} Searching... 3/5",
-        f"{E_STAR4} Searching... 4/5",
-        f"{E_STAR4} Searching... 5/5"
-    ]
-    for msg in loading_msgs:
+    for i in range(5):
         try:
-            await edit_html(st, f"<blockquote>{msg}</blockquote>")
+            await edit_html(st, f"<blockquote>{E_SEARCH} Searching... {i+1}/5</blockquote>")
             await asyncio.sleep(0.4)
         except:
             pass
