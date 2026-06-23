@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot FINAL WORKING with Quote Format
+# bot.py - Hex OSINT Bot FINAL WORKING with Premium Quote Format
 
 import logging
 import asyncio
@@ -76,6 +76,7 @@ DEV_NAME = "@HeX_CiPhEr"
 # --- ALL PREMIUM EMOJI IDs ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
+# Main Emojis
 E_STAR = PE("6266969287638913443", "⭐")
 E_DIAMOND = PE("6264791387032523779", "💎")
 E_CROWN = PE("6267128480601741166", "👑")
@@ -123,6 +124,14 @@ E_WELCOME = PE("6266969287638913443", "✨")
 E_CROISSANT = PE("5203996991054432397", "🥐")
 E_BAR = PE("6267039884016358504", "➖")
 E_INFINITY = PE("6266969287638913443", "∞")
+E_MAGIC = PE("6264785189394717307", "🪄")
+E_SHIELD = PE("6267128480601741166", "🛡️")
+E_TARGET = PE("5231012545799666522", "🎯")
+E_FLAG = PE("6284779941489812433", "🏁")
+E_STAR4 = PE("6266969287638913443", "✴️")
+E_DOT = PE("6267039884016358504", "•")
+E_ARROW = PE("5258331647358540449", "➜")
+E_BACK = PE("5258331647358540449", "◀")
 
 # --- BUTTON ICON IDs ---
 ICON_IFSC = 5264895611517300926
@@ -335,40 +344,47 @@ def check_feature_maintenance(feature_key):
 
 # --- 📋 QUOTE FORMAT HELPER ---
 
-def quote(text, title=None, emoji=None, border=True):
-    """Create a telegram quote-style message"""
-    lines = text.split('\n')
+def quote_format(title, content, emoji=None, footer=None):
+    """Create a premium quote-style message with emojis"""
+    lines = []
+    
+    # Header
     if title:
-        border_line = "▰" * 30
-        result = f"<b>{emoji or ''} {title} {emoji or ''}</b>\n\n"
+        lines.append(f"<b>{emoji or ''} {title} {emoji or ''}</b>")
+        lines.append("")
+    
+    # Content
+    if isinstance(content, list):
+        lines.extend(content)
     else:
-        border_line = "▰" * 30
-        result = ""
+        lines.append(str(content))
     
-    if border:
-        result += f"<code>{border_line}</code>\n"
+    # Footer
+    if footer:
+        lines.append("")
+        lines.append(footer)
+    else:
+        lines.append("")
+        lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
     
-    result += "\n".join(lines)
-    
-    if border:
-        result += f"\n<code>{border_line}</code>"
-    
-    return result
+    return "\n".join(lines)
 
 def format_result(title, data, emoji=None):
-    """Format result in quote style"""
-    border = "▰" * 30
-    result = f"<b>{emoji or ''} {title} {emoji or ''}</b>\n\n"
-    result += f"<code>{border}</code>\n"
+    """Format result in quote style with premium emojis"""
+    lines = []
+    lines.append(f"<b>{emoji or E_SPARKLE} {title} {emoji or E_SPARKLE}</b>")
+    lines.append("")
     
     if isinstance(data, dict):
         for key, value in data.items():
-            result += f"<b>{key}:</b> {value}\n"
+            lines.append(f"<b>{key}:</b> {value}")
     else:
-        result += str(data)
+        lines.append(str(data))
     
-    result += f"\n<code>{border}</code>"
-    return result
+    lines.append("")
+    lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+    
+    return "\n".join(lines)
 
 # --- 🎨 COLORED REPLY BUTTONS ---
 
@@ -514,21 +530,23 @@ def format_records_result(records, search_type):
         'vehicle': f'{E_CAR} VEHICLE'
     }.get(search_type, f'{E_CHART} RESULT')
     
-    # Format in quote style
-    border = "▰" * 30
-    result = f"<b>{E_SPARKLE} {title} {E_SPARKLE}</b>\n\n"
-    result += f"<code>{border}</code>\n"
-    result += f"<b>TOTAL:</b> {len(records)}\n\n"
+    lines = []
+    lines.append(f"<b>{E_SPARKLE} {title} {E_SPARKLE}</b>")
+    lines.append("")
+    lines.append(f"<b>{E_CHART} TOTAL:</b> {len(records)}")
+    lines.append("")
     
     for i, record in enumerate(records, 1):
-        result += f"<b>{E_USER} RECORD {i}</b>\n"
+        lines.append(f"<b>{E_USER} RECORD {i}</b>")
         for key, value in record.items():
-            result += f"<b>{key}:</b> {value}\n"
+            lines.append(f"<b>{key}:</b> {value}")
         if i < len(records):
-            result += "\n"
+            lines.append("")
     
-    result += f"<code>{border}</code>"
-    return result
+    lines.append("")
+    lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+    
+    return "\n".join(lines)
 
 # --- 🔗 API FUNCTIONS ---
 
@@ -588,24 +606,27 @@ async def pakistan_lookup(session, number):
             if not valid:
                 return f"{E_CROSS} NO DATA"
             
-            border = "▰" * 30
-            result = f"<b>{E_SPARKLE} {E_PAK} PAKISTAN NUMBER INFO {E_SPARKLE}</b>\n\n"
-            result += f"<code>{border}</code>\n"
+            lines = []
+            lines.append(f"<b>{E_SPARKLE} {E_PAK} PAKISTAN NUMBER INFO {E_SPARKLE}</b>")
+            lines.append("")
             
             for i, r in enumerate(valid[:3], 1):
                 if len(valid) > 1:
-                    result += f"\n<b>{E_USER} RECORD {i}</b>\n"
+                    lines.append(f"<b>{E_USER} RECORD {i}</b>")
                 if r.get('number'):
-                    result += f"<b>{E_PHONE2} PHONE:</b> {r['number']}\n"
+                    lines.append(f"<b>{E_PHONE2} PHONE:</b> {r['number']}")
                 if r.get('name'):
-                    result += f"<b>{E_USER} NAME:</b> {r['name']}\n"
+                    lines.append(f"<b>{E_USER} NAME:</b> {r['name']}")
                 if r.get('cnic'):
-                    result += f"<b>{E_CARD} CNIC:</b> {r['cnic']}\n"
+                    lines.append(f"<b>{E_CARD} CNIC:</b> {r['cnic']}")
                 if r.get('address'):
-                    result += f"<b>{E_LOCATION} ADDRESS:</b> {r['address'][:200]}\n"
+                    lines.append(f"<b>{E_LOCATION} ADDRESS:</b> {r['address'][:200]}")
+                if i < len(valid):
+                    lines.append("")
             
-            result += f"<code>{border}</code>"
-            return result
+            lines.append("")
+            lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+            return "\n".join(lines)
         return f"{E_CROSS} NO DATA"
     except:
         return f"{E_CROSS} ERROR"
@@ -638,12 +659,15 @@ async def admin_panel(event):
     markup = ReplyInlineMarkup(rows=rows)
     
     # Admin panel in quote format
-    border = "▰" * 30
-    txt = f"<b>{E_CROWN} ADMIN PANEL {E_CROWN}</b>\n\n"
-    txt += f"<code>{border}</code>\n"
-    txt += f"<b>{E_USERS} USERS:</b> {len(load_json(USERS_FILE))}\n"
-    txt += f"<b>{E_TICKET} CODES:</b> {len(load_json(REDEEM_FILE))}\n"
-    txt += f"<code>{border}</code>"
+    lines = []
+    lines.append(f"<b>{E_CROWN} ADMIN PANEL {E_CROWN}</b>")
+    lines.append("")
+    lines.append(f"{E_USERS} <b>USERS:</b> {len(load_json(USERS_FILE))}")
+    lines.append(f"{E_TICKET} <b>CODES:</b> {len(load_json(REDEEM_FILE))}")
+    lines.append("")
+    lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+    
+    txt = "\n".join(lines)
     
     if hasattr(event, 'data'):
         await event.edit(txt, buttons=markup)
@@ -661,37 +685,51 @@ async def admin_callback(event):
         await event.delete()
     elif d == "ad_codes":
         codes = load_json(REDEEM_FILE)
-        border = "▰" * 30
-        txt = f"<b>{E_TICKET} CODES</b>\n\n<code>{border}</code>\n"
+        lines = []
+        lines.append(f"<b>{E_TICKET} CODES</b>")
+        lines.append("")
         for c, v in list(codes.items())[-15:]:
             status = f"{E_CHECK}" if not v.get('used') else f"{E_CROSS}"
-            txt += f"{status} <code>{c}</code> | {v.get('credits')}cr\n"
-        txt += f"<code>{border}</code>"
+            lines.append(f"{status} <code>{c}</code> | {v.get('credits')}cr")
+        lines.append("")
+        lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+        txt = "\n".join(lines)
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
         await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_gen":
         ADMIN_STATE[event.sender_id] = "gen"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        border = "▰" * 30
-        txt = f"<b>{E_TICKET} GENERATE CODE</b>\n\n<code>{border}</code>\n"
-        txt += "Send number of credits:\n<code>100</code>\n"
-        txt += f"<code>{border}</code>"
+        lines = []
+        lines.append(f"<b>{E_TICKET} GENERATE CODE</b>")
+        lines.append("")
+        lines.append("Send number of credits:")
+        lines.append("<code>100</code>")
+        lines.append("")
+        lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+        txt = "\n".join(lines)
         await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_credit":
         ADMIN_STATE[event.sender_id] = "credit"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        border = "▰" * 30
-        txt = f"<b>{E_GIFT} ADD CREDITS</b>\n\n<code>{border}</code>\n"
-        txt += "Send format:\n<code>USER_ID AMOUNT</code>\n"
-        txt += f"<code>{border}</code>"
+        lines = []
+        lines.append(f"<b>{E_GIFT} ADD CREDITS</b>")
+        lines.append("")
+        lines.append("Send format:")
+        lines.append("<code>USER_ID AMOUNT</code>")
+        lines.append("")
+        lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+        txt = "\n".join(lines)
         await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_bcast":
         ADMIN_STATE[event.sender_id] = "bcast"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        border = "▰" * 30
-        txt = f"<b>{E_BOLT} BROADCAST</b>\n\n<code>{border}</code>\n"
-        txt += "Send your broadcast message:\n"
-        txt += f"<code>{border}</code>"
+        lines = []
+        lines.append(f"<b>{E_BOLT} BROADCAST</b>")
+        lines.append("")
+        lines.append("Send your broadcast message:")
+        lines.append("")
+        lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+        txt = "\n".join(lines)
         await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_maint":
         s["maintenance_mode"] = not s.get("maintenance_mode", False)
@@ -811,22 +849,26 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     name = event.sender.first_name or "User"
     
-    # Main menu in quote format
-    border = "▰" * 30
-    welcome_text = (
-        f"<b>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</b>\n"
-        f"<b>@{BOT_USERNAME}</b>\n\n"
-        f"<code>{border}</code>\n"
-        f"<b>{E_WARN} WELCOME</b> {name}!\n"
-        f"<code>{border}</code>\n"
-        f"<b>{E_CREDIT} Credits:</b> {cr}\n"
-        f"<b>{E_CROWN} Premium:</b> Unlimited\n"
-        f"<code>{border}</code>\n\n"
-        f"{E_GEAR} Use the buttons below\n"
-        f"{E_STAR} /help for commands\n\n"
-        f"{E_BABY} Dev: {DEV_NAME}\n\n"
-        f"{E_STAR2} Select a service below"
-    )
+    # Main menu in quote format with premium emojis
+    lines = []
+    lines.append(f"<b>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</b>")
+    lines.append(f"<b>@{BOT_USERNAME}</b>")
+    lines.append("")
+    lines.append(f"{E_WARN} <b>WELCOME</b> {name}!")
+    lines.append("")
+    lines.append(f"{E_CREDIT} <b>Credits:</b> {cr}")
+    lines.append(f"{E_CROWN} <b>Premium:</b> Unlimited")
+    lines.append("")
+    lines.append(f"{E_GEAR} Use the buttons below")
+    lines.append(f"{E_STAR} /help for commands")
+    lines.append("")
+    lines.append(f"{E_BABY} Dev: {DEV_NAME}")
+    lines.append("")
+    lines.append(f"{E_STAR2} Select a service below")
+    lines.append("")
+    lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+    
+    welcome_text = "\n".join(lines)
     
     msg = await send_html(event.chat_id, welcome_text, reply_markup=markup)
     asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
@@ -846,8 +888,13 @@ async def msg_handler(event):
         s = get_settings()
         
         if s.get("maintenance_mode", False) and uid != ADMIN_ID:
-            border = "▰" * 30
-            m = await send_html(event.chat_id, f"<b>{E_TOOLS} MAINTENANCE MODE</b>\n\n<code>{border}</code>\nBot is currently under maintenance.\n<code>{border}</code>")
+            lines = []
+            lines.append(f"<b>{E_TOOLS} MAINTENANCE MODE</b>")
+            lines.append("")
+            lines.append("Bot is currently under maintenance.")
+            lines.append("")
+            lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+            m = await send_html(event.chat_id, "\n".join(lines))
             asyncio.create_task(schedule_delete(m))
             return
         
@@ -864,23 +911,49 @@ async def msg_handler(event):
         
         if uid == ADMIN_ID and uid in ADMIN_STATE:
             state = ADMIN_STATE.pop(uid)
-            border = "▰" * 30
             if state == "gen":
                 try:
                     cr = int(txt)
                     code = generate_redeem_code(cr)
-                    msg = await send_html(event.chat_id, f"<b>{E_CHECK} CODE GENERATED</b>\n\n<code>{border}</code>\n<code>{code}</code>\n<b>{E_CREDIT} Credits:</b> {cr}\n<code>{border}</code>")
+                    lines = []
+                    lines.append(f"<b>{E_CHECK} CODE GENERATED</b>")
+                    lines.append("")
+                    lines.append(f"<code>{code}</code>")
+                    lines.append(f"{E_CREDIT} <b>Credits:</b> {cr}")
+                    lines.append("")
+                    lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+                    msg = await send_html(event.chat_id, "\n".join(lines))
                 except:
-                    msg = await send_html(event.chat_id, f"<b>{E_CROSS} ERROR</b>\n\n<code>{border}</code>\nInvalid number format!\n<code>{border}</code>")
+                    lines = []
+                    lines.append(f"<b>{E_CROSS} ERROR</b>")
+                    lines.append("")
+                    lines.append("Invalid number format!")
+                    lines.append("")
+                    lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+                    msg = await send_html(event.chat_id, "\n".join(lines))
                 asyncio.create_task(schedule_delete(msg))
                 return
             elif state == "credit":
                 p = txt.split()
                 if len(p) >= 2:
                     bal = add_credits(p[0], int(p[1]))
-                    msg = await send_html(event.chat_id, f"<b>{E_CHECK} CREDITS ADDED</b>\n\n<code>{border}</code>\n<b>User:</b> {p[0]}\n<b>Added:</b> +{p[1]}\n<b>New Balance:</b> {bal}\n<code>{border}</code>")
+                    lines = []
+                    lines.append(f"<b>{E_CHECK} CREDITS ADDED</b>")
+                    lines.append("")
+                    lines.append(f"<b>User:</b> {p[0]}")
+                    lines.append(f"<b>Added:</b> +{p[1]}")
+                    lines.append(f"<b>New Balance:</b> {bal}")
+                    lines.append("")
+                    lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+                    msg = await send_html(event.chat_id, "\n".join(lines))
                 else:
-                    msg = await send_html(event.chat_id, f"<b>{E_CROSS} ERROR</b>\n\n<code>{border}</code>\nFormat: <code>USER_ID AMOUNT</code>\n<code>{border}</code>")
+                    lines = []
+                    lines.append(f"<b>{E_CROSS} ERROR</b>")
+                    lines.append("")
+                    lines.append("Format: <code>USER_ID AMOUNT</code>")
+                    lines.append("")
+                    lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+                    msg = await send_html(event.chat_id, "\n".join(lines))
                 asyncio.create_task(schedule_delete(msg))
                 return
             elif state == "bcast":
@@ -888,11 +961,23 @@ async def msg_handler(event):
                 cnt = 0
                 for u in users:
                     try:
-                        await send_html(int(u), f"<b>{E_BOLT} BROADCAST</b>\n\n<code>{'▰' * 30}</code>\n{txt}\n<code>{'▰' * 30}</code>")
+                        lines = []
+                        lines.append(f"<b>{E_BOLT} BROADCAST</b>")
+                        lines.append("")
+                        lines.append(txt)
+                        lines.append("")
+                        lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+                        await send_html(int(u), "\n".join(lines))
                         cnt += 1
                     except:
                         pass
-                msg = await send_html(event.chat_id, f"<b>{E_CHECK} BROADCAST SENT</b>\n\n<code>{border}</code>\n<b>Delivered to:</b> {cnt} users\n<code>{border}</code>")
+                lines = []
+                lines.append(f"<b>{E_CHECK} BROADCAST SENT</b>")
+                lines.append("")
+                lines.append(f"<b>Delivered to:</b> {cnt} users")
+                lines.append("")
+                lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+                msg = await send_html(event.chat_id, "\n".join(lines))
                 asyncio.create_task(schedule_delete(msg))
                 return
         
@@ -917,8 +1002,13 @@ async def msg_handler(event):
                 success, msg = redeem_code(uid, txt)
                 m = await send_html(event.chat_id, msg)
             else:
-                border = "▰" * 30
-                m = await send_html(event.chat_id, f"<b>{E_CROSS} INVALID CODE</b>\n\n<code>{border}</code>\nCode must start with <code>HEX-</code>\n<code>{border}</code>")
+                lines = []
+                lines.append(f"<b>{E_CROSS} INVALID CODE</b>")
+                lines.append("")
+                lines.append("Code must start with <code>HEX-</code>")
+                lines.append("")
+                lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+                m = await send_html(event.chat_id, "\n".join(lines))
             asyncio.create_task(schedule_delete(m))
             return
         
@@ -941,35 +1031,53 @@ async def msg_handler(event):
                 bot_username = BOT_USERNAME
                 link = f"https://t.me/{bot_username}?start={user['invite_code']}"
                 
-                border = "▰" * 30
-                invite_msg = (
-                    f"<b>{E_STAR} INVITE & EARN {E_STAR}</b>\n\n"
-                    f"<code>{border}</code>\n"
-                    f"{E_USERS} +{INVITE_CREDITS} Credits per invite\n"
-                    f"{E_LINK} <a href='{link}'>{link}</a>\n\n"
-                    f"{E_BABY} Bot made by: {DEV_NAME}\n"
-                    f"<code>{border}</code>"
-                )
+                lines = []
+                lines.append(f"<b>{E_STAR} INVITE & EARN {E_STAR}</b>")
+                lines.append("")
+                lines.append(f"{E_USERS} +{INVITE_CREDITS} Credits per invite")
+                lines.append(f"{E_LINK} <a href='{link}'>{link}</a>")
+                lines.append("")
+                lines.append(f"{E_BABY} Bot made by: {DEV_NAME}")
+                lines.append("")
+                lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+                invite_msg = "\n".join(lines)
                 m = await send_html(event.chat_id, invite_msg)
                 asyncio.create_task(schedule_delete(m, 120))
                 return
             elif mode == "REDEEM":
                 event.redeem_mode = True
-                border = "▰" * 30
-                m = await send_html(event.chat_id, f"<b>{E_TICKET} REDEEM CODE</b>\n\n<code>{border}</code>\nSend your redeem code:\n<code>HEX-XXXXXXXXXX</code>\n<code>{border}</code>")
+                lines = []
+                lines.append(f"<b>{E_TICKET} REDEEM CODE</b>")
+                lines.append("")
+                lines.append("Send your redeem code:")
+                lines.append("<code>HEX-XXXXXXXXXX</code>")
+                lines.append("")
+                lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+                m = await send_html(event.chat_id, "\n".join(lines))
                 asyncio.create_task(schedule_delete(m, 30))
                 return
             
             if feature and not s.get(f"{feature}_enabled", True):
-                border = "▰" * 30
-                m = await send_html(event.chat_id, f"<b>{E_DISABLED} SERVICE DISABLED</b>\n\n<code>{border}</code>\nThis service is currently disabled.\n<code>{border}</code>")
+                lines = []
+                lines.append(f"<b>{E_DISABLED} SERVICE DISABLED</b>")
+                lines.append("")
+                lines.append("This service is currently disabled.")
+                lines.append("")
+                lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+                m = await send_html(event.chat_id, "\n".join(lines))
                 asyncio.create_task(schedule_delete(m))
                 return
             
             if feature:
                 maint, msg = check_feature_maintenance(feature)
                 if maint:
-                    m = await send_html(event.chat_id, f"<b>{E_TOOLS} MAINTENANCE</b>\n\n<code>{'▰' * 30}</code>\n{msg}\n<code>{'▰' * 30}</code>")
+                    lines = []
+                    lines.append(f"<b>{E_TOOLS} MAINTENANCE</b>")
+                    lines.append("")
+                    lines.append(msg)
+                    lines.append("")
+                    lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+                    m = await send_html(event.chat_id, "\n".join(lines))
                     asyncio.create_task(schedule_delete(m))
                     return
             
@@ -1015,16 +1123,18 @@ async def msg_handler(event):
             }
             if mode in prompts:
                 p = prompts[mode]
-                border = "▰" * 30
-                prompt_text = (
-                    f"<b>{p['emoji']} {p['title']} {p['emoji']}</b>\n\n"
-                    f"<code>{border}</code>\n"
-                    f"{p['instruction']}\n\n"
-                    f"<b>Total Points:</b> 2 Point\n"
-                    f"<b>Search Cost:</b> {p['cost']}\n"
-                    f"<code>{border}</code>\n\n"
-                    f"{E_BABY} Bot made by: {DEV_NAME}"
-                )
+                lines = []
+                lines.append(f"<b>{p['emoji']} {p['title']} {p['emoji']}</b>")
+                lines.append("")
+                lines.append(p['instruction'])
+                lines.append("")
+                lines.append(f"<b>Total Points:</b> 2 Point")
+                lines.append(f"<b>Search Cost:</b> {p['cost']}")
+                lines.append("")
+                lines.append(f"{E_BABY} Bot made by: {DEV_NAME}")
+                lines.append("")
+                lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+                prompt_text = "\n".join(lines)
                 m = await send_html(event.chat_id, prompt_text)
                 asyncio.create_task(schedule_delete(m))
             return
@@ -1042,8 +1152,15 @@ async def msg_handler(event):
             
             user = get_user(uid)
             if user.get("credits", 0) <= 0:
-                border = "▰" * 30
-                m = await send_html(event.chat_id, f"<b>{E_CROSS} INSUFFICIENT CREDITS</b>\n\n<code>{border}</code>\nNo credits left!\nGet +{DAILY_FREE_CREDITS} daily\n+{INVITE_CREDITS} per invite\n<code>{border}</code>")
+                lines = []
+                lines.append(f"<b>{E_CROSS} INSUFFICIENT CREDITS</b>")
+                lines.append("")
+                lines.append("No credits left!")
+                lines.append(f"Get +{DAILY_FREE_CREDITS} daily")
+                lines.append(f"+{INVITE_CREDITS} per invite")
+                lines.append("")
+                lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+                m = await send_html(event.chat_id, "\n".join(lines))
                 asyncio.create_task(schedule_delete(m))
                 USER_MODES[uid_str] = None
                 return
@@ -1057,16 +1174,21 @@ async def msg_handler(event):
 
 async def run_query(event, mode, query):
     if not await net_ok():
-        border = "▰" * 30
-        m = await send_html(event.chat_id, f"<b>{E_CROSS} NO INTERNET</b>\n\n<code>{border}</code>\nPlease check your connection.\n<code>{border}</code>")
+        lines = []
+        lines.append(f"<b>{E_CROSS} NO INTERNET</b>")
+        lines.append("")
+        lines.append("Please check your connection.")
+        lines.append("")
+        lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+        m = await send_html(event.chat_id, "\n".join(lines))
         asyncio.create_task(schedule_delete(m))
         return
     
-    st = await send_html(event.chat_id, f"<b>{E_SEARCH} SEARCHING</b>\n\n<code>{'▰' * 30}</code>\nProcessing your request...\n<code>{'▰' * 30}</code>")
+    st = await send_html(event.chat_id, f"<b>{E_SEARCH} SEARCHING</b>\n\nProcessing your request...\n\n{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
     
     for i in range(5):
         try:
-            await edit_html(st, f"<b>{E_SEARCH} SEARCHING</b>\n\n<code>{'▰' * 30}</code>\nProcessing... {i+1}/5\n<code>{'▰' * 30}</code>")
+            await edit_html(st, f"<b>{E_SEARCH} SEARCHING</b>\n\nProcessing... {i+1}/5\n\n{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
             await asyncio.sleep(0.4)
         except:
             pass
@@ -1101,22 +1223,31 @@ async def run_query(event, mode, query):
                 credit_deducted = True
         
         user = get_user(event.sender_id)
-        border = "▰" * 30
-        final = f"{result}\n\n<code>{border}</code>\n"
+        
+        # Add credit info to result
         if credit_deducted:
-            final += f"<b>{E_CREDIT} Credits:</b> {user.get('credits', 0)}"
+            credit_line = f"{E_CREDIT} <b>Credits:</b> {user.get('credits', 0)}"
         else:
-            final += f"<b>Status:</b> No credit deducted"
-        final += f"\n<code>{border}</code>\n\n"
-        final += f"<b>{E_DIAMOND} Powered by @Hexh4ckerOFC {E_DIAMOND}</b>"
+            credit_line = f"<b>Status:</b> No credit deducted"
+        
+        # Check if result already has footer
+        if f"{E_DIAMOND}" not in str(result):
+            final = f"{result}\n\n{credit_line}\n\n{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}"
+        else:
+            final = result
         
         sent = await edit_html(st, final)
         asyncio.create_task(schedule_delete(sent))
     except Exception as e:
         logger.error(f"Query error: {e}")
         try:
-            border = "▰" * 30
-            await edit_html(st, f"<b>{E_WARN} ERROR</b>\n\n<code>{border}</code>\nAn error occurred while processing.\n<code>{border}</code>\n\n<b>{E_DIAMOND} Powered by @Hexh4ckerOFC {E_DIAMOND}</b>")
+            lines = []
+            lines.append(f"<b>{E_WARN} ERROR</b>")
+            lines.append("")
+            lines.append("An error occurred while processing.")
+            lines.append("")
+            lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+            await edit_html(st, "\n".join(lines))
         except:
             pass
 
@@ -1124,23 +1255,27 @@ async def run_query(event, mode, query):
 
 async def show_verification_page(event):
     try:
-        border = "▰" * 30
-        txt = (
-            f"<b>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</b>\n"
-            f"<b>@{BOT_USERNAME}</b>\n\n"
-            f"<code>{border}</code>\n"
-            f"{E_LOCK} <b>VERIFICATION REQUIRED</b>\n"
-            f"JOIN BOTH CHANNELS TO UNLOCK\n"
-            f"<code>{border}</code>\n\n"
-            f"{E_STAR2} <b>GUIDELINES:</b>\n"
-            f"• EDUCATIONAL PURPOSES ONLY\n"
-            f"• USE ON YOUR OWN DATA\n"
-            f"• RESPECT PRIVACY LAWS\n\n"
-            f"{E_GIFT} +{DAILY_FREE_CREDITS} DAILY {E_STAR}\n"
-            f"{E_USERS} +{INVITE_CREDITS} PER INVITE\n"
-            f"{E_CLOCK} {AUTO_DELETE_TIME}s AUTO DELETE\n\n"
-            f"{E_CROWN} <b>OWNER: @Hexh4ckerOFC</b>"
-        )
+        lines = []
+        lines.append(f"<b>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</b>")
+        lines.append(f"<b>@{BOT_USERNAME}</b>")
+        lines.append("")
+        lines.append(f"{E_LOCK} <b>VERIFICATION REQUIRED</b>")
+        lines.append("JOIN BOTH CHANNELS TO UNLOCK")
+        lines.append("")
+        lines.append(f"{E_STAR2} <b>GUIDELINES:</b>")
+        lines.append("• EDUCATIONAL PURPOSES ONLY")
+        lines.append("• USE ON YOUR OWN DATA")
+        lines.append("• RESPECT PRIVACY LAWS")
+        lines.append("")
+        lines.append(f"{E_GIFT} +{DAILY_FREE_CREDITS} DAILY {E_STAR}")
+        lines.append(f"{E_USERS} +{INVITE_CREDITS} PER INVITE")
+        lines.append(f"{E_CLOCK} {AUTO_DELETE_TIME}s AUTO DELETE")
+        lines.append("")
+        lines.append(f"{E_CROWN} <b>OWNER: @Hexh4ckerOFC</b>")
+        lines.append("")
+        lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
+        
+        txt = "\n".join(lines)
         
         button1 = KeyboardButtonUrl(text="📢 JOIN CHANNEL 1", url=LINK_1)
         button2 = KeyboardButtonUrl(text="📢 JOIN CHANNEL 2", url=LINK_2)
