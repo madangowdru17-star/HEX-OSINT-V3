@@ -71,6 +71,7 @@ AUTO_DELETE_TIME = 60
 
 BOT_NAME = "𝗛𝗲𝘅 𝗢𝗦𝗜𝗡𝗧 𝗕𝗼𝘁"
 BOT_USERNAME = "Hex_Terminal_bot"
+DEV_NAME = "@HeX_CiPhEr"
 
 # --- ALL PREMIUM EMOJI IDs ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
@@ -149,6 +150,36 @@ E_COFFEE = PE("5386367538735104399", "☕")
 E_CAKE = PE("5203996991054432397", "🎂")
 E_PIZZA = PE("6267068789146260253", "🍕")
 E_BURGER = PE("5280955052582785391", "🍔")
+E_CANDY = PE("5203996991054432397", "🍬")
+E_COOKIE = PE("6267068789146260253", "🍪")
+E_JUICE = PE("5386367538735104399", "🧃")
+E_BEER = PE("5280955052582785391", "🍺")
+E_WINE = PE("5203996991054432397", "🍷")
+E_TEA = PE("5386367538735104399", "🍵")
+E_MILK = PE("6267068789146260253", "🥛")
+E_HONEY = PE("6264785189394717307", "🍯")
+E_BREAD = PE("5280955052582785391", "🍞")
+E_EGG = PE("5203996991054432397", "🥚")
+E_CHEESE = PE("6267068789146260253", "🧀")
+E_MEAT = PE("5264895611517300926", "🥩")
+E_FISH = PE("5947494995798789024", "🐟")
+E_SHRIMP = PE("5406809207947142040", "🦐")
+E_CRAB = PE("5253752975997803460", "🦀")
+E_LOBSTER = PE("5280955052582785391", "🦞")
+E_OYSTER = PE("5203996991054432397", "🦪")
+
+# New emojis for welcome message
+E_WELCOME = PE("6266969287638913443", "✨")
+E_CROISSANT = PE("5203996991054432397", "🥐")
+E_CROWN2 = PE("6267128480601741166", "👑")
+E_BOLT2 = PE("6284971355297290197", "⚡")
+E_DICE = PE("5231012545799666522", "🎲")
+E_INFINITY = PE("6266969287638913443", "∞")
+E_STAR3 = PE("6266969287638913443", "⭐️")
+E_BABY = PE("6264785189394717307", "🍼")
+E_CHECK2 = PE("6267008582294705964", "✅")
+E_BAR = PE("6267039884016358504", "➖")
+E_SPARK = PE("5467683093693354332", "✨")
 
 # --- BUTTON ICON IDs ---
 ICON_IFSC = 5264895611517300926
@@ -361,8 +392,8 @@ def check_feature_maintenance(feature_key):
 async def show_verification_page(event):
     try:
         txt = (
-            f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
-            f"<b>@{BOT_USERNAME}</b>\n\n"
+            f"{E_DIAMOND} {BOT_NAME} {E_DIAMOND}\n"
+            f"@{BOT_USERNAME}\n\n"
             f"{E_LOCK} ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ʀᴇQᴜɪʀᴇᴅ\n"
             f"ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ᴛᴏ ᴜɴʟᴏᴄᴋ\n\n"
             f"{E_STAR2} ɢᴜɪᴅᴇʟɪɴᴇꜱ:\n"
@@ -771,39 +802,6 @@ async def handle_url_callback(event):
     elif event.data == b"url2":
         await event.answer(f"{E_LINK} ᴊᴏɪɴ: {LINK_2}", alert=True)
 
-async def welcome_message(event):
-    """Beautiful welcome message with Telegram Quote UI"""
-    user = event.sender
-    first_name = user.first_name or "User"
-    
-    welcome_text = (
-        f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
-        f"{E_WAVE} ᴡᴇʟᴄᴏᴍᴇ <b>{first_name}</b> {E_HEART}\n\n"
-        f"{E_COMPASS} ʏᴏᴜʀ ᴜʟᴛɪᴍᴀᴛᴇ ᴏꜱɪɴᴛ ᴛᴏᴏʟ\n"
-        f"{E_TARGET} ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴀᴅᴠᴀɴᴄᴇᴅ ᴀᴘɪꜱ\n"
-        f"{E_ROBOT} ꜱᴍᴀʀᴛ ᴅᴀᴛᴀ ʀᴇᴛʀɪᴇᴠᴀʟ\n\n"
-        f"<blockquote>{E_STAR2} ᴀʙᴏᴜᴛ ᴛʜɪꜱ ʙᴏᴛ</blockquote>\n"
-        f"{E_SHIELD} ꜱᴇᴄᴜʀᴇ & ʀᴇʟɪᴀʙʟᴇ\n"
-        f"{E_GLOBE} ɢʟᴏʙᴀʟ ᴅᴀᴛᴀ ᴀᴄᴄᴇꜱꜱ\n"
-        f"{E_CLOUD} ʀᴇᴀʟ-ᴛɪᴍᴇ ʟᴏᴏᴋᴜᴘꜱ\n"
-        f"{E_CYBER} ᴇɴᴄʀʏᴘᴛᴇᴅ ᴄᴏɴɴᴇᴄᴛɪᴏɴꜱ\n\n"
-        f"<blockquote>{E_GIFT} ʜᴏᴡ ᴛᴏ ᴜꜱᴇ</blockquote>\n"
-        f"{E_KEY} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ꜰʀᴏᴍ ᴍᴇɴᴜ\n"
-        f"{E_PHONE2} ᴇɴᴛᴇʀ ʏᴏᴜʀ Qᴜᴇʀʏ\n"
-        f"{E_BELL} ɢᴇᴛ ɪɴꜱᴛᴀɴᴛ ʀᴇꜱᴜʟᴛꜱ\n"
-        f"{E_PARTY} ᴇɴᴊᴏʏ ꜰʀᴇᴇ {DAILY_FREE_CREDITS} ᴄʀᴇᴅɪᴛꜱ ᴅᴀɪʟʏ\n\n"
-        f"<blockquote>{E_STAR} ꜰᴇᴀᴛᴜʀᴇꜱ</blockquote>\n"
-        f"{E_BANK} ɪꜰꜱᴄ ʟᴏᴏᴋᴜᴘ\n"
-        f"{E_CARD} ᴀᴀᴅʜᴀʀ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ\n"
-        f"{E_INDIA} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴅᴇᴛᴀɪʟꜱ\n"
-        f"{E_CAR} ᴠᴇʜɪᴄʟᴇ ʀᴄ ᴄʜᴇᴄᴋ\n"
-        f"{E_BOOK} ɢꜱᴛ ʙᴜꜱɪɴᴇꜱꜱ ɪɴꜰᴏ\n"
-        f"{E_PAK} ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ ʟᴏᴏᴋᴜᴘ\n\n"
-        f"{E_ROCKET} ꜱᴛᴀʀᴛ ᴇxᴘʟᴏʀɪɴɢ ɴᴏᴡ! {E_FIRE}"
-    )
-    
-    return welcome_text
-
 async def main_menu(event):
     is_admin = event.sender_id == ADMIN_ID
     user = get_user(event.sender_id)
@@ -817,21 +815,28 @@ async def main_menu(event):
     
     markup = create_main_menu(is_admin, s)
     cr = user.get("credits", 0)
+    name = event.sender.first_name or "User"
     
-    # Show welcome message + stats
-    welcome = await welcome_message(event)
-    
-    stats = (
-        f"\n\n<blockquote>{E_CHART} ʏᴏᴜʀ ꜱᴛᴀᴛꜱ</blockquote>\n"
-        f"{E_CREDIT} ᴄʀᴇᴅɪᴛꜱ: <b>{cr}</b>\n"
-        f"{E_SEARCH} Qᴜᴇʀɪᴇꜱ: <b>{user.get('total_queries',0)}</b>\n"
-        f"{E_USERS} ɪɴᴠɪᴛᴇꜱ: <b>{user.get('invites',0)}</b>\n\n"
+    welcome_text = (
+        f"{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}\n"
+        f"{E_WELCOME} Wᴇʟᴄᴏᴍᴇ Tᴏ Oᴜʀ Iɴꜰᴏʀᴍᴀᴛɪᴏɴ Bᴏᴛ {E_CROISSANT}\n"
+        f"{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}\n\n"
+        f"{E_CROWN2} Hᴇʏ —͟͞<code>{name}</code> !! {E_CHECK2}\n\n"
+        f"{E_BOLT2} ʏᴏᴜʀ ᴅᴀꜱʜʙᴏᴀʀᴅ\n"
+        f"{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}\n"
+        f"│ {E_CREDIT} ᴄʀᴇᴅɪᴛꜱ      » {cr}\n"
+        f"│ {E_DICE} ᴅᴀɪʟʏ ꜱᴘɪɴ  » +{DAILY_FREE_CREDITS} ꜰʀᴇᴇ\n"
+        f"│ {E_CROWN} ᴘʀᴇᴍɪᴜᴍ    » {E_INFINITY} ꜱᴇᴀʀᴄʜ\n"
+        f"{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}\n\n"
+        f"{E_GEAR} ᴜꜱᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴꜱ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ\n"
+        f"{E_STAR3} /help ᴛᴏ ꜱᴇᴇ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅꜱ\n\n"
+        f"{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}\n"
+        f"{E_BABY} ᴅᴇᴠ » {DEV_NAME} {E_CHECK2}\n"
+        f"{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}\n\n"
         f"{E_STAR2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ {E_STAR2}"
     )
     
-    full_text = welcome + stats
-    
-    msg = await send_html(event.chat_id, full_text, reply_markup=markup)
+    msg = await send_html(event.chat_id, welcome_text, reply_markup=markup)
     asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
 
 @client.on(events.NewMessage)
