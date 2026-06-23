@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot FINAL WORKING with Telegram Quote Format
+# bot.py - Hex OSINT Bot FINAL WORKING with Perfect Quote Format
 
 import logging
 import asyncio
@@ -338,16 +338,27 @@ def check_feature_maintenance(feature_key):
         return True, s.get(f"maint_msg_{feature_key}", f"{E_TOOLS} Under maintenance.")
     return False, ""
 
-# --- 📋 TELEGRAM QUOTE FORMAT HELPERS ---
+# --- 📋 PERFECT QUOTE FORMAT ---
 
-def quote(msg):
-    """Create a telegram quote-style message with border"""
+def quote_format(content):
+    """
+    Creates a perfect quote format:
+    First line: border
+    Second line: empty
+    Then: content
+    Last line: empty
+    Last line: border
+    """
     border = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
-    return f"{border}\n{msg}\n{border}"
+    
+    # If content is a list, join with newlines
+    if isinstance(content, list):
+        content = "\n".join(content)
+    
+    return f"{border}\n\n{content}\n\n{border}"
 
 def quote_box(title, content, emoji=None):
-    """Create a premium quote box with title and content"""
-    border = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+    """Create a quote box with title and content"""
     lines = []
     if emoji:
         lines.append(f"{emoji} <b>{title}</b> {emoji}")
@@ -360,12 +371,11 @@ def quote_box(title, content, emoji=None):
         lines.append(str(content))
     lines.append("")
     lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
-    msg = "\n".join(lines)
-    return f"{border}\n{msg}\n{border}"
+    
+    return quote_format("\n".join(lines))
 
 def info_quote(title, instruction, example, tip=None):
     """Create info message with quote format"""
-    border = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
     lines = []
     lines.append(f"<b>{title}</b>")
     lines.append("")
@@ -379,12 +389,11 @@ def info_quote(title, instruction, example, tip=None):
     lines.append(f"<b>ꜱᴇᴀʀᴄʜ ᴄᴏꜱᴛ:</b> 1 ᴩᴏɪɴᴛ")
     lines.append("")
     lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
-    msg = "\n".join(lines)
-    return f"{border}\n{msg}\n{border}"
+    
+    return quote_format("\n".join(lines))
 
 def result_quote(title, records, emoji=None):
     """Create result message with quote format"""
-    border = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
     lines = []
     if emoji:
         lines.append(f"{emoji} <b>{title}</b> {emoji}")
@@ -393,6 +402,7 @@ def result_quote(title, records, emoji=None):
     lines.append("")
     lines.append(f"<b>ᴛᴏᴛᴀʟ:</b> {len(records)}")
     lines.append("")
+    
     for i, record in enumerate(records, 1):
         lines.append(f"<b>ʀᴇᴄᴏʀᴅ {i}</b>")
         if isinstance(record, dict):
@@ -403,14 +413,14 @@ def result_quote(title, records, emoji=None):
             lines.append(str(record))
         if i < len(records):
             lines.append("")
+    
     lines.append("")
     lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
-    msg = "\n".join(lines)
-    return f"{border}\n{msg}\n{border}"
+    
+    return quote_format("\n".join(lines))
 
 def simple_quote(title, content, emoji=None):
     """Create simple quote message"""
-    border = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
     lines = []
     if emoji:
         lines.append(f"{emoji} <b>{title}</b> {emoji}")
@@ -423,8 +433,8 @@ def simple_quote(title, content, emoji=None):
         lines.append(str(content))
     lines.append("")
     lines.append(f"{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}")
-    msg = "\n".join(lines)
-    return f"{border}\n{msg}\n{border}"
+    
+    return quote_format("\n".join(lines))
 
 # --- 🎨 COLORED REPLY BUTTONS ---
 
