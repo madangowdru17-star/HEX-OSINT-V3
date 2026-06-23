@@ -48,7 +48,7 @@ CHANNEL_2_ID = int(os.environ.get('CHANNEL_2_ID', '-1003806004135'))
 LINK_1 = os.environ.get('LINK_1', 'https://t.me/+dP7xLb3AoE1jNmRl')
 LINK_2 = os.environ.get('LINK_2', 'https://t.me/+9vuPcr9LJ8piODdl')
 
-FOOTER = "\n\n{E_DIAMOND} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_DIAMOND}"
+FOOTER = "\n\n💎 ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC 💎"
 SEP = "━━━━━━━━━━━━━━━━━━━"
 
 # APIs
@@ -73,9 +73,10 @@ BOT_NAME = "𝗛𝗲𝘅 𝗢𝗦𝗜𝗡𝗧 𝗕𝗼𝘁"
 BOT_USERNAME = "Hex_Terminal_bot"
 DEV_NAME = "@HeX_CiPhEr"
 
-# --- ALL PREMIUM EMOJI IDs ---
+# --- PREMIUM EMOJI IDs ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
+# Text emojis
 E_STAR = PE("6266969287638913443", "⭐")
 E_DIAMOND = PE("6264791387032523779", "💎")
 E_CROWN = PE("6267128480601741166", "👑")
@@ -128,18 +129,12 @@ E_MEDAL = PE("6264791387032523779", "🏅")
 E_SHIELD = PE("5316522278056399236", "🛡️")
 E_ROBOT = PE("5462921117423384478", "🤖")
 E_CYBER = PE("5321141214735508486", "💻")
-E_WIFI = PE("6147892053796725336", "📶")
 E_CLOUD = PE("5386367538735104399", "☁️")
 E_SUN = PE("6266969287638913443", "☀️")
 E_MOON = PE("5382194935057372936", "🌙")
 E_STARS = PE("5467683093693354332", "🌠")
 E_OCEAN = PE("6284779941489812433", "🌊")
-E_MOUNTAIN = PE("5253752975997803460", "🏔️")
 E_CITY = PE("5388927107315283144", "🏙️")
-E_AIRPLANE = PE("5195033767969839232", "✈️")
-E_SATELLITE = PE("5321141214735508486", "🛰️")
-E_ALIEN = PE("5467683093693354332", "👽")
-E_MAGIC = PE("5467683093693354332", "🔮")
 E_WAVE = PE("6147892053796725336", "👋")
 E_HANDSHAKE = PE("5244933196230972438", "🤝")
 E_SWORD = PE("6264785189394717307", "⚔️")
@@ -152,34 +147,16 @@ E_PIZZA = PE("6267068789146260253", "🍕")
 E_BURGER = PE("5280955052582785391", "🍔")
 E_CANDY = PE("5203996991054432397", "🍬")
 E_COOKIE = PE("6267068789146260253", "🍪")
-E_JUICE = PE("5386367538735104399", "🧃")
-E_BEER = PE("5280955052582785391", "🍺")
-E_WINE = PE("5203996991054432397", "🍷")
-E_TEA = PE("5386367538735104399", "🍵")
-E_MILK = PE("6267068789146260253", "🥛")
-E_HONEY = PE("6264785189394717307", "🍯")
-E_BREAD = PE("5280955052582785391", "🍞")
-E_EGG = PE("5203996991054432397", "🥚")
-E_CHEESE = PE("6267068789146260253", "🧀")
-E_MEAT = PE("5264895611517300926", "🥩")
-E_FISH = PE("5947494995798789024", "🐟")
-E_SHRIMP = PE("5406809207947142040", "🦐")
-E_CRAB = PE("5253752975997803460", "🦀")
-E_LOBSTER = PE("5280955052582785391", "🦞")
-E_OYSTER = PE("5203996991054432397", "🦪")
-
-# New emojis for welcome message
+E_MAGIC = PE("5467683093693354332", "🔮")
 E_WELCOME = PE("6266969287638913443", "✨")
 E_CROISSANT = PE("5203996991054432397", "🥐")
 E_CROWN2 = PE("6267128480601741166", "👑")
-E_BOLT2 = PE("6284971355297290197", "⚡")
 E_DICE = PE("5231012545799666522", "🎲")
 E_INFINITY = PE("6266969287638913443", "∞")
 E_STAR3 = PE("6266969287638913443", "⭐️")
 E_BABY = PE("6264785189394717307", "🍼")
 E_CHECK2 = PE("6267008582294705964", "✅")
 E_BAR = PE("6267039884016358504", "➖")
-E_SPARK = PE("5467683093693354332", "✨")
 
 # --- BUTTON ICON IDs ---
 ICON_IFSC = 5264895611517300926
@@ -392,18 +369,18 @@ def check_feature_maintenance(feature_key):
 async def show_verification_page(event):
     try:
         txt = (
-            f"{E_DIAMOND} {BOT_NAME} {E_DIAMOND}\n"
-            f"@{BOT_USERNAME}\n\n"
-            f"{E_LOCK} ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ʀᴇQᴜɪʀᴇᴅ\n"
+            f"<b>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</b>\n"
+            f"<b>@{BOT_USERNAME}</b>\n\n"
+            f"{E_LOCK} <b>ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ʀᴇQᴜɪʀᴇᴅ</b>\n"
             f"ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ᴛᴏ ᴜɴʟᴏᴄᴋ\n\n"
-            f"{E_STAR2} ɢᴜɪᴅᴇʟɪɴᴇꜱ:\n"
+            f"{E_STAR2} <b>ɢᴜɪᴅᴇʟɪɴᴇꜱ:</b>\n"
             f"• ᴇᴅᴜᴄᴀᴛɪᴏɴᴀʟ ᴘᴜʀᴘᴏꜱᴇꜱ ᴏɴʟʏ\n"
             f"• ᴜꜱᴇ ᴏɴ ʏᴏᴜʀ ᴏᴡɴ ᴅᴀᴛᴀ\n"
             f"• ʀᴇꜱᴘᴇᴄᴛ ᴘʀɪᴠᴀᴄʏ ʟᴀᴡꜱ\n\n"
             f"{E_GIFT} +{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ {E_STAR}\n"
             f"{E_USERS} +{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ\n"
             f"{E_CLOCK} {AUTO_DELETE_TIME}ꜱ ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ\n\n"
-            f"{E_CROWN} ᴏᴡɴᴇʀ: @Hexh4ckerOFC"
+            f"{E_CROWN} <b>ᴏᴡɴᴇʀ: @Hexh4ckerOFC</b>"
         )
         
         button1 = KeyboardButtonUrl(text="📢 ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷", url=LINK_1)
@@ -817,22 +794,23 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     name = event.sender.first_name or "User"
     
+    # Clean welcome message with Telegram Quote UI
     welcome_text = (
-        f"{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}\n"
-        f"{E_WELCOME} Wᴇʟᴄᴏᴍᴇ Tᴏ Oᴜʀ Iɴꜰᴏʀᴍᴀᴛɪᴏɴ Bᴏᴛ {E_CROISSANT}\n"
-        f"{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}\n\n"
-        f"{E_CROWN2} Hᴇʏ —͟͞<code>{name}</code> !! {E_CHECK2}\n\n"
-        f"{E_BOLT2} ʏᴏᴜʀ ᴅᴀꜱʜʙᴏᴀʀᴅ\n"
-        f"{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}\n"
-        f"│ {E_CREDIT} ᴄʀᴇᴅɪᴛꜱ      » {cr}\n"
-        f"│ {E_DICE} ᴅᴀɪʟʏ ꜱᴘɪɴ  » +{DAILY_FREE_CREDITS} ꜰʀᴇᴇ\n"
-        f"│ {E_CROWN} ᴘʀᴇᴍɪᴜᴍ    » {E_INFINITY} ꜱᴇᴀʀᴄʜ\n"
-        f"{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}\n\n"
-        f"{E_GEAR} ᴜꜱᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴꜱ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ\n"
-        f"{E_STAR3} /help ᴛᴏ ꜱᴇᴇ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅꜱ\n\n"
-        f"{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}\n"
-        f"{E_BABY} ᴅᴇᴠ » {DEV_NAME} {E_CHECK2}\n"
-        f"{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}\n\n"
+        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
+        f"<blockquote>{E_WELCOME} Wᴇʟᴄᴏᴍᴇ Tᴏ Oᴜʀ Iɴꜰᴏʀᴍᴀᴛɪᴏɴ Bᴏᴛ {E_CROISSANT}</blockquote>\n"
+        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
+        f"<blockquote>{E_CROWN2} Hᴇʏ <b>{name}</b> !! {E_CHECK2}</blockquote>\n\n"
+        f"<blockquote>{E_BOLT2} ʏᴏᴜʀ ᴅᴀꜱʜʙᴏᴀʀᴅ</blockquote>\n"
+        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
+        f"<blockquote>│ {E_CREDIT} ᴄʀᴇᴅɪᴛꜱ      » {cr}</blockquote>\n"
+        f"<blockquote>│ {E_DICE} ᴅᴀɪʟʏ ꜱᴘɪɴ  » +{DAILY_FREE_CREDITS} ꜰʀᴇᴇ</blockquote>\n"
+        f"<blockquote>│ {E_CROWN} ᴘʀᴇᴍɪᴜᴍ    » {E_INFINITY} ꜱᴇᴀʀᴄʜ</blockquote>\n"
+        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
+        f"<blockquote>{E_GEAR} ᴜꜱᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴꜱ ɢɪᴠᴇɴ ʙᴇʟᴏᴡ</blockquote>\n"
+        f"<blockquote>{E_STAR3} /help ᴛᴏ ꜱᴇᴇ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅꜱ</blockquote>\n\n"
+        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
+        f"<blockquote>{E_BABY} ᴅᴇᴠ » {DEV_NAME} {E_CHECK2}</blockquote>\n"
+        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
         f"{E_STAR2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ {E_STAR2}"
     )
     
