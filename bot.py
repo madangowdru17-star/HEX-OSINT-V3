@@ -58,6 +58,7 @@ SHORTLINK_API = "https://link-btpass.onrender.com/bypass?key=9c44ad66b95cef8aecd
 GST_API = "https://gst-0y-vishal.vercel.app/api/gst.js?gstNumber="
 PAK_API = "https://api-server-virid-two.vercel.app/number="
 IND_NUM_API = "https://all-number-info-rajan-eta.vercel.app/api?number="
+TG_INFO_API = "https://telegram-info-plum.vercel.app/api/search?q="
 
 VERIFY_SCRIPT = "verify_india.py"
 
@@ -98,6 +99,13 @@ E_PHONE = PE("5967591100532134862", "☎️")
 E_LOCATION = PE("5985361068157833495", "📍")
 E_CIRCLE = PE("5472373721966597010", "🔴")
 E_GMAIL = PE("5303416490295304868", "📧")
+
+# TG User ID Info Premium Emojis
+E_TG_USER = PE("5039783602301175152", "✈️")
+E_COUNTRY = PE("5465166522030764559", "🐈‍⬛")
+E_COUNTRY_CODE = PE("5422814644093868925", "👨‍💻")
+E_PHONE_NUMBER = PE("5339534764367955381", "🌟")
+E_TG_ID = PE("5936017305585586269", "🪪")
 
 # Additional emojis
 E_CHECK = PE("6267008582294705964", "✅")
@@ -144,6 +152,7 @@ ICON_GST = 5260561650213220533
 ICON_PAK = 5913705895375672082
 ICON_INVITE = 5244933196230972438
 ICON_UPGRADE = 6267128480601741166
+ICON_TG = 5039783602301175152
 ICON_ADMIN = 6267128480601741166
 ICON_NEXT = 5258331647358540449
 ICON_PRIMARY = 5258096772776991776
@@ -265,10 +274,11 @@ def get_settings():
             "rc_enabled": True,
             "gst_enabled": True,
             "pak_enabled": True,
+            "tgid_enabled": True,
             "maintenance_mode": False,
             "page": 1
         }
-        for k in ["ifsc", "mobile", "aadhaar", "rc", "gst", "pak"]:
+        for k in ["ifsc", "mobile", "aadhaar", "rc", "gst", "pak", "tgid"]:
             d[f"maint_msg_{k}"] = f"{E_TOOLS} {k} is under maintenance."
             d[f"maint_{k}"] = False
         save_json(SETTINGS_FILE, d)
@@ -418,6 +428,12 @@ def create_main_menu(is_admin=False, settings=None):
             row3.append(create_colored_button("Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ", 'primary', ICON_PAK))
         if row3:
             rows.append(KeyboardButtonRow(buttons=row3))
+        
+        row4 = []
+        if settings.get("tgid_enabled", True):
+            row4.append(create_colored_button("Tɢ Usᴇʀ Iᴅ Iɴғᴏ", 'primary', ICON_TG))
+        if row4:
+            rows.append(KeyboardButtonRow(buttons=row4))
         
         rows.append(KeyboardButtonRow(buttons=[
             create_colored_button("Iɴᴠɪᴛᴇ & Eᴀʀɴ", 'primary', ICON_INVITE),
@@ -610,6 +626,28 @@ async def pakistan_lookup(session, number):
     except:
         return f"<blockquote>{E_CROSS} ERROR</blockquote>"
 
+async def tg_user_info(session, query):
+    """Get Telegram user info from username or chat ID"""
+    try:
+        url = f"{TG_INFO_API}{query}"
+        data = await safe_api_fetch(session, url, timeout=20)
+        if not data or isinstance(data, dict) and data.get("raw_text"):
+            return f"<blockquote>{E_CROSS} SERVICE UNAVAILABLE</blockquote>"
+        if isinstance(data, dict) and data.get("success") and data.get("data"):
+            d = data["data"]
+            result = (
+                f"<blockquote>{E_SPARKLE} {E_TG_USER} Usᴇʀɴᴀᴍᴇ / Iᴅ Iɴғᴏ {E_SPARKLE}</blockquote>\n"
+                f"<blockquote>{E_COUNTRY} Cᴏᴜɴᴛʀʏ: {d.get('country', 'N/A')}</blockquote>\n"
+                f"<blockquote>{E_COUNTRY_CODE} Cᴏᴜɴᴛʀʏ Cᴏᴅᴇ: {d.get('country_code', 'N/A')}</blockquote>\n"
+                f"<blockquote>{E_PHONE_NUMBER} Pʜᴏɴᴇ Nᴜᴍʙᴇʀ: {d.get('phone_number', 'N/A')}</blockquote>\n"
+                f"<blockquote>{E_TG_ID} Tᴇʟᴇɢʀᴀᴍ Iᴅ: {d.get('telegram_id', query)}</blockquote>"
+            )
+            return result
+        return f"<blockquote>{E_CROSS} NO DATA FOUND</blockquote>"
+    except Exception as e:
+        logger.error(f"TG User Info error: {e}")
+        return f"<blockquote>{E_CROSS} ERROR: {str(e)}</blockquote>"
+
 # --- 👑 ADMIN ---
 
 async def admin_panel(event):
@@ -628,6 +666,7 @@ async def admin_panel(event):
         [KeyboardButtonCallback(text=f"{'🟢' if s.get('rc_enabled',True) else '🔴'} RC", data=b"ad_rc"), KeyboardButtonCallback(text=f"{ms('rc')} M", data=b"ad_maint_rc")],
         [KeyboardButtonCallback(text=f"{'🟢' if s.get('gst_enabled',True) else '🔴'} GS", data=b"ad_gst"), KeyboardButtonCallback(text=f"{ms('gst')} M", data=b"ad_maint_gst")],
         [KeyboardButtonCallback(text=f"{'🟢' if s.get('pak_enabled',True) else '🔴'} PA", data=b"ad_pak"), KeyboardButtonCallback(text=f"{ms('pak')} M", data=b"ad_maint_pak")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('tgid_enabled',True) else '🔴'} TG", data=b"ad_tgid"), KeyboardButtonCallback(text=f"{ms('tgid')} M", data=b"ad_maint_tgid")],
         [KeyboardButtonCallback(text="❌ Close", data=b"ad_close")]
     ]
     
@@ -690,7 +729,8 @@ async def admin_callback(event):
             "ad_aadhaar": "aadhaar_enabled",
             "ad_rc": "rc_enabled",
             "ad_gst": "gst_enabled",
-            "ad_pak": "pak_enabled"
+            "ad_pak": "pak_enabled",
+            "ad_tgid": "tgid_enabled"
         }
         if d in toggle_map:
             k = toggle_map[d]
@@ -768,10 +808,8 @@ async def verify_cb(event):
         logger.error(f"Verify callback error: {e}")
         await event.answer("❌ Error, try again", alert=True)
 
-# --- ADMIN CALLBACK HANDLER ---
 @client.on(events.CallbackQuery)
 async def admin_callback_handler(event):
-    # Check if it's an admin callback
     if event.data and event.data.startswith(b"ad_"):
         await admin_callback(event)
 
@@ -905,6 +943,7 @@ async def msg_handler(event):
             "Rᴄ Iɴғᴏ": ("VEHICLE", "rc"),
             "Gsᴛ Iɴғᴏ": ("GST", "gst"),
             "Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ": ("PAK", "pak"),
+            "Tɢ Usᴇʀ Iᴅ Iɴғᴏ": ("TGID", "tgid"),
             "Iɴᴠɪᴛᴇ & Eᴀʀɴ": ("INVITE", None),
             "Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ": ("UPGRADE", None)
         }
@@ -1010,6 +1049,15 @@ async def msg_handler(event):
                     f"<blockquote>Total Point: 2 Point</blockquote>\n"
                     f"<blockquote>Search Cost: 1 Point</blockquote>\n\n"
                     f"<blockquote>Bot made by: {DEV_NAME}</blockquote>"
+                ),
+                "TGID": (
+                    f"<blockquote>{E_STAR} Tɢ Usᴇʀ Iᴅ Iɴғᴏ {E_STAR}</blockquote>\n"
+                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+                    f"<blockquote>Send Telegram username or chat ID</blockquote>\n"
+                    f"<blockquote>Example: @username or 123456789</blockquote>\n\n"
+                    f"<blockquote>Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>Search Cost: 1 Point</blockquote>\n\n"
+                    f"<blockquote>Bot made by: {DEV_NAME}</blockquote>"
                 )
             }
             if mode in prompts:
@@ -1066,6 +1114,12 @@ async def run_query(event, mode, query):
                     credit_deducted = True
             else:
                 result = f"<blockquote>{E_CROSS} Script failed</blockquote>"
+        elif mode == 'TGID':
+            async with aiohttp.ClientSession() as s:
+                result = await tg_user_info(s, query)
+                if result and f"{E_CROSS}" not in str(result) and "NO DATA" not in str(result):
+                    use_credit(event.sender_id)
+                    credit_deducted = True
         else:
             async with aiohttp.ClientSession() as s:
                 if mode == 'IFSC':
