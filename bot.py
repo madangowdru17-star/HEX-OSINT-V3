@@ -48,7 +48,7 @@ CHANNEL_2_ID = int(os.environ.get('CHANNEL_2_ID', '-1003806004135'))
 LINK_1 = os.environ.get('LINK_1', 'https://t.me/+dP7xLb3AoE1jNmRl')
 LINK_2 = os.environ.get('LINK_2', 'https://t.me/+9vuPcr9LJ8piODdl')
 
-FOOTER = "\n\n<b>⚡ ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC</b>"
+FOOTER = "\n\n💎 ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC 💎"
 SEP = "━━━━━━━━━━━━━━━━━━━"
 
 # APIs
@@ -73,13 +73,22 @@ BOT_NAME = "𝗛𝗲𝘅 𝗢𝗦𝗜𝗡𝗧 𝗕𝗼𝘁"
 BOT_USERNAME = "Hex_Terminal_bot"
 DEV_NAME = "@HeX_CiPhEr"
 
-# --- ALL PREMIUM EMOJI IDs ---
+# --- YOUR PREMIUM EMOJI IDs ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
-E_STAR = PE("6266969287638913443", "⭐")
-E_DIAMOND = PE("6264791387032523779", "💎")
+# Your exact emoji IDs
+E_DIAMOND = PE("6314557546753440004", "💎")
+E_LION = PE("5802980697886954454", "🦁")
+E_HAPPY = PE("6154369208076470797", "🥹")
+E_WALLET = PE("5256186332669035163", "👛")
 E_CROWN = PE("6267128480601741166", "👑")
-E_FIRE = PE("6264785189394717307", "🔥")
+E_CAMERA = PE("6008258140108231117", "📸")
+E_ARROW = PE("5875450995332353523", "➡️")
+E_DIAMOND2 = PE("4961143940817355662", "💠")
+E_STAR = PE("5289898724976240966", "⭐")
+E_BOLT = PE("5377834924776627189", "⚡")
+
+# Additional emojis
 E_CHECK = PE("6267008582294705964", "✅")
 E_CROSS = PE("6267000941547885720", "❌")
 E_WARN = PE("6267039884016358504", "⚠️")
@@ -97,7 +106,7 @@ E_SEARCH = PE("5231012545799666522", "🔍")
 E_CREDIT = PE("6267068789146260253", "💰")
 E_REFRESH = PE("5375338737028841420", "🔄")
 E_CLOCK = PE("5382194935057372936", "⏱")
-E_BOLT = PE("6284971355297290197", "⚡")
+E_BOLT2 = PE("6284971355297290197", "⚡")
 E_GIFT = PE("5203996991054432397", "🎁")
 E_TICKET = PE("5285515895534278367", "🎫")
 E_TOOLS = PE("5462921117423384478", "🛠️")
@@ -115,10 +124,6 @@ E_STAR2 = PE("6266969287638913443", "🌟")
 E_LINK = PE("5271604874419647061", "🔗")
 E_BABY = PE("6264785189394717307", "🍼")
 E_GEAR = PE("5462921117423384478", "⚙️")
-E_BOLT2 = PE("6284971355297290197", "⚡")
-E_CROWN2 = PE("6267128480601741166", "👑")
-E_CHECK2 = PE("6267008582294705964", "✅")
-E_STAR3 = PE("6266969287638913443", "⭐️")
 E_WELCOME = PE("6266969287638913443", "✨")
 E_CROISSANT = PE("5203996991054432397", "🥐")
 E_BAR = PE("6267039884016358504", "➖")
@@ -768,19 +773,16 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     name = event.sender.first_name or "User"
     
+    # Your exact welcome message with premium emojis
     welcome_text = (
-        f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
-        f"<blockquote>@{BOT_USERNAME}</blockquote>\n\n"
-        f"<blockquote>{E_WARN} Welcome {name}!</blockquote>\n\n"
-        f"<blockquote>{E_BOLT} Your Dashboard</blockquote>\n"
-        f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
-        f"<blockquote>{E_CREDIT} Credits: {cr}</blockquote>\n"
-        f"<blockquote>{E_CROWN} Premium: Unlimited</blockquote>\n"
-        f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n\n"
-        f"<blockquote>{E_GEAR} Use the buttons below</blockquote>\n"
-        f"<blockquote>{E_STAR} /help for commands</blockquote>\n\n"
-        f"<blockquote>{E_BABY} Dev: {DEV_NAME}</blockquote>\n\n"
-        f"<blockquote>{E_STAR2} Select a service below</blockquote>"
+        f"<blockquote>{E_DIAMOND} Hᴇx Osɪɴᴛ Bᴏᴛ {E_LION}</blockquote>\n"
+        f"<blockquote>{E_HAPPY} ᴡᴇʟᴄᴏᴍᴇ {name}! {E_HAPPY}</blockquote>\n\n"
+        f"<blockquote>{E_WALLET} ᴄʀᴇᴅɪᴛꜱ: {cr}</blockquote>\n\n"
+        f"<blockquote>{E_CROWN} ᴘʀᴇᴍɪᴜᴍ: ᴜɴʟɪᴍɪᴛᴇᴅ</blockquote>\n\n"
+        f"<blockquote>{E_CAMERA} ᴜꜱᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴꜱ ʙᴇʟᴏᴡ</blockquote>\n"
+        f"<blockquote>{E_ARROW} /Help ꜰᴏʀ ᴄᴏᴍᴍᴀɴᴅꜱ</blockquote>\n\n"
+        f"<blockquote>{E_DIAMOND2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ</blockquote>\n"
+        f"<blockquote>{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}</blockquote>"
     )
     
     msg = await send_html(event.chat_id, welcome_text, reply_markup=markup)
