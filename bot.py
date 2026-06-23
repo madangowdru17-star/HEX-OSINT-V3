@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot - ALL Messages in Quote Format
+# bot.py - Hex OSINT Bot FINAL WORKING
 
 import logging
 import asyncio
@@ -48,6 +48,9 @@ CHANNEL_2_ID = int(os.environ.get('CHANNEL_2_ID', '-1003806004135'))
 LINK_1 = os.environ.get('LINK_1', 'https://t.me/+dP7xLb3AoE1jNmRl')
 LINK_2 = os.environ.get('LINK_2', 'https://t.me/+9vuPcr9LJ8piODdl')
 
+FOOTER = "\n\n<b>⚡ ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC</b>"
+SEP = "━━━━━━━━━━━━━━━━━━━"
+
 # APIs
 LOOKUP_API = "https://toxic-tg.vercel.app/?userid="
 IFSC_API = "https://ifsc.razorpay.com/"
@@ -68,24 +71,15 @@ AUTO_DELETE_TIME = 60
 
 BOT_NAME = "𝗛𝗲𝘅 𝗢𝗦𝗜𝗡𝗧 𝗕𝗼𝘁"
 BOT_USERNAME = "Hex_Terminal_bot"
+DEV_NAME = "@HeX_CiPhEr"
 
-# --- YOUR PREMIUM EMOJI IDs ---
+# --- ALL PREMIUM EMOJI IDs ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
-# Your exact emoji IDs from the image
-E_DIAMOND = PE("6314557546753440004", "💎")
-E_LION = PE("5802980697886954454", "🦁")
-E_HAPPY = PE("5802980697886954454", "🥹")
-E_WALLET = PE("5256186332669035163", "👛")
+E_STAR = PE("6266969287638913443", "⭐")
+E_DIAMOND = PE("6264791387032523779", "💎")
 E_CROWN = PE("6267128480601741166", "👑")
-E_CAMERA = PE("6267128480601741166", "📸")
-E_ARROW = PE("5875450995332353523", "➡️")
-E_DIAMOND2 = PE("4961143940817355662", "💠")
-E_STAR = PE("5289898724976240966", "⭐")
-E_BOLT = PE("5377834924776627189", "⚡")
-E_SNAKE = PE("5802980697886954454", "🐍")
-
-# Additional emojis
+E_FIRE = PE("6264785189394717307", "🔥")
 E_CHECK = PE("6267008582294705964", "✅")
 E_CROSS = PE("6267000941547885720", "❌")
 E_WARN = PE("6267039884016358504", "⚠️")
@@ -101,26 +95,34 @@ E_INDIA = PE("6284779941489812433", "🇮🇳")
 E_PAK = PE("5913705895375672082", "🇵🇰")
 E_SEARCH = PE("5231012545799666522", "🔍")
 E_CREDIT = PE("6267068789146260253", "💰")
+E_REFRESH = PE("5375338737028841420", "🔄")
 E_CLOCK = PE("5382194935057372936", "⏱")
+E_BOLT = PE("6284971355297290197", "⚡")
 E_GIFT = PE("5203996991054432397", "🎁")
 E_TICKET = PE("5285515895534278367", "🎫")
 E_TOOLS = PE("5462921117423384478", "🛠️")
 E_DISABLED = PE("5373165973203348165", "📴")
 E_LOCATION = PE("5391032818111363540", "📍")
+E_HOME = PE("5280955052582785391", "🏠")
 E_STATE = PE("5388927107315283144", "🏛")
 E_NETWORK = PE("5321141214735508486", "📡")
+E_SIGNAL = PE("6147892053796725336", "📶")
+E_SIM = PE("5800717980266403037", "💳")
 E_CHART = PE("6093382540784046658", "📊")
 E_SPARKLE = PE("5467683093693354332", "✨")
+E_ROCKET = PE("5195033767969839232", "🚀")
+E_STAR2 = PE("6266969287638913443", "🌟")
 E_LINK = PE("5271604874419647061", "🔗")
-E_GEAR = PE("5462921117423384478", "⚙️")
-E_INFO = PE("5231012545799666522", "ℹ️")
-E_LIST = PE("6093382540784046658", "📋")
-E_BOOK = PE("5285515895534278367", "📖")
-E_COIN = PE("6267068789146260253", "🪙")
-E_DOC = PE("5260561650213220533", "📄")
-E_POINT = PE("6266969287638913443", "🔹")
-E_TARGET = PE("5231012545799666522", "🎯")
 E_BABY = PE("6264785189394717307", "🍼")
+E_GEAR = PE("5462921117423384478", "⚙️")
+E_BOLT2 = PE("6284971355297290197", "⚡")
+E_CROWN2 = PE("6267128480601741166", "👑")
+E_CHECK2 = PE("6267008582294705964", "✅")
+E_STAR3 = PE("6266969287638913443", "⭐️")
+E_WELCOME = PE("6266969287638913443", "✨")
+E_CROISSANT = PE("5203996991054432397", "🥐")
+E_BAR = PE("6267039884016358504", "➖")
+E_INFINITY = PE("6266969287638913443", "∞")
 
 # --- BUTTON ICON IDs ---
 ICON_IFSC = 5264895611517300926
@@ -331,112 +333,36 @@ def check_feature_maintenance(feature_key):
         return True, s.get(f"maint_msg_{feature_key}", f"{E_TOOLS} Under maintenance.")
     return False, ""
 
-# --- 📋 QUOTE FORMAT - ALL MESSAGES ---
-
-def quote(text):
-    """Wrap any text in quote format with borders"""
-    border = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
-    return f"{border}\n{text}\n{border}"
-
-def main_quote(credits, premium="ᴜɴʟɪᴍɪᴛᴇᴅ"):
-    """Main menu quote format"""
-    lines = [
-        f"{E_DIAMOND} Hᴇx Osɪɴᴛ Bᴏᴛ {E_SNAKE}",
-        "",
-        f"{E_HAPPY} ᴡᴇʟᴄᴏᴍᴇ #define 𝚮 𝚬 𝚾! {E_HAPPY}",
-        "",
-        f"{E_WALLET} ᴄʀᴇᴅɪᴛꜱ: {credits}",
-        "",
-        f"{E_CROWN} ᴘʀᴇᴍɪᴜᴍ: {premium}",
-        "",
-        f"{E_CAMERA} ᴜꜱᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴꜱ ʙᴇʟᴏᴡ",
-        f"{E_ARROW} /ʜᴇʟᴘ ꜰᴏʀ ᴄᴏᴍᴍᴀɴᴅꜱ",
-        "",
-        f"{E_DIAMOND2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ",
-        "",
-        f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}"
-    ]
-    return quote("\n".join(lines))
-
-def info_quote(title, instruction, example, tip=None):
-    """Info message quote format"""
-    lines = [
-        f"{title}",
-        "",
-        instruction,
-        "",
-        f"ᴇxᴀᴍᴩʟᴇ: {example}"
-    ]
-    if tip:
-        lines.append(f"ᴛɪᴩ: {tip}")
-    lines.extend([
-        "",
-        f"ᴛᴏᴛᴀʟ ᴩᴏɪɴᴛꜱ: 2 ᴩᴏɪɴᴛ",
-        f"ꜱᴇᴀʀᴄʜ ᴄᴏꜱᴛ: 1 ᴩᴏɪɴᴛ",
-        "",
-        f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}"
-    ])
-    return quote("\n".join(lines))
-
-def result_quote(title, records):
-    """Result message quote format"""
-    lines = [
-        f"{title}",
-        "",
-        f"ᴛᴏᴛᴀʟ: {len(records)}",
-        ""
-    ]
-    
-    for i, record in enumerate(records, 1):
-        lines.append(f"ʀᴇᴄᴏʀᴅ {i}")
-        if isinstance(record, dict):
-            for key, value in record.items():
-                clean_key = key.replace('🏦', '').replace('📍', '').replace('🪪', '').replace('👤', '').replace('📲', '').replace('📡', '').replace('🏛', '').strip()
-                lines.append(f"{clean_key}: {value}")
-        else:
-            lines.append(str(record))
-        if i < len(records):
-            lines.append("")
-    
-    lines.append("")
-    lines.append(f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}")
-    return quote("\n".join(lines))
-
-def simple_quote(title, content):
-    """Simple quote format for any message"""
-    lines = [
-        f"{title}",
-        ""
-    ]
-    if isinstance(content, list):
-        lines.extend(content)
-    else:
-        lines.append(str(content))
-    lines.append("")
-    lines.append(f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}")
-    return quote("\n".join(lines))
-
-def error_quote(title, message):
-    """Error message quote format"""
-    lines = [
-        f"{E_CROSS} {title} {E_CROSS}",
-        "",
-        message,
-        "",
-        f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}"
-    ]
-    return quote("\n".join(lines))
-
-def success_quote(title, message):
-    """Success message quote format"""
-    lines = [
-        f"{E_CHECK} {title} {E_CHECK}",
-        "",
-        message,
-        "",
-        f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}"
-    ]
-    return quote("\n".join(lines))
+async def show_verification_page(event):
+    try:
+        txt = (
+            f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
+            f"<blockquote>@{BOT_USERNAME}</blockquote>\n\n"
+            f"<blockquote>{E_LOCK} <b>VERIFICATION REQUIRED</b></blockquote>\n"
+            f"<blockquote>JOIN BOTH CHANNELS TO UNLOCK</blockquote>\n\n"
+            f"<blockquote>{E_STAR2} <b>GUIDELINES:</b></blockquote>\n"
+            f"<blockquote>• EDUCATIONAL PURPOSES ONLY</blockquote>\n"
+            f"<blockquote>• USE ON YOUR OWN DATA</blockquote>\n"
+            f"<blockquote>• RESPECT PRIVACY LAWS</blockquote>\n\n"
+            f"<blockquote>{E_GIFT} +{DAILY_FREE_CREDITS} DAILY {E_STAR}</blockquote>\n"
+            f"<blockquote>{E_USERS} +{INVITE_CREDITS} PER INVITE</blockquote>\n"
+            f"<blockquote>{E_CLOCK} {AUTO_DELETE_TIME}s AUTO DELETE</blockquote>\n\n"
+            f"<blockquote>{E_CROWN} <b>OWNER: @Hexh4ckerOFC</b></blockquote>"
+        )
+        
+        button1 = KeyboardButtonUrl(text="📢 JOIN CHANNEL 1", url=LINK_1)
+        button2 = KeyboardButtonUrl(text="📢 JOIN CHANNEL 2", url=LINK_2)
+        button3 = KeyboardButtonCallback(text="✅ I'VE JOINED - VERIFY", data=b"verify")
+        
+        markup = ReplyInlineMarkup(rows=[
+            KeyboardButtonRow(buttons=[button1]),
+            KeyboardButtonRow(buttons=[button2]),
+            KeyboardButtonRow(buttons=[button3])
+        ])
+        
+        await send_html(event.chat_id, txt, reply_markup=markup)
+    except Exception as e:
+        logger.error(f"Verification page error: {e}")
 
 # --- 🎨 COLORED REPLY BUTTONS ---
 
@@ -574,15 +500,21 @@ def parse_all_india_records(raw):
 
 def format_records_result(records, search_type):
     if not records:
-        return error_quote("ɴᴏ ʀᴇᴄᴏʀᴅꜱ", "ɴᴏ ʀᴇᴄᴏʀᴅꜱ ꜰᴏᴜɴᴅ")
+        return f"<blockquote>{E_CROSS} NO RECORDS FOUND</blockquote>"
     
     title = {
-        'aadhaar': f'{E_CARD} ᴀᴀᴅʜᴀʀ',
-        'mobile': f'{E_INDIA} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ',
-        'vehicle': f'{E_CAR} ᴠᴇʜɪᴄʟᴇ'
-    }.get(search_type, f'{E_CHART} ʀᴇꜱᴜʟᴛ')
+        'aadhaar': f'{E_CARD} AADHAR',
+        'mobile': f'{E_INDIA} INDIAN NUMBER',
+        'vehicle': f'{E_CAR} VEHICLE'
+    }.get(search_type, f'{E_CHART} RESULT')
     
-    return result_quote(title, records)
+    result = f"<blockquote>{E_SPARKLE} {title} {E_SPARKLE}</blockquote>\n"
+    result += f"<blockquote>{E_CHART} TOTAL: {len(records)}</blockquote>\n"
+    for i, record in enumerate(records, 1):
+        result += f"\n<blockquote>━━ {E_USER} RECORD {i} ━━</blockquote>\n"
+        for key, value in record.items():
+            result += f"<blockquote>{key}: {value}</blockquote>\n"
+    return result
 
 # --- 🔗 API FUNCTIONS ---
 
@@ -607,59 +539,54 @@ async def safe_api_fetch(session, url, timeout=20):
 async def ifsc_lookup(session, code):
     data = await safe_api_fetch(session, f"{IFSC_API}{code.upper()}")
     if not data or isinstance(data, dict) and data.get("raw_text"):
-        return error_quote("ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ", "ᴛʜᴇ ꜱᴇʀᴠɪᴄᴇ ɪꜱ ᴄᴜʀʀᴇɴᴛʟʏ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ")
+        return f"<blockquote>{E_CROSS} SERVICE UNAVAILABLE</blockquote>"
     if isinstance(data, dict):
-        record = {
-            "ʙᴀɴᴋ": data.get('BANK','N/A'),
-            "ʙʀᴀɴᴄʜ": data.get('BRANCH','N/A'),
-            "ɪꜰꜱᴄ": data.get('IFSC',code.upper()),
-            "ᴀᴅᴅʀᴇꜱꜱ": data.get('ADDRESS','N/A')
-        }
-        return result_quote("ʙᴀɴᴋ ɪꜰꜱᴄ ᴅᴇᴛᴀɪʟꜱ", [record])
-    return error_quote("ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ", "ᴛʜᴇ ɪꜰꜱᴄ ᴄᴏᴅᴇ ʏᴏᴜ ᴇɴᴛᴇʀᴇᴅ ɪꜱ ɪɴᴠᴀʟɪᴅ")
+        return (f"<blockquote>{E_SPARKLE} {E_BANK} BANK IFSC DETAILS {E_SPARKLE}</blockquote>\n"
+                f"<blockquote>{E_BANK} BANK: {data.get('BANK','N/A')}</blockquote>\n"
+                f"<blockquote>{E_LOCATION} BRANCH: {data.get('BRANCH','N/A')}</blockquote>\n"
+                f"<blockquote>{E_CARD} IFSC: {data.get('IFSC',code.upper())}</blockquote>\n"
+                f"<blockquote>{E_LOCATION} ADDRESS: {data.get('ADDRESS','N/A')}</blockquote>")
+    return f"<blockquote>{E_CROSS} INVALID CODE</blockquote>"
 
 async def gst_lookup(session, gst_number):
     data = await safe_api_fetch(session, f"{GST_API}{gst_number.upper()}", timeout=20)
     if not data or isinstance(data, dict) and data.get("raw_text"):
-        return error_quote("ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ", "ᴛʜᴇ ꜱᴇʀᴠɪᴄᴇ ɪꜱ ᴄᴜʀʀᴇɴᴛʟʏ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ")
+        return f"<blockquote>{E_CROSS} SERVICE UNAVAILABLE</blockquote>"
     if isinstance(data, dict) and data.get("status") == "success" and data.get("data"):
         d = data["data"]
-        record = {}
+        result = f"<blockquote>{E_SPARKLE} {E_CARD} GST INFO {E_SPARKLE}</blockquote>\n"
         if d.get('TradeName'):
-            record["ʙᴜꜱɪɴᴇꜱꜱ"] = d['TradeName']
+            result += f"<blockquote>{E_BANK} BUSINESS: {d['TradeName']}</blockquote>\n"
         if d.get('Gstin'):
-            record["ɢꜱᴛ"] = d['Gstin']
-        return result_quote("ɢꜱᴛ ɪɴꜰᴏ", [record])
-    return error_quote("ɪɴᴠᴀʟɪᴅ ɢꜱᴛ", "ᴛʜᴇ ɢꜱᴛ ɴᴜᴍʙᴇʀ ʏᴏᴜ ᴇɴᴛᴇʀᴇᴅ ɪꜱ ɪɴᴠᴀʟɪᴅ")
+            result += f"<blockquote>{E_CARD} GST: {d['Gstin']}</blockquote>\n"
+        return result
+    return f"<blockquote>{E_CROSS} INVALID GST</blockquote>"
 
 async def pakistan_lookup(session, number):
     try:
         data = await safe_api_fetch(session, f"{PAK_API}{number}", timeout=20)
         if not data or isinstance(data, dict) and data.get("raw_text"):
-            return error_quote("ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ", "ᴛʜᴇ ꜱᴇʀᴠɪᴄᴇ ɪꜱ ᴄᴜʀʀᴇɴᴛʟʏ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ")
+            return f"<blockquote>{E_CROSS} SERVICE UNAVAILABLE</blockquote>"
         if isinstance(data, dict) and data.get("success") and data.get("data"):
             valid = [r for r in data["data"] if isinstance(r, dict) and any(r.get(k) for k in ['name', 'number', 'cnic', 'address'])]
             if not valid:
-                return error_quote("ɴᴏ ᴅᴀᴛᴀ", "ɴᴏ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ ꜰᴏᴜɴᴅ")
-            
-            records = []
-            for r in valid[:3]:
-                record = {}
+                return f"<blockquote>{E_CROSS} NO DATA</blockquote>"
+            result = f"<blockquote>{E_SPARKLE} {E_PAK} PAKISTAN NUMBER INFO {E_SPARKLE}</blockquote>\n"
+            for i, r in enumerate(valid[:3], 1):
+                if len(valid) > 1:
+                    result += f"\n<blockquote>━━ {E_USER} RECORD {i} ━━</blockquote>\n"
                 if r.get('number'):
-                    record["ᴘʜᴏɴᴇ"] = r['number']
+                    result += f"<blockquote>{E_PHONE2} PHONE: {r['number']}</blockquote>\n"
                 if r.get('name'):
-                    record["ɴᴀᴍᴇ"] = r['name']
+                    result += f"<blockquote>{E_USER} NAME: {r['name']}</blockquote>\n"
                 if r.get('cnic'):
-                    record["ᴄɴɪᴄ"] = r['cnic']
+                    result += f"<blockquote>{E_CARD} CNIC: {r['cnic']}</blockquote>\n"
                 if r.get('address'):
-                    record["ᴀᴅᴅʀᴇꜱꜱ"] = r['address'][:200]
-                if record:
-                    records.append(record)
-            
-            return result_quote(f"{E_PAK} ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ", records)
-        return error_quote("ɴᴏ ᴅᴀᴛᴀ", "ɴᴏ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ ꜰᴏᴜɴᴅ")
+                    result += f"<blockquote>{E_LOCATION} ADDRESS: {r['address'][:200]}</blockquote>\n"
+            return result
+        return f"<blockquote>{E_CROSS} NO DATA</blockquote>"
     except:
-        return error_quote("ᴇʀʀᴏʀ", "ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜɪʟᴇ ᴘʀᴏᴄᴇꜱꜱɪɴɢ")
+        return f"<blockquote>{E_CROSS} ERROR</blockquote>"
 
 # --- 👑 ADMIN ---
 
@@ -688,13 +615,7 @@ async def admin_panel(event):
     
     markup = ReplyInlineMarkup(rows=rows)
     
-    txt = simple_quote(
-        f"{E_CROWN} ᴀᴅᴍɪɴ ᴘᴀɴᴇʟ",
-        [
-            f"{E_USERS} ᴜꜱᴇʀꜱ: {len(load_json(USERS_FILE))}",
-            f"{E_TICKET} ᴄᴏᴅᴇꜱ: {len(load_json(REDEEM_FILE))}"
-        ]
-    )
+    txt = f"<blockquote>{E_CROWN} ADMIN PANEL {E_CROWN}</blockquote>\n<blockquote>{E_USERS} USERS: {len(load_json(USERS_FILE))} | {E_TICKET} CODES: {len(load_json(REDEEM_FILE))}</blockquote>"
     
     if hasattr(event, 'data'):
         await event.edit(txt, buttons=markup)
@@ -712,37 +633,23 @@ async def admin_callback(event):
         await event.delete()
     elif d == "ad_codes":
         codes = load_json(REDEEM_FILE)
-        content = []
+        txt = f"<blockquote>{E_TICKET} CODES: {len(codes)}</blockquote>\n"
         for c, v in list(codes.items())[-15:]:
-            status = f"{E_CHECK}" if not v.get('used') else f"{E_CROSS}"
-            content.append(f"{status} <code>{c}</code> | {v.get('credits')}ᴄʀ")
-        txt = simple_quote(f"{E_TICKET} ᴄᴏᴅᴇꜱ", content)
+            txt += f"<blockquote>{E_CHECK if not v.get('used') else E_CROSS} {c} | {v.get('credits')}cr</blockquote>\n"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
         await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_gen":
         ADMIN_STATE[event.sender_id] = "gen"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        txt = simple_quote(
-            f"{E_TICKET} ɢᴇɴᴇʀᴀᴛᴇ ᴄᴏᴅᴇ",
-            "ꜱᴇɴᴅ ɴᴜᴍʙᴇʀ ᴏꜰ ᴄʀᴇᴅɪᴛꜱ:\n<code>100</code>"
-        )
-        await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
+        await event.edit(f"<blockquote>{E_TICKET} ENTER CREDITS:</blockquote>\n<blockquote>100</blockquote>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_credit":
         ADMIN_STATE[event.sender_id] = "credit"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        txt = simple_quote(
-            f"{E_GIFT} ᴀᴅᴅ ᴄʀᴇᴅɪᴛꜱ",
-            "ꜱᴇɴᴅ ꜰᴏʀᴍᴀᴛ:\n<code>ᴜꜱᴇʀ_ɪᴅ ᴀᴍᴏᴜɴᴛ</code>"
-        )
-        await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
+        await event.edit(f"<blockquote>{E_GIFT} ENTER ID AMOUNT:</blockquote>\n<blockquote>123456789 50</blockquote>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_bcast":
         ADMIN_STATE[event.sender_id] = "bcast"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        txt = simple_quote(
-            f"{E_BOLT} ʙʀᴏᴀᴅᴄᴀꜱᴛ",
-            "ꜱᴇɴᴅ ʏᴏᴜʀ ʙʀᴏᴀᴅᴄᴀꜱᴛ ᴍᴇꜱꜱᴀɢᴇ:"
-        )
-        await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
+        await event.edit(f"<blockquote>{E_BOLT} ENTER MESSAGE:</blockquote>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_maint":
         s["maintenance_mode"] = not s.get("maintenance_mode", False)
         save_settings(s)
@@ -787,7 +694,7 @@ async def start(event):
                 if data.get("invite_code") == args[1] and inviter != str(uid):
                     cr = process_invite(inviter, uid)
                     try:
-                        await send_html(int(inviter), success_quote("➕ ɴᴇᴡ ᴜꜱᴇʀ", f"+{cr} ᴄʀᴇᴅɪᴛꜱ ʀᴇᴡᴀʀᴅ!"))
+                        await send_html(int(inviter), f"{E_GIFT} +{cr} CREDITS! NEW USER JOINED!")
                     except:
                         pass
                     break
@@ -859,10 +766,24 @@ async def main_menu(event):
     
     markup = create_main_menu(is_admin, s)
     cr = user.get("credits", 0)
+    name = event.sender.first_name or "User"
     
-    txt = main_quote(cr)
+    welcome_text = (
+        f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
+        f"<blockquote>@{BOT_USERNAME}</blockquote>\n\n"
+        f"<blockquote>{E_WARN} Welcome {name}!</blockquote>\n\n"
+        f"<blockquote>{E_BOLT} Your Dashboard</blockquote>\n"
+        f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+        f"<blockquote>{E_CREDIT} Credits: {cr}</blockquote>\n"
+        f"<blockquote>{E_CROWN} Premium: Unlimited</blockquote>\n"
+        f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n\n"
+        f"<blockquote>{E_GEAR} Use the buttons below</blockquote>\n"
+        f"<blockquote>{E_STAR} /help for commands</blockquote>\n\n"
+        f"<blockquote>{E_BABY} Dev: {DEV_NAME}</blockquote>\n\n"
+        f"<blockquote>{E_STAR2} Select a service below</blockquote>"
+    )
     
-    msg = await send_html(event.chat_id, txt, reply_markup=markup)
+    msg = await send_html(event.chat_id, welcome_text, reply_markup=markup)
     asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
 
 @client.on(events.NewMessage)
@@ -880,10 +801,7 @@ async def msg_handler(event):
         s = get_settings()
         
         if s.get("maintenance_mode", False) and uid != ADMIN_ID:
-            m = await send_html(event.chat_id, simple_quote(
-                f"{E_TOOLS} ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ",
-                "ʙᴏᴛ ɪꜱ ᴄᴜʀʀᴇɴᴛʟʏ ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ."
-            ))
+            m = await send_html(event.chat_id, f"<blockquote>{E_TOOLS} Under maintenance</blockquote>")
             asyncio.create_task(schedule_delete(m))
             return
         
@@ -904,30 +822,18 @@ async def msg_handler(event):
                 try:
                     cr = int(txt)
                     code = generate_redeem_code(cr)
-                    msg = await send_html(event.chat_id, success_quote(
-                        "ᴄᴏᴅᴇ ɢᴇɴᴇʀᴀᴛᴇᴅ",
-                        f"<code>{code}</code>\n\n{E_CREDIT} ᴄʀᴇᴅɪᴛꜱ: {cr}"
-                    ))
+                    msg = await send_html(event.chat_id, f"<blockquote>{E_CHECK} {code} | {E_CREDIT} {cr}cr</blockquote>")
                 except:
-                    msg = await send_html(event.chat_id, error_quote(
-                        "ᴇʀʀᴏʀ",
-                        "ɪɴᴠᴀʟɪᴅ ɴᴜᴍʙᴇʀ ꜰᴏʀᴍᴀᴛ!"
-                    ))
+                    msg = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Number</blockquote>")
                 asyncio.create_task(schedule_delete(msg))
                 return
             elif state == "credit":
                 p = txt.split()
                 if len(p) >= 2:
                     bal = add_credits(p[0], int(p[1]))
-                    msg = await send_html(event.chat_id, success_quote(
-                        "ᴄʀᴇᴅɪᴛꜱ ᴀᴅᴅᴇᴅ",
-                        f"ᴜꜱᴇʀ: {p[0]}\n+{p[1]} ᴄʀᴇᴅɪᴛꜱ\nɴᴇᴡ ʙᴀʟᴀɴᴄᴇ: {bal}"
-                    ))
+                    msg = await send_html(event.chat_id, f"<blockquote>{E_CHECK} +{p[1]} | {bal}</blockquote>")
                 else:
-                    msg = await send_html(event.chat_id, error_quote(
-                        "ᴇʀʀᴏʀ",
-                        "ꜰᴏʀᴍᴀᴛ: <code>ᴜꜱᴇʀ_ɪᴅ ᴀᴍᴏᴜɴᴛ</code>"
-                    ))
+                    msg = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Format: ID AMOUNT</blockquote>")
                 asyncio.create_task(schedule_delete(msg))
                 return
             elif state == "bcast":
@@ -935,17 +841,11 @@ async def msg_handler(event):
                 cnt = 0
                 for u in users:
                     try:
-                        await send_html(int(u), simple_quote(
-                            f"{E_BOLT} ʙʀᴏᴀᴅᴄᴀꜱᴛ",
-                            txt
-                        ))
+                        await send_html(int(u), f"<blockquote>{E_BOLT} {txt}</blockquote>")
                         cnt += 1
                     except:
                         pass
-                msg = await send_html(event.chat_id, success_quote(
-                    "ʙʀᴏᴀᴅᴄᴀꜱᴛ ꜱᴇɴᴛ",
-                    f"ᴅᴇʟɪᴠᴇʀᴇᴅ ᴛᴏ: {cnt} ᴜꜱᴇʀꜱ"
-                ))
+                msg = await send_html(event.chat_id, f"<blockquote>{E_CHECK} Sent: {cnt}</blockquote>")
                 asyncio.create_task(schedule_delete(msg))
                 return
         
@@ -968,12 +868,9 @@ async def msg_handler(event):
             event.redeem_mode = False
             if txt.upper().startswith("HEX-"):
                 success, msg = redeem_code(uid, txt)
-                m = await send_html(event.chat_id, msg)
+                m = await send_html(event.chat_id, f"<blockquote>{msg}</blockquote>")
             else:
-                m = await send_html(event.chat_id, error_quote(
-                    "ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ",
-                    "ᴄᴏᴅᴇ ᴍᴜꜱᴛ ꜱᴛᴀʀᴛ ᴡɪᴛʜ <code>HEX-</code>"
-                ))
+                m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Invalid code!</blockquote>")
             asyncio.create_task(schedule_delete(m))
             return
         
@@ -993,89 +890,98 @@ async def msg_handler(event):
             
             if mode == "INVITE":
                 user = get_user(uid)
-                bot_username = "Hex_Terminal_bot"
+                bot_username = BOT_USERNAME
                 link = f"https://t.me/{bot_username}?start={user['invite_code']}"
                 
-                invite_msg = simple_quote(
-                    f"{E_STAR} ɪɴᴠɪᴛᴇ & ᴇᴀʀɴ",
-                    [
-                        f"{E_USERS} +{INVITE_CREDITS} ᴄʀᴇᴅɪᴛꜱ ᴘᴇʀ ɪɴᴠɪᴛᴇ",
-                        f"{E_LINK} <a href='{link}'>{link}</a>"
-                    ]
+                invite_msg = (
+                    f"<blockquote>{E_STAR} Invite & Earn {E_STAR}</blockquote>\n"
+                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+                    f"<blockquote>{E_USERS} +{INVITE_CREDITS} Credits per invite</blockquote>\n"
+                    f"<blockquote>{E_LINK} {link}</blockquote>\n\n"
+                    f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
                 )
                 m = await send_html(event.chat_id, invite_msg)
                 asyncio.create_task(schedule_delete(m, 120))
                 return
             elif mode == "REDEEM":
                 event.redeem_mode = True
-                m = await send_html(event.chat_id, simple_quote(
-                    f"{E_TICKET} ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ",
-                    "ꜱᴇɴᴅ ʏᴏᴜʀ ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ:\n<code>HEX-XXXXXXXXXX</code>"
-                ))
+                m = await send_html(event.chat_id, f"<blockquote>{E_TICKET} Enter redeem code:</blockquote>\n<blockquote>HEX-XXXXXXXXXX</blockquote>")
                 asyncio.create_task(schedule_delete(m, 30))
                 return
             
             if feature and not s.get(f"{feature}_enabled", True):
-                m = await send_html(event.chat_id, simple_quote(
-                    f"{E_DISABLED} ꜱᴇʀᴠɪᴄᴇ ᴅɪꜱᴀʙʟᴇᴅ",
-                    "ᴛʜɪꜱ ꜱᴇʀᴠɪᴄᴇ ɪꜱ ᴄᴜʀʀᴇɴᴛʟʏ ᴅɪꜱᴀʙʟᴇᴅ."
-                ))
+                m = await send_html(event.chat_id, f"<blockquote>{E_DISABLED} Disabled</blockquote>")
                 asyncio.create_task(schedule_delete(m))
                 return
             
             if feature:
                 maint, msg = check_feature_maintenance(feature)
                 if maint:
-                    m = await send_html(event.chat_id, simple_quote(
-                        f"{E_TOOLS} ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ",
-                        msg
-                    ))
+                    m = await send_html(event.chat_id, f"<blockquote>{E_TOOLS} {msg}</blockquote>")
                     asyncio.create_task(schedule_delete(m))
                     return
             
             USER_MODES[str(uid)] = mode
             
             prompts = {
-                "IFSC": {
-                    "title": "ɪꜰꜱᴄ ʟᴏᴏᴋᴜᴘ",
-                    "instruction": "ꜱᴇɴᴅ ɪꜰꜱᴄ ᴄᴏᴅᴇ",
-                    "example": "SBIN0001234"
-                },
-                "AADHAAR": {
-                    "title": "ᴀᴀᴅʜᴀʀ ʟᴏᴏᴋᴜᴘ",
-                    "instruction": "ꜱᴇɴᴅ 12-ᴅɪɢɪᴛ ᴀᴀᴅʜᴀʀ ɴᴜᴍʙᴇʀ",
-                    "example": "123456789012"
-                },
-                "MOBILE": {
-                    "title": "ɴᴜᴍʙᴇʀ ɪɴꜰᴏ",
-                    "instruction": "ꜱᴇɴᴅ 10-ᴅɪɢɪᴛ ᴍᴏʙɪʟᴇ ɴᴜᴍʙᴇʀ",
-                    "example": "9876543210",
-                    "tip": "ᴡɪᴛʜ ᴏʀ ᴡɪᴛʜᴏᴜᴛ +91"
-                },
-                "VEHICLE": {
-                    "title": "ʀᴄ ᴄʜᴇᴄᴋ",
-                    "instruction": "ꜱᴇɴᴅ ᴠᴇʜɪᴄʟᴇ ɴᴜᴍʙᴇʀ",
-                    "example": "KA01AB3256"
-                },
-                "GST": {
-                    "title": "ɢꜱᴛ ᴠᴇʀɪꜰʏ",
-                    "instruction": "ꜱᴇɴᴅ ɢꜱᴛ ɴᴜᴍʙᴇʀ",
-                    "example": "19BOKPS7056D1ZI"
-                },
-                "PAK": {
-                    "title": "ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ",
-                    "instruction": "ꜱᴇɴᴅ ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ",
-                    "example": "923078750447"
-                }
+                "IFSC": (
+                    f"<blockquote>{E_STAR} IFSC Lookup {E_STAR}</blockquote>\n"
+                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+                    f"<blockquote>Send IFSC code</blockquote>\n"
+                    f"<blockquote>Example: SBIN0001234</blockquote>\n\n"
+                    f"<blockquote>Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>Search Cost: 1 Point</blockquote>\n\n"
+                    f"<blockquote>Bot made by: {DEV_NAME}</blockquote>"
+                ),
+                "AADHAAR": (
+                    f"<blockquote>{E_STAR} Aadhar Lookup {E_STAR}</blockquote>\n"
+                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+                    f"<blockquote>Send 12-digit Aadhar number</blockquote>\n"
+                    f"<blockquote>Example: 123456789012</blockquote>\n\n"
+                    f"<blockquote>Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>Search Cost: 1 Point</blockquote>\n\n"
+                    f"<blockquote>Bot made by: {DEV_NAME}</blockquote>"
+                ),
+                "MOBILE": (
+                    f"<blockquote>{E_STAR} Number Info {E_STAR}</blockquote>\n"
+                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+                    f"<blockquote>Send 10-digit mobile number</blockquote>\n"
+                    f"<blockquote>Example: 9876543210</blockquote>\n"
+                    f"<blockquote>Tip: with or without +91</blockquote>\n\n"
+                    f"<blockquote>Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>Search Cost: 1 Point</blockquote>\n\n"
+                    f"<blockquote>Bot made by: {DEV_NAME}</blockquote>"
+                ),
+                "VEHICLE": (
+                    f"<blockquote>{E_STAR} RC Check {E_STAR}</blockquote>\n"
+                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+                    f"<blockquote>Send vehicle number</blockquote>\n"
+                    f"<blockquote>Example: KA01AB3256</blockquote>\n\n"
+                    f"<blockquote>Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>Search Cost: 1 Point</blockquote>\n\n"
+                    f"<blockquote>Bot made by: {DEV_NAME}</blockquote>"
+                ),
+                "GST": (
+                    f"<blockquote>{E_STAR} GST Verify {E_STAR}</blockquote>\n"
+                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+                    f"<blockquote>Send GST number</blockquote>\n"
+                    f"<blockquote>Example: 19BOKPS7056D1ZI</blockquote>\n\n"
+                    f"<blockquote>Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>Search Cost: 1 Point</blockquote>\n\n"
+                    f"<blockquote>Bot made by: {DEV_NAME}</blockquote>"
+                ),
+                "PAK": (
+                    f"<blockquote>{E_STAR} Pakistan Number {E_STAR}</blockquote>\n"
+                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+                    f"<blockquote>Send Pakistan number</blockquote>\n"
+                    f"<blockquote>Example: 923078750447</blockquote>\n\n"
+                    f"<blockquote>Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>Search Cost: 1 Point</blockquote>\n\n"
+                    f"<blockquote>Bot made by: {DEV_NAME}</blockquote>"
+                )
             }
             if mode in prompts:
-                p = prompts[mode]
-                m = await send_html(event.chat_id, info_quote(
-                    p['title'],
-                    p['instruction'],
-                    p['example'],
-                    p.get('tip', None)
-                ))
+                m = await send_html(event.chat_id, prompts[mode])
                 asyncio.create_task(schedule_delete(m))
             return
         
@@ -1085,17 +991,14 @@ async def msg_handler(event):
             
             if txt.upper().startswith("HEX-"):
                 success, msg = redeem_code(uid, txt)
-                m = await send_html(event.chat_id, msg)
+                m = await send_html(event.chat_id, f"<blockquote>{msg}</blockquote>")
                 asyncio.create_task(schedule_delete(m))
                 USER_MODES[uid_str] = None
                 return
             
             user = get_user(uid)
             if user.get("credits", 0) <= 0:
-                m = await send_html(event.chat_id, error_quote(
-                    "ɪɴꜱᴜꜰꜰɪᴄɪᴇɴᴛ ᴄʀᴇᴅɪᴛꜱ",
-                    f"ɴᴏ ᴄʀᴇᴅɪᴛꜱ ʟᴇꜰᴛ!\nɢᴇᴛ +{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ\n+{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ"
-                ))
+                m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} No credits! +10 daily | +3 invite</blockquote>")
                 asyncio.create_task(schedule_delete(m))
                 USER_MODES[uid_str] = None
                 return
@@ -1109,24 +1012,15 @@ async def msg_handler(event):
 
 async def run_query(event, mode, query):
     if not await net_ok():
-        m = await send_html(event.chat_id, error_quote(
-            "ɴᴏ ɪɴᴛᴇʀɴᴇᴛ",
-            "ᴘʟᴇᴀꜱᴇ ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴄᴏɴɴᴇᴄᴛɪᴏɴ."
-        ))
+        m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} No internet</blockquote>")
         asyncio.create_task(schedule_delete(m))
         return
     
-    st = await send_html(event.chat_id, simple_quote(
-        f"{E_SEARCH} ꜱᴇᴀʀᴄʜɪɴɢ",
-        "ᴘʀᴏᴄᴇꜱꜱɪɴɢ ʏᴏᴜʀ ʀᴇQᴜᴇꜱᴛ..."
-    ))
+    st = await send_html(event.chat_id, f"<blockquote>{E_SEARCH} Searching...</blockquote>")
     
     for i in range(5):
         try:
-            await edit_html(st, simple_quote(
-                f"{E_SEARCH} ꜱᴇᴀʀᴄʜɪɴɢ",
-                f"ᴘʀᴏᴄᴇꜱꜱɪɴɢ... {i+1}/5"
-            ))
+            await edit_html(st, f"<blockquote>{E_SEARCH} Searching... {i+1}/5</blockquote>")
             await asyncio.sleep(0.4)
         except:
             pass
@@ -1144,7 +1038,7 @@ async def run_query(event, mode, query):
                     use_credit(event.sender_id)
                     credit_deducted = True
             else:
-                result = error_quote("ᴇʀʀᴏʀ", "ꜱᴄʀɪᴘᴛ ꜰᴀɪʟᴇᴅ ᴛᴏ ᴇxᴇᴄᴜᴛᴇ.")
+                result = f"<blockquote>{E_CROSS} Script failed</blockquote>"
         else:
             async with aiohttp.ClientSession() as s:
                 if mode == 'IFSC':
@@ -1154,85 +1048,22 @@ async def run_query(event, mode, query):
                 elif mode == 'PAK':
                     result = await pakistan_lookup(s, query)
                 else:
-                    result = error_quote("ᴇʀʀᴏʀ", "ᴜɴᴋɴᴏᴡɴ ꜱᴇʀᴠɪᴄᴇ.")
+                    result = f"<blockquote>{E_CROSS}</blockquote>"
             
             if result and f"{E_CROSS}" not in str(result) and "unavailable" not in str(result).lower():
                 use_credit(event.sender_id)
                 credit_deducted = True
         
         user = get_user(event.sender_id)
-        
-        # Add credit info if not already in result
-        if f"{E_BOLT}" not in str(result):
-            credit_line = f"{E_WALLET} ᴄʀᴇᴅɪᴛꜱ: {user.get('credits', 0)}" if credit_deducted else "ꜱᴛᴀᴛᴜꜱ: ɴᴏ ᴄʀᴇᴅɪᴛ ᴅᴇᴅᴜᴄᴛᴇᴅ"
-            
-            # If result is already quoted, we need to add credit line inside
-            if "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" in result:
-                # Remove the last footer and re-add with credit
-                lines = result.split('\n')
-                # Remove last 2 lines (footer and border)
-                lines = lines[:-2]
-                lines.append("")
-                lines.append(credit_line)
-                lines.append("")
-                lines.append(f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}")
-                lines.append("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬")
-                final = "\n".join(lines)
-            else:
-                final = f"{result}\n\n{credit_line}"
-        else:
-            final = result
-        
+        final = f"{result}\n<blockquote>{SEP}</blockquote>\n<blockquote>{E_CREDIT} {'Credits: '+str(user.get('credits',0)) if credit_deducted else 'No credit deducted'} | {E_CLOCK} {AUTO_DELETE_TIME}s</blockquote>\n\n<blockquote>{E_DIAMOND} Powered by @Hexh4ckerOFC {E_DIAMOND}</blockquote>"
         sent = await edit_html(st, final)
         asyncio.create_task(schedule_delete(sent))
     except Exception as e:
         logger.error(f"Query error: {e}")
         try:
-            await edit_html(st, error_quote(
-                "ᴇʀʀᴏʀ",
-                "ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜɪʟᴇ ᴘʀᴏᴄᴇꜱꜱɪɴɢ."
-            ))
+            await edit_html(st, f"<blockquote>{E_WARN} Error</blockquote>\n\n<blockquote>{E_DIAMOND} Powered by @Hexh4ckerOFC {E_DIAMOND}</blockquote>")
         except:
             pass
-
-# --- 📋 SHOW VERIFICATION ---
-
-async def show_verification_page(event):
-    try:
-        txt = simple_quote(
-            f"{E_DIAMOND} {BOT_NAME} {E_DIAMOND}",
-            [
-                f"@{BOT_USERNAME}",
-                "",
-                f"{E_LOCK} ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ʀᴇQᴜɪʀᴇᴅ",
-                "ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ᴛᴏ ᴜɴʟᴏᴄᴋ",
-                "",
-                f"{E_STAR} ɢᴜɪᴅᴇʟɪɴᴇꜱ:",
-                "• ᴇᴅᴜᴄᴀᴛɪᴏɴᴀʟ ᴘᴜʀᴘᴏꜱᴇꜱ ᴏɴʟʏ",
-                "• ᴜꜱᴇ ᴏɴ ʏᴏᴜʀ ᴏᴡɴ ᴅᴀᴛᴀ",
-                "• ʀᴇꜱᴘᴇᴄᴛ ᴘʀɪᴠᴀᴄʏ ʟᴀᴡꜱ",
-                "",
-                f"{E_GIFT} +{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ",
-                f"{E_USERS} +{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ",
-                f"{E_CLOCK} {AUTO_DELETE_TIME}ꜱ ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ",
-                "",
-                f"{E_CROWN} ᴏᴡɴᴇʀ: @Hexh4ckerOFC"
-            ]
-        )
-        
-        button1 = KeyboardButtonUrl(text="📢 JOIN CHANNEL 1", url=LINK_1)
-        button2 = KeyboardButtonUrl(text="📢 JOIN CHANNEL 2", url=LINK_2)
-        button3 = KeyboardButtonCallback(text="✅ I'VE JOINED - VERIFY", data=b"verify")
-        
-        markup = ReplyInlineMarkup(rows=[
-            KeyboardButtonRow(buttons=[button1]),
-            KeyboardButtonRow(buttons=[button2]),
-            KeyboardButtonRow(buttons=[button3])
-        ])
-        
-        await send_html(event.chat_id, txt, reply_markup=markup)
-    except Exception as e:
-        logger.error(f"Verification page error: {e}")
 
 # --- 🚀 START ---
 
