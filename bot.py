@@ -1,4 +1,4 @@
-# bot.py - Hex Terminal with Working Features
+# bot.py - Hex Terminal FINAL with Premium UI
 
 import logging
 import asyncio
@@ -77,7 +77,6 @@ BOT_USERNAME = "Hex_Terminal_bot"
 # --- PREMIUM EMOJIS FOR TEXT MESSAGES ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
-# All premium emoji IDs for text messages
 EMOJI_WARN = PE("6267039884016358504", "⚠️")
 EMOJI_CHECK = PE("6267008582294705964", "✅")
 EMOJI_CROSS = PE("6267000941547885720", "❌")
@@ -119,6 +118,14 @@ EMOJI_SIM = PE("5800717980266403037", "💳")
 EMOJI_CHART = PE("6093382540784046658", "📊")
 EMOJI_ROCKET2 = PE("5195033767969839232", "🚀")
 EMOJI_CLOCK2 = PE("5382194935057372936", "⏱")
+EMOJI_SPARK = PE("5467683093693354332", "✨")
+EMOJI_TARGET = PE("5231012545799666522", "🎯")
+EMOJI_FLAG = PE("6284779941489812433", "🏁")
+EMOJI_HEART = PE("6264785189394717307", "❤️")
+EMOJI_STAR2 = PE("6266969287638913443", "🌟")
+EMOJI_FIRE2 = PE("6264785189394717307", "🔥")
+EMOJI_MAGIC = PE("5467683093693354332", "🔮")
+EMOJI_RAINBOW = PE("6266969287638913443", "🌈")
 
 # --- SEPARATE ICON IDs FOR EACH BUTTON ---
 ICON_TG = 5947494995798789024
@@ -136,16 +143,12 @@ ICON_REDEEM = 5285515895534278367
 ICON_ADMIN = 6267128480601741166
 ICON_NEXT = 5258331647358540449
 
-DISCLAIMER = f"\n\n{EMOJI_WARN} ᴅɪꜱᴄʟᴀɪᴍᴇʀ:\nᴇᴅᴜᴄᴀᴛɪᴏɴᴀʟ ᴘᴜʀᴘᴏꜱᴇꜱ ᴏɴʟʏ. ᴜꜱᴇ ʀᴇꜱᴘᴏɴꜱɪʙʟʏ."
-
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Create client
 client = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 ADMIN_STATE = {}
-
-# --- USER MODE STORAGE (FIX FOR MODE) ---
 USER_MODES = {}
 
 # --- 💾 DATA FUNCTIONS ---
@@ -285,10 +288,8 @@ async def check_channel_member(channel_id, user_id):
     except UserNotParticipantError:
         return False
     except ChannelPrivateError:
-        logger.error(f"Bot cannot access channel {channel_id}")
         return False
     except Exception as e:
-        logger.error(f"Error checking channel {channel_id}: {e}")
         return False
 
 async def check_channels(uid):
@@ -296,8 +297,7 @@ async def check_channels(uid):
         in_channel1 = await check_channel_member(CHANNEL_1_ID, uid)
         in_channel2 = await check_channel_member(CHANNEL_2_ID, uid)
         return in_channel1 and in_channel2
-    except Exception as e:
-        logger.error(f"Check channels error: {e}")
+    except:
         return False
 
 async def check_individual_channels(uid):
@@ -305,8 +305,7 @@ async def check_individual_channels(uid):
         in_channel1 = await check_channel_member(CHANNEL_1_ID, uid)
         in_channel2 = await check_channel_member(CHANNEL_2_ID, uid)
         return in_channel1, in_channel2
-    except Exception as e:
-        logger.error(f"Check individual channels error: {e}")
+    except:
         return False, False
 
 # --- 🛠️ UTILS ---
@@ -324,22 +323,6 @@ async def schedule_delete(msg, delay=AUTO_DELETE_TIME):
         await msg.delete()
     except:
         pass
-
-async def send_message(chat_id, text, reply_markup=None):
-    return await client(functions.messages.SendMessageRequest(
-        peer=chat_id,
-        message=text,
-        random_id=random.getrandbits(63),
-        reply_markup=reply_markup
-    ))
-
-async def edit_message(msg, text, reply_markup=None):
-    return await client(functions.messages.EditMessageRequest(
-        peer=msg.peer_id,
-        id=msg.id,
-        message=text,
-        reply_markup=reply_markup
-    ))
 
 async def send_html(chat_id, text, reply_markup=None):
     return await client.send_message(
@@ -366,33 +349,23 @@ def check_feature_maintenance(feature_key):
 async def show_verification_page(event):
     try:
         txt = (
-            f"{EMOJI_DIAMOND} {BOT_NAME} {EMOJI_DIAMOND}\n"
-            f"@{BOT_USERNAME}\n\n"
+            f"<blockquote>{EMOJI_DIAMOND} {BOT_NAME} {EMOJI_DIAMOND}</blockquote>\n"
+            f"<b>@{BOT_USERNAME}</b>\n\n"
             f"{EMOJI_LOCK} ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ʀᴇQᴜɪʀᴇᴅ\n"
             f"ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ᴛᴏ ᴜɴʟᴏᴄᴋ\n\n"
-            f"{EMOJI_WARN} ɢᴜɪᴅᴇʟɪɴᴇꜱ:\n"
+            f"{EMOJI_STAR2} ɢᴜɪᴅᴇʟɪɴᴇꜱ:\n"
             f"• ᴇᴅᴜᴄᴀᴛɪᴏɴᴀʟ ᴘᴜʀᴘᴏꜱᴇꜱ ᴏɴʟʏ\n"
             f"• ᴜꜱᴇ ᴏɴ ʏᴏᴜʀ ᴏᴡɴ ᴅᴀᴛᴀ\n"
             f"• ʀᴇꜱᴘᴇᴄᴛ ᴘʀɪᴠᴀᴄʏ ʟᴀᴡꜱ\n\n"
             f"{EMOJI_GIFT} +{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ {EMOJI_STAR}\n"
             f"{EMOJI_INVITE} +{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ\n"
             f"{EMOJI_CLOCK} {AUTO_DELETE_TIME}ꜱ ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ\n\n"
-            f"{EMOJI_CROWN} ᴏᴡɴᴇʀ: @Hexh4ckerOFC\n"
-            f"{EMOJI_WARN} ᴍɪꜱᴜꜱᴇ ᴍᴀʏ ʟᴇᴀᴅ ᴛᴏ ʟᴇɢᴀʟ ᴀᴄᴛɪᴏɴ"
+            f"{EMOJI_CROWN} ᴏᴡɴᴇʀ: @Hexh4ckerOFC"
         )
         
-        button1 = KeyboardButtonUrl(
-            text="📢 ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷",
-            url=LINK_1
-        )
-        button2 = KeyboardButtonUrl(
-            text="📢 ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟸",
-            url=LINK_2
-        )
-        button3 = KeyboardButtonCallback(
-            text="✅ ɪ'ᴠᴇ ᴊᴏɪɴᴇᴅ - ᴠᴇʀɪꜰʏ",
-            data=b"verify"
-        )
+        button1 = KeyboardButtonUrl(text="📢 ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷", url=LINK_1)
+        button2 = KeyboardButtonUrl(text="📢 ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟸", url=LINK_2)
+        button3 = KeyboardButtonCallback(text="✅ ɪ'ᴠᴇ ᴊᴏɪɴᴇᴅ - ᴠᴇʀɪꜰʏ", data=b"verify")
         
         markup = ReplyInlineMarkup(rows=[
             KeyboardButtonRow(buttons=[button1]),
@@ -423,7 +396,6 @@ def create_main_menu(is_admin=False, settings=None):
     rows = []
     
     if page == 1:
-        # Page 1 - All Blue buttons (primary)
         row1 = []
         if settings.get("tgid_enabled", True):
             row1.append(create_colored_button("TG ID -> Phone Number", 'primary', ICON_TG))
@@ -474,7 +446,6 @@ def create_main_menu(is_admin=False, settings=None):
         rows.append(KeyboardButtonRow(buttons=next_row))
     
     else:
-        # Page 2
         rows.append(KeyboardButtonRow(buttons=[create_colored_button("Service 1", 'primary', ICON_PRIMARY)]))
         rows.append(KeyboardButtonRow(buttons=[create_colored_button("Service 2", 'primary', ICON_PRIMARY)]))
         rows.append(KeyboardButtonRow(buttons=[create_colored_button("Service 3", 'primary', ICON_PRIMARY)]))
@@ -575,10 +546,7 @@ def format_records_result(records, search_type):
 async def safe_api_fetch(session, url, timeout=20):
     for attempt in range(3):
         try:
-            headers = {
-                'User-Agent': 'Mozilla/5.0',
-                'Accept': '*/*'
-            }
+            headers = {'User-Agent': 'Mozilla/5.0', 'Accept': '*/*'}
             async with session.get(url, timeout=aiohttp.ClientTimeout(total=timeout), headers=headers, allow_redirects=True) as r:
                 text = await r.text()
                 if not text:
@@ -703,10 +671,7 @@ async def indnum_lookup(session, number):
 async def indnum3_lookup(session, number):
     url = f"{IND_NUM_API_3}{number}"
     try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0',
-            'Accept': '*/*'
-        }
+        headers = {'User-Agent': 'Mozilla/5.0', 'Accept': '*/*'}
         async with session.get(url, timeout=aiohttp.ClientTimeout(total=25), headers=headers, allow_redirects=True) as r:
             text = await r.text()
             if not text or len(text) < 20:
@@ -745,22 +710,22 @@ async def admin_panel(event):
     if event.sender_id != ADMIN_ID:
         return
     s = get_settings()
-    ms = lambda key: "🔴" if s.get(f"maint_{key}") else "🟢"
+    ms = lambda key: f"{EMOJI_DANGER}" if s.get(f"maint_{key}") else f"{EMOJI_SUCCESS}"
     
     buttons = [
         [KeyboardButtonCallback(text="Generate Code", data=b"ad_gen"), KeyboardButtonCallback(text="List Codes", data=b"ad_codes")],
         [KeyboardButtonCallback(text="Add Credits", data=b"ad_credit"), KeyboardButtonCallback(text="Broadcast", data=b"ad_bcast")],
-        [KeyboardButtonCallback(text=f"{'🔴' if s.get('maintenance_mode') else '🟢'} Global", data=b"ad_maint")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('tgid_enabled',True) else '🔴'} TG", data=b"ad_tgid"), KeyboardButtonCallback(text=f"{ms('tgid')} M", data=b"ad_maint_tgid")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('ifsc_enabled',True) else '🔴'} IF", data=b"ad_ifsc"), KeyboardButtonCallback(text=f"{ms('ifsc')} M", data=b"ad_maint_ifsc")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('bypass_enabled',True) else '🔴'} BY", data=b"ad_bypass_toggle"), KeyboardButtonCallback(text=f"{ms('bypass')} M", data=b"ad_maint_bypass")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('mobile_enabled',True) else '🔴'} MO", data=b"ad_mobile"), KeyboardButtonCallback(text=f"{ms('mobile')} M", data=b"ad_maint_mobile")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('aadhaar_enabled',True) else '🔴'} AA", data=b"ad_aadhaar"), KeyboardButtonCallback(text=f"{ms('aadhaar')} M", data=b"ad_maint_aadhaar")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('rc_enabled',True) else '🔴'} RC", data=b"ad_rc"), KeyboardButtonCallback(text=f"{ms('rc')} M", data=b"ad_maint_rc")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('gst_enabled',True) else '🔴'} GS", data=b"ad_gst"), KeyboardButtonCallback(text=f"{ms('gst')} M", data=b"ad_maint_gst")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('pak_enabled',True) else '🔴'} PA", data=b"ad_pak"), KeyboardButtonCallback(text=f"{ms('pak')} M", data=b"ad_maint_pak")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('indnum_enabled',True) else '🔴'} IN2", data=b"ad_indnum"), KeyboardButtonCallback(text=f"{ms('indnum')} M", data=b"ad_maint_indnum")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('indnum3_enabled',True) else '🔴'} IN3", data=b"ad_indnum3"), KeyboardButtonCallback(text=f"{ms('indnum3')} M", data=b"ad_maint_indnum3")],
+        [KeyboardButtonCallback(text=f"{EMOJI_DANGER if s.get('maintenance_mode') else EMOJI_SUCCESS} Global", data=b"ad_maint")],
+        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('tgid_enabled',True) else EMOJI_DANGER} TG", data=b"ad_tgid"), KeyboardButtonCallback(text=f"{ms('tgid')} M", data=b"ad_maint_tgid")],
+        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('ifsc_enabled',True) else EMOJI_DANGER} IF", data=b"ad_ifsc"), KeyboardButtonCallback(text=f"{ms('ifsc')} M", data=b"ad_maint_ifsc")],
+        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('bypass_enabled',True) else EMOJI_DANGER} BY", data=b"ad_bypass_toggle"), KeyboardButtonCallback(text=f"{ms('bypass')} M", data=b"ad_maint_bypass")],
+        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('mobile_enabled',True) else EMOJI_DANGER} MO", data=b"ad_mobile"), KeyboardButtonCallback(text=f"{ms('mobile')} M", data=b"ad_maint_mobile")],
+        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('aadhaar_enabled',True) else EMOJI_DANGER} AA", data=b"ad_aadhaar"), KeyboardButtonCallback(text=f"{ms('aadhaar')} M", data=b"ad_maint_aadhaar")],
+        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('rc_enabled',True) else EMOJI_DANGER} RC", data=b"ad_rc"), KeyboardButtonCallback(text=f"{ms('rc')} M", data=b"ad_maint_rc")],
+        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('gst_enabled',True) else EMOJI_DANGER} GS", data=b"ad_gst"), KeyboardButtonCallback(text=f"{ms('gst')} M", data=b"ad_maint_gst")],
+        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('pak_enabled',True) else EMOJI_DANGER} PA", data=b"ad_pak"), KeyboardButtonCallback(text=f"{ms('pak')} M", data=b"ad_maint_pak")],
+        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('indnum_enabled',True) else EMOJI_DANGER} IN2", data=b"ad_indnum"), KeyboardButtonCallback(text=f"{ms('indnum')} M", data=b"ad_maint_indnum")],
+        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('indnum3_enabled',True) else EMOJI_DANGER} IN3", data=b"ad_indnum3"), KeyboardButtonCallback(text=f"{ms('indnum3')} M", data=b"ad_maint_indnum3")],
         [KeyboardButtonCallback(text="Close", data=b"ad_close")]
     ]
     
@@ -778,7 +743,7 @@ async def admin_panel(event):
 
 async def admin_callback(event):
     if event.sender_id != ADMIN_ID:
-        await event.answer("❌", alert=True)
+        await event.answer(f"{EMOJI_CROSS}", alert=True)
         return
     d = event.data.decode()
     s = get_settings()
@@ -789,7 +754,7 @@ async def admin_callback(event):
         codes = load_json(REDEEM_FILE)
         txt = f"{EMOJI_TICKET} ᴄᴏᴅᴇꜱ: {len(codes)}\n"
         for c, v in list(codes.items())[-15:]:
-            txt += f"{'✅' if not v.get('used') else '❌'} {c} | {v.get('credits')}cr\n"
+            txt += f"{EMOJI_CHECK if not v.get('used') else EMOJI_CROSS} {c} | {v.get('credits')}cr\n"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
         await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_gen":
@@ -922,17 +887,17 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     
     txt = (
-        f"{EMOJI_DIAMOND} ᴘʀᴇᴍɪᴜᴍ ʜᴜʙ {EMOJI_DIAMOND}\n"
-        f"{EMOJI_USER} ᴡᴇʟᴄᴏᴍᴇ ʙᴀᴄᴋ, {event.sender.first_name}\n\n"
-        f"{EMOJI_CHART} ʏᴏᴜʀ ꜱᴛᴀᴛɪꜱᴛɪᴄꜱ:\n"
-        f"{EMOJI_CREDIT} ᴄʀᴇᴅɪᴛꜱ: {cr}\n"
-        f"{EMOJI_SEARCH} Qᴜᴇʀɪᴇꜱ: {user.get('total_queries',0)}\n"
-        f"{EMOJI_INVITE} ɪɴᴠɪᴛᴇꜱ: {user.get('invites',0)}\n\n"
-        f"{EMOJI_GIFT} ʀᴇᴡᴀʀᴅꜱ:\n"
+        f"<blockquote>{EMOJI_DIAMOND} ᴘʀᴇᴍɪᴜᴍ ʜᴜʙ {EMOJI_DIAMOND}</blockquote>\n"
+        f"{EMOJI_USER} ᴡᴇʟᴄᴏᴍᴇ ʙᴀᴄᴋ, <b>{event.sender.first_name}</b>\n\n"
+        f"<blockquote>{EMOJI_CHART} ʏᴏᴜʀ ꜱᴛᴀᴛɪꜱᴛɪᴄꜱ</blockquote>\n"
+        f"{EMOJI_CREDIT} ᴄʀᴇᴅɪᴛꜱ: <b>{cr}</b>\n"
+        f"{EMOJI_SEARCH} Qᴜᴇʀɪᴇꜱ: <b>{user.get('total_queries',0)}</b>\n"
+        f"{EMOJI_INVITE} ɪɴᴠɪᴛᴇꜱ: <b>{user.get('invites',0)}</b>\n\n"
+        f"<blockquote>{EMOJI_GIFT} ʀᴇᴡᴀʀᴅꜱ</blockquote>\n"
         f"{EMOJI_REFRESH} +{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ ꜰʀᴇᴇ\n"
         f"{EMOJI_INVITE} +{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ\n"
         f"{EMOJI_CLOCK} {AUTO_DELETE_TIME}ꜱ ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ\n\n"
-        f"{EMOJI_STAR} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ {EMOJI_STAR}"
+        f"{EMOJI_STAR2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ {EMOJI_STAR2}"
     )
     
     msg = await send_html(event.chat_id, txt, reply_markup=markup)
@@ -955,7 +920,6 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
-        # Handle Page Navigation
         if txt == "Next Page ➜":
             s["page"] = 2
             save_settings(s)
@@ -1000,7 +964,6 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(msg))
                 return
         
-        # Check verification
         user = get_user(uid)
         if not user.get("verified"):
             if await check_channels(uid):
@@ -1012,12 +975,10 @@ async def msg_handler(event):
                 await show_verification_page(event)
                 return
         
-        # Handle admin panel button
         if txt == "Admin Panel":
             await admin_panel(event)
             return
         
-        # Handle redeem mode
         if hasattr(event, 'redeem_mode') and event.redeem_mode:
             event.redeem_mode = False
             if txt.upper().startswith("HEX-"):
@@ -1028,8 +989,6 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
-        # Feature buttons mapping - STORE MODE IN GLOBAL DICT
-        mode = None
         feature_map = {
             "TG ID -> Phone Number": ("TG", "tgid"),
             "IFSC Info": ("IFSC", "ifsc"),
@@ -1061,7 +1020,6 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(m, 30))
                 return
             
-            # Check if feature is enabled
             if feature and not s.get(f"{feature}_enabled", True):
                 m = await send_html(event.chat_id, f"{EMOJI_DISABLED} Disabled")
                 asyncio.create_task(schedule_delete(m))
@@ -1074,7 +1032,6 @@ async def msg_handler(event):
                     asyncio.create_task(schedule_delete(m))
                     return
             
-            # STORE MODE IN GLOBAL DICT
             USER_MODES[str(uid)] = mode
             
             prompts = {
@@ -1094,12 +1051,10 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(m))
             return
         
-        # Handle query mode - CHECK GLOBAL DICT
         uid_str = str(uid)
         if uid_str in USER_MODES and USER_MODES[uid_str]:
             mode = USER_MODES[uid_str]
             
-            # Check if it's a redeem code
             if txt.upper().startswith("HEX-"):
                 success, msg = redeem_code(uid, txt)
                 m = await send_html(event.chat_id, msg)
@@ -1107,7 +1062,6 @@ async def msg_handler(event):
                 USER_MODES[uid_str] = None
                 return
             
-            # Check credits
             user = get_user(uid)
             if user.get("credits", 0) <= 0:
                 m = await send_html(event.chat_id, f"{EMOJI_CROSS} No credits! +10 daily | +3 invite")
@@ -1115,7 +1069,6 @@ async def msg_handler(event):
                 USER_MODES[uid_str] = None
                 return
             
-            # Process the query
             await run_query(event, mode, txt)
             USER_MODES[uid_str] = None
             return
@@ -1144,15 +1097,11 @@ async def run_query(event, mode, query):
     
     st = await send_html(event.chat_id, f"{EMOJI_GREEN} ꜱᴇᴀʀᴄʜɪɴɢ...")
     
-    # Simple loading animation with 5 emoji IDs
-    loading_emojis = [
-        "⏳", "🔍", "📡", "🔄", "⚡"
-    ]
-    
-    for i, emoji in enumerate(loading_emojis):
+    # Simple loading animation
+    for i in range(5):
         try:
-            await edit_html(st, f"{emoji} ꜱᴇᴀʀᴄʜɪɴɢ... {i+1}/5")
-            await asyncio.sleep(0.5)
+            await edit_html(st, f"{EMOJI_SEARCH} ꜱᴇᴀʀᴄʜɪɴɢ... {i+1}/5")
+            await asyncio.sleep(0.4)
         except:
             pass
     
@@ -1194,7 +1143,7 @@ async def run_query(event, mode, query):
                 credit_deducted = True
         
         user = get_user(event.sender_id)
-        final = f"{result}\n{SEP}\n{EMOJI_CREDIT} {'ᴄʀ: '+str(user.get('credits',0)) if credit_deducted else 'ɴᴏ ᴄʀ ᴅᴇᴅᴜᴄᴛᴇᴅ'} | {EMOJI_CLOCK} {AUTO_DELETE_TIME}ꜱ{DISCLAIMER}{FOOTER}"
+        final = f"{result}\n{SEP}\n{EMOJI_CREDIT} {'ᴄʀ: '+str(user.get('credits',0)) if credit_deducted else 'ɴᴏ ᴄʀ ᴅᴇᴅᴜᴄᴛᴇᴅ'} | {EMOJI_CLOCK} {AUTO_DELETE_TIME}ꜱ{FOOTER}"
         sent = await edit_html(st, final)
         asyncio.create_task(schedule_delete(sent))
     except Exception as e:
@@ -1207,10 +1156,8 @@ async def run_query(event, mode, query):
 # --- 🚀 START ---
 
 async def main():
-    print("Hex Terminal COMPLETE Version")
-    print("Premium Emojis in Text | Separate Icons for Each Button")
-    print("Blue buttons | Red for Next Page & Admin")
-    print("Working Verification - Must join BOTH channels")
+    print("Hex Terminal FINAL Version")
+    print("Premium UI with Quote Formatting")
     print("All features working!")
     
     try:
