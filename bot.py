@@ -1,4 +1,4 @@
-# bot.py - Hex Terminal COMPLETE with Text Emojis + Colored Buttons
+# bot.py - Hex Terminal COMPLETE with Working Verification
 
 import logging
 import asyncio
@@ -249,15 +249,51 @@ def get_settings():
 def save_settings(data):
     save_json(SETTINGS_FILE, data)
 
-# --- 🔍 VERIFY ---
+# --- 🔍 VERIFY - FIXED WORKING VERSION ---
 
 async def check_channels(uid):
+    """Check if user is in BOTH channels"""
     try:
-        m1 = await client.get_permissions(CHANNEL_1_ID, uid)
-        m2 = await client.get_permissions(CHANNEL_2_ID, uid)
-        return m1.is_member and m2.is_member
-    except:
+        # Check channel 1
+        try:
+            m1 = await client.get_permissions(CHANNEL_1_ID, uid)
+            in_channel1 = m1.is_member if hasattr(m1, 'is_member') else m1.status in ['member', 'administrator', 'creator']
+        except:
+            in_channel1 = False
+        
+        # Check channel 2
+        try:
+            m2 = await client.get_permissions(CHANNEL_2_ID, uid)
+            in_channel2 = m2.is_member if hasattr(m2, 'is_member') else m2.status in ['member', 'administrator', 'creator']
+        except:
+            in_channel2 = False
+        
+        return in_channel1 and in_channel2
+    except Exception as e:
+        logger.error(f"Check channels error: {e}")
         return False
+
+async def check_individual_channels(uid):
+    """Check each channel separately"""
+    try:
+        # Check channel 1
+        try:
+            m1 = await client.get_permissions(CHANNEL_1_ID, uid)
+            in_channel1 = m1.is_member if hasattr(m1, 'is_member') else m1.status in ['member', 'administrator', 'creator']
+        except:
+            in_channel1 = False
+        
+        # Check channel 2
+        try:
+            m2 = await client.get_permissions(CHANNEL_2_ID, uid)
+            in_channel2 = m2.is_member if hasattr(m2, 'is_member') else m2.status in ['member', 'administrator', 'creator']
+        except:
+            in_channel2 = False
+        
+        return in_channel1, in_channel2
+    except Exception as e:
+        logger.error(f"Check individual channels error: {e}")
+        return False, False
 
 # --- 🛠️ UTILS ---
 
@@ -275,7 +311,6 @@ async def schedule_delete(msg, delay=AUTO_DELETE_TIME):
     except:
         pass
 
-# FIXED: Use functions.messages.SendMessageRequest with reply_markup
 async def send_message(chat_id, text, reply_markup=None):
     return await client(functions.messages.SendMessageRequest(
         peer=chat_id,
@@ -284,7 +319,6 @@ async def send_message(chat_id, text, reply_markup=None):
         reply_markup=reply_markup
     ))
 
-# FIXED: Use functions.messages.EditMessageRequest
 async def edit_message(msg, text, reply_markup=None):
     return await client(functions.messages.EditMessageRequest(
         peer=msg.peer_id,
@@ -293,7 +327,6 @@ async def edit_message(msg, text, reply_markup=None):
         reply_markup=reply_markup
     ))
 
-# NEW: Send message with HTML parse mode
 async def send_html(chat_id, text, reply_markup=None):
     return await client.send_message(
         chat_id,
@@ -302,7 +335,6 @@ async def send_html(chat_id, text, reply_markup=None):
         parse_mode='html'
     )
 
-# NEW: Edit message with HTML parse mode
 async def edit_html(msg, text, reply_markup=None):
     return await client.edit_message(
         msg,
@@ -339,6 +371,7 @@ def check_feature_maintenance(feature_key):
     return False, ""
 
 async def show_verification_page(event):
+    """Show verification page with JOIN buttons that redirect to channels"""
     try:
         txt = (
             f"<b>{EMOJI_DIAMOND} {BOT_NAME} {EMOJI_DIAMOND}</b>\n"
@@ -356,18 +389,19 @@ async def show_verification_page(event):
             f"<i>{EMOJI_WARN} ᴍɪꜱᴜꜱᴇ ᴍᴀʏ ʟᴇᴀᴅ ᴛᴏ ʟᴇɢᴀʟ ᴀᴄᴛɪᴏɴ</i>"
         )
         
-        from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
+        from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow, KeyboardButtonUrl
         
-        button1 = KeyboardButtonCallback(
-            text="📢 ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷",
-            data=b"url1"
+        # Use KeyboardButtonUrl for channel redirects
+        button1 = KeyboardButtonUrl(
+            text=f"{EMOJI_PRIMARY} ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷",
+            url=LINK_1
         )
-        button2 = KeyboardButtonCallback(
-            text="📢 ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟸",
-            data=b"url2"
+        button2 = KeyboardButtonUrl(
+            text=f"{EMOJI_SUCCESS} ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟸",
+            url=LINK_2
         )
         button3 = KeyboardButtonCallback(
-            text="✅ ɪ'ᴠᴇ ᴊᴏɪɴᴇᴅ - ᴠᴇʀɪꜰʏ",
+            text=f"{EMOJI_CHECK} ɪ'ᴠᴇ ᴊᴏɪɴᴇᴅ - ᴠᴇʀɪꜰʏ",
             data=b"verify"
         )
         
@@ -377,9 +411,10 @@ async def show_verification_page(event):
             KeyboardButtonRow(buttons=[button3])
         ])
         
+        # Send as message (not reply)
         await send_html(event.chat_id, txt, reply_markup=markup)
     except Exception as e:
-        logger.error(f"Verification page: {e}")
+        logger.error(f"Verification page error: {e}")
 
 # --- 🎨 COLORED REPLY BUTTONS ---
 
@@ -836,30 +871,55 @@ async def start(event):
 
 @client.on(events.CallbackQuery(data=b"verify"))
 async def verify_cb(event):
-    if await check_channels(event.sender_id):
-        user = get_user(event.sender_id)
-        user["verified"] = True
-        save_user(event.sender_id, user)
-        await event.answer("✅ Verified!")
-        try:
-            await event.delete()
-        except:
-            pass
-        await main_menu(event)
-    else:
-        await event.answer("❌ Join both channels first!", alert=True)
+    try:
+        uid = event.sender_id
+        
+        # Check if user is in both channels
+        in_channel1, in_channel2 = await check_individual_channels(uid)
+        
+        if in_channel1 and in_channel2:
+            user = get_user(uid)
+            user["verified"] = True
+            save_user(uid, user)
+            await event.answer(f"{EMOJI_CHECK} ᴠᴇʀɪꜰɪᴇᴅ!", alert=True)
+            try:
+                await event.delete()
+            except:
+                pass
+            # Delete the verification message
+            try:
+                await event.message.delete()
+            except:
+                pass
+            await main_menu(event)
+        elif not in_channel1 and not in_channel2:
+            await event.answer(f"{EMOJI_CROSS} ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ꜰɪʀꜱᴛ!", alert=True)
+        elif not in_channel1:
+            await event.answer(f"{EMOJI_CROSS} ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷 ꜰɪʀꜱᴛ!", alert=True)
+        elif not in_channel2:
+            await event.answer(f"{EMOJI_CROSS} ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟸 ꜰɪʀꜱᴛ!", alert=True)
+    except Exception as e:
+        logger.error(f"Verify callback error: {e}")
+        await event.answer(f"{EMOJI_CROSS} ᴇʀʀᴏʀ, ᴛʀʏ ᴀɢᴀɪɴ", alert=True)
 
 @client.on(events.CallbackQuery)
 async def handle_url_callback(event):
     if event.data == b"url1":
-        await event.answer(f"📢 Join: {LINK_1}", alert=True)
+        await event.answer(f"{EMOJI_LINK} ᴊᴏɪɴ: {LINK_1}", alert=True)
     elif event.data == b"url2":
-        await event.answer(f"📢 Join: {LINK_2}", alert=True)
+        await event.answer(f"{EMOJI_LINK} ᴊᴏɪɴ: {LINK_2}", alert=True)
 
 async def main_menu(event):
     is_admin = event.sender_id == ADMIN_ID
     user = get_user(event.sender_id)
     s = get_settings()
+    
+    # Re-verify user is still in channels
+    if not await check_channels(event.sender_id):
+        user["verified"] = False
+        save_user(event.sender_id, user)
+        await show_verification_page(event)
+        return
     
     markup = create_main_menu(is_admin, s)
     cr = user.get("credits", 0)
@@ -1128,7 +1188,8 @@ async def run_query(event, mode, query):
 async def main():
     print("Hex Terminal COMPLETE Version")
     print("Premium Emojis in Text | Colored Buttons with Icons")
-    print("All features working")
+    print("Working Verification - Must join BOTH channels")
+    print("Auto-detects if user leaves channels")
     
     try:
         subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4"], capture_output=True, timeout=30)
