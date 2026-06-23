@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot ULTIMATE EDITION (FULLY FIXED)
+# bot.py - Hex OSINT Bot FINAL WORKING
 
 import logging
 import asyncio
@@ -18,7 +18,7 @@ try:
     from telethon.tl.types import (
         KeyboardButton, KeyboardButtonRow, ReplyKeyboardMarkup,
         KeyboardButtonStyle, KeyboardButtonCallback, ReplyInlineMarkup,
-        KeyboardButtonUrl, MessageEntityTextUrl
+        KeyboardButtonUrl
     )
     from telethon.tl.functions.channels import GetParticipantRequest
     from telethon.errors import UserNotParticipantError, ChannelPrivateError
@@ -30,7 +30,7 @@ except ImportError:
     from telethon.tl.types import (
         KeyboardButton, KeyboardButtonRow, ReplyKeyboardMarkup,
         KeyboardButtonStyle, KeyboardButtonCallback, ReplyInlineMarkup,
-        KeyboardButtonUrl, MessageEntityTextUrl
+        KeyboardButtonUrl
     )
     from telethon.tl.functions.channels import GetParticipantRequest
     from telethon.errors import UserNotParticipantError, ChannelPrivateError
@@ -76,7 +76,6 @@ DEV_NAME = "@HeX_CiPhEr"
 # --- ALL PREMIUM EMOJI IDs ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
-# Main emojis
 E_STAR = PE("6266969287638913443", "⭐")
 E_DIAMOND = PE("6264791387032523779", "💎")
 E_CROWN = PE("6267128480601741166", "👑")
@@ -125,6 +124,7 @@ E_BAR = PE("6267039884016358504", "➖")
 E_BOLT2 = PE("6284971355297290197", "⚡")
 E_GEAR = PE("5462921117423384478", "⚙️")
 E_STAR5 = PE("6266969287638913443", "⭐")
+E_LINK = PE("5271604874419647061", "🔗")
 
 # --- BUTTON ICON IDs ---
 ICON_IFSC = 5264895611517300926
@@ -313,24 +313,22 @@ async def schedule_delete(msg, delay=AUTO_DELETE_TIME):
     except:
         pass
 
-# FIX: Use SendMessageRequest directly with parse_mode
+# FIX: Use client.send_message for HTML parse_mode
 async def send_html(chat_id, text, reply_markup=None):
-    return await client(functions.messages.SendMessageRequest(
-        peer=chat_id,
-        message=text,
-        random_id=random.getrandbits(63),
-        reply_markup=reply_markup,
+    return await client.send_message(
+        chat_id,
+        text,
+        buttons=reply_markup,
         parse_mode='html'
-    ))
+    )
 
 async def edit_html(msg, text, reply_markup=None):
-    return await client(functions.messages.EditMessageRequest(
-        peer=msg.peer_id,
-        id=msg.id,
-        message=text,
-        reply_markup=reply_markup,
+    return await client.edit_message(
+        msg,
+        text,
+        buttons=reply_markup,
         parse_mode='html'
-    ))
+    )
 
 def check_feature_maintenance(feature_key):
     s = get_settings()
@@ -770,7 +768,6 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     name = event.sender.first_name or "User"
     
-    # WELCOME MESSAGE WITH QUOTE UI - USING BLOCKQUOTE
     welcome_text = (
         f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
         f"<blockquote>{E_WELCOME} Welcome To Our Information Bot {E_CROISSANT}</blockquote>\n"
