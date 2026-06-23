@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot with Your Exact Quote Format
+# bot.py - Hex OSINT Bot - ALL Messages in Quote Format
 
 import logging
 import asyncio
@@ -83,6 +83,7 @@ E_ARROW = PE("5875450995332353523", "➡️")
 E_DIAMOND2 = PE("4961143940817355662", "💠")
 E_STAR = PE("5289898724976240966", "⭐")
 E_BOLT = PE("5377834924776627189", "⚡")
+E_SNAKE = PE("5802980697886954454", "🐍")
 
 # Additional emojis
 E_CHECK = PE("6267008582294705964", "✅")
@@ -330,16 +331,17 @@ def check_feature_maintenance(feature_key):
         return True, s.get(f"maint_msg_{feature_key}", f"{E_TOOLS} Under maintenance.")
     return False, ""
 
-# --- 📋 YOUR QUOTE FORMAT HELPERS ---
+# --- 📋 QUOTE FORMAT - ALL MESSAGES ---
 
-def quote_format(lines):
-    """Format message with your exact quote style - no borders"""
-    return "\n".join(lines)
+def quote(text):
+    """Wrap any text in quote format with borders"""
+    border = "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+    return f"{border}\n{text}\n{border}"
 
 def main_quote(credits, premium="ᴜɴʟɪᴍɪᴛᴇᴅ"):
-    """Your exact main menu quote format"""
+    """Main menu quote format"""
     lines = [
-        f"{E_DIAMOND} Hᴇx Osɪɴᴛ Bᴏᴛ {E_LION}",
+        f"{E_DIAMOND} Hᴇx Osɪɴᴛ Bᴏᴛ {E_SNAKE}",
         "",
         f"{E_HAPPY} ᴡᴇʟᴄᴏᴍᴇ #define 𝚮 𝚬 𝚾! {E_HAPPY}",
         "",
@@ -354,12 +356,12 @@ def main_quote(credits, premium="ᴜɴʟɪᴍɪᴛᴇᴅ"):
         "",
         f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}"
     ]
-    return quote_format(lines)
+    return quote("\n".join(lines))
 
 def info_quote(title, instruction, example, tip=None):
-    """Your exact info quote format"""
+    """Info message quote format"""
     lines = [
-        f"{E_INFO} {title} {E_INFO}",
+        f"{title}",
         "",
         instruction,
         "",
@@ -369,30 +371,28 @@ def info_quote(title, instruction, example, tip=None):
         lines.append(f"ᴛɪᴩ: {tip}")
     lines.extend([
         "",
-        f"{E_COIN} ᴛᴏᴛᴀʟ ᴩᴏɪɴᴛꜱ: 2 ᴩᴏɪɴᴛ",
-        f"{E_WALLET} ꜱᴇᴀʀᴄʜ ᴄᴏꜱᴛ: 1 ᴩᴏɪɴᴛ",
+        f"ᴛᴏᴛᴀʟ ᴩᴏɪɴᴛꜱ: 2 ᴩᴏɪɴᴛ",
+        f"ꜱᴇᴀʀᴄʜ ᴄᴏꜱᴛ: 1 ᴩᴏɪɴᴛ",
         "",
         f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}"
     ])
-    return quote_format(lines)
+    return quote("\n".join(lines))
 
-def result_quote(title, records, emoji=None):
-    """Your exact result quote format"""
-    lines = []
-    if emoji:
-        lines.append(f"{emoji} {title} {emoji}")
-    else:
-        lines.append(f"{title}")
-    lines.append("")
-    lines.append(f"{E_LIST} ᴛᴏᴛᴀʟ: {len(records)}")
-    lines.append("")
+def result_quote(title, records):
+    """Result message quote format"""
+    lines = [
+        f"{title}",
+        "",
+        f"ᴛᴏᴛᴀʟ: {len(records)}",
+        ""
+    ]
     
     for i, record in enumerate(records, 1):
-        lines.append(f"{E_DOC} ʀᴇᴄᴏʀᴅ {i}")
+        lines.append(f"ʀᴇᴄᴏʀᴅ {i}")
         if isinstance(record, dict):
             for key, value in record.items():
                 clean_key = key.replace('🏦', '').replace('📍', '').replace('🪪', '').replace('👤', '').replace('📲', '').replace('📡', '').replace('🏛', '').strip()
-                lines.append(f"<b>{clean_key}:</b> {value}")
+                lines.append(f"{clean_key}: {value}")
         else:
             lines.append(str(record))
         if i < len(records):
@@ -400,23 +400,43 @@ def result_quote(title, records, emoji=None):
     
     lines.append("")
     lines.append(f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}")
-    return quote_format(lines)
+    return quote("\n".join(lines))
 
-def simple_quote(title, content, emoji=None):
-    """Simple quote format"""
-    lines = []
-    if emoji:
-        lines.append(f"{emoji} {title} {emoji}")
-    else:
-        lines.append(f"{title}")
-    lines.append("")
+def simple_quote(title, content):
+    """Simple quote format for any message"""
+    lines = [
+        f"{title}",
+        ""
+    ]
     if isinstance(content, list):
         lines.extend(content)
     else:
         lines.append(str(content))
     lines.append("")
     lines.append(f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}")
-    return quote_format(lines)
+    return quote("\n".join(lines))
+
+def error_quote(title, message):
+    """Error message quote format"""
+    lines = [
+        f"{E_CROSS} {title} {E_CROSS}",
+        "",
+        message,
+        "",
+        f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}"
+    ]
+    return quote("\n".join(lines))
+
+def success_quote(title, message):
+    """Success message quote format"""
+    lines = [
+        f"{E_CHECK} {title} {E_CHECK}",
+        "",
+        message,
+        "",
+        f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}"
+    ]
+    return quote("\n".join(lines))
 
 # --- 🎨 COLORED REPLY BUTTONS ---
 
@@ -554,7 +574,7 @@ def parse_all_india_records(raw):
 
 def format_records_result(records, search_type):
     if not records:
-        return f"{E_CROSS} ɴᴏ ʀᴇᴄᴏʀᴅꜱ ꜰᴏᴜɴᴅ"
+        return error_quote("ɴᴏ ʀᴇᴄᴏʀᴅꜱ", "ɴᴏ ʀᴇᴄᴏʀᴅꜱ ꜰᴏᴜɴᴅ")
     
     title = {
         'aadhaar': f'{E_CARD} ᴀᴀᴅʜᴀʀ',
@@ -562,7 +582,7 @@ def format_records_result(records, search_type):
         'vehicle': f'{E_CAR} ᴠᴇʜɪᴄʟᴇ'
     }.get(search_type, f'{E_CHART} ʀᴇꜱᴜʟᴛ')
     
-    return result_quote(title, records, E_SPARKLE)
+    return result_quote(title, records)
 
 # --- 🔗 API FUNCTIONS ---
 
@@ -587,7 +607,7 @@ async def safe_api_fetch(session, url, timeout=20):
 async def ifsc_lookup(session, code):
     data = await safe_api_fetch(session, f"{IFSC_API}{code.upper()}")
     if not data or isinstance(data, dict) and data.get("raw_text"):
-        return f"{E_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
+        return error_quote("ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ", "ᴛʜᴇ ꜱᴇʀᴠɪᴄᴇ ɪꜱ ᴄᴜʀʀᴇɴᴛʟʏ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ")
     if isinstance(data, dict):
         record = {
             "ʙᴀɴᴋ": data.get('BANK','N/A'),
@@ -595,13 +615,13 @@ async def ifsc_lookup(session, code):
             "ɪꜰꜱᴄ": data.get('IFSC',code.upper()),
             "ᴀᴅᴅʀᴇꜱꜱ": data.get('ADDRESS','N/A')
         }
-        return result_quote("ʙᴀɴᴋ ɪꜰꜱᴄ ᴅᴇᴛᴀɪʟꜱ", [record], E_SPARKLE)
-    return f"{E_CROSS} ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ"
+        return result_quote("ʙᴀɴᴋ ɪꜰꜱᴄ ᴅᴇᴛᴀɪʟꜱ", [record])
+    return error_quote("ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ", "ᴛʜᴇ ɪꜰꜱᴄ ᴄᴏᴅᴇ ʏᴏᴜ ᴇɴᴛᴇʀᴇᴅ ɪꜱ ɪɴᴠᴀʟɪᴅ")
 
 async def gst_lookup(session, gst_number):
     data = await safe_api_fetch(session, f"{GST_API}{gst_number.upper()}", timeout=20)
     if not data or isinstance(data, dict) and data.get("raw_text"):
-        return f"{E_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
+        return error_quote("ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ", "ᴛʜᴇ ꜱᴇʀᴠɪᴄᴇ ɪꜱ ᴄᴜʀʀᴇɴᴛʟʏ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ")
     if isinstance(data, dict) and data.get("status") == "success" and data.get("data"):
         d = data["data"]
         record = {}
@@ -609,18 +629,18 @@ async def gst_lookup(session, gst_number):
             record["ʙᴜꜱɪɴᴇꜱꜱ"] = d['TradeName']
         if d.get('Gstin'):
             record["ɢꜱᴛ"] = d['Gstin']
-        return result_quote("ɢꜱᴛ ɪɴꜰᴏ", [record], E_SPARKLE)
-    return f"{E_CROSS} ɪɴᴠᴀʟɪᴅ ɢꜱᴛ"
+        return result_quote("ɢꜱᴛ ɪɴꜰᴏ", [record])
+    return error_quote("ɪɴᴠᴀʟɪᴅ ɢꜱᴛ", "ᴛʜᴇ ɢꜱᴛ ɴᴜᴍʙᴇʀ ʏᴏᴜ ᴇɴᴛᴇʀᴇᴅ ɪꜱ ɪɴᴠᴀʟɪᴅ")
 
 async def pakistan_lookup(session, number):
     try:
         data = await safe_api_fetch(session, f"{PAK_API}{number}", timeout=20)
         if not data or isinstance(data, dict) and data.get("raw_text"):
-            return f"{E_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
+            return error_quote("ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ", "ᴛʜᴇ ꜱᴇʀᴠɪᴄᴇ ɪꜱ ᴄᴜʀʀᴇɴᴛʟʏ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ")
         if isinstance(data, dict) and data.get("success") and data.get("data"):
             valid = [r for r in data["data"] if isinstance(r, dict) and any(r.get(k) for k in ['name', 'number', 'cnic', 'address'])]
             if not valid:
-                return f"{E_CROSS} ɴᴏ ᴅᴀᴛᴀ"
+                return error_quote("ɴᴏ ᴅᴀᴛᴀ", "ɴᴏ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ ꜰᴏᴜɴᴅ")
             
             records = []
             for r in valid[:3]:
@@ -636,10 +656,10 @@ async def pakistan_lookup(session, number):
                 if record:
                     records.append(record)
             
-            return result_quote(f"{E_PAK} ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ", records, E_SPARKLE)
-        return f"{E_CROSS} ɴᴏ ᴅᴀᴛᴀ"
+            return result_quote(f"{E_PAK} ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ", records)
+        return error_quote("ɴᴏ ᴅᴀᴛᴀ", "ɴᴏ ɪɴꜰᴏʀᴍᴀᴛɪᴏɴ ꜰᴏᴜɴᴅ")
     except:
-        return f"{E_CROSS} ᴇʀʀᴏʀ"
+        return error_quote("ᴇʀʀᴏʀ", "ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜɪʟᴇ ᴘʀᴏᴄᴇꜱꜱɪɴɢ")
 
 # --- 👑 ADMIN ---
 
@@ -669,12 +689,11 @@ async def admin_panel(event):
     markup = ReplyInlineMarkup(rows=rows)
     
     txt = simple_quote(
-        "ᴀᴅᴍɪɴ ᴘᴀɴᴇʟ",
+        f"{E_CROWN} ᴀᴅᴍɪɴ ᴘᴀɴᴇʟ",
         [
-            f"{E_USERS} <b>ᴜꜱᴇʀꜱ:</b> {len(load_json(USERS_FILE))}",
-            f"{E_TICKET} <b>ᴄᴏᴅᴇꜱ:</b> {len(load_json(REDEEM_FILE))}"
-        ],
-        E_CROWN
+            f"{E_USERS} ᴜꜱᴇʀꜱ: {len(load_json(USERS_FILE))}",
+            f"{E_TICKET} ᴄᴏᴅᴇꜱ: {len(load_json(REDEEM_FILE))}"
+        ]
     )
     
     if hasattr(event, 'data'):
@@ -697,34 +716,31 @@ async def admin_callback(event):
         for c, v in list(codes.items())[-15:]:
             status = f"{E_CHECK}" if not v.get('used') else f"{E_CROSS}"
             content.append(f"{status} <code>{c}</code> | {v.get('credits')}ᴄʀ")
-        txt = simple_quote("ᴄᴏᴅᴇꜱ", content, E_TICKET)
+        txt = simple_quote(f"{E_TICKET} ᴄᴏᴅᴇꜱ", content)
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
         await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_gen":
         ADMIN_STATE[event.sender_id] = "gen"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
         txt = simple_quote(
-            "ɢᴇɴᴇʀᴀᴛᴇ ᴄᴏᴅᴇ",
-            "ꜱᴇɴᴅ ɴᴜᴍʙᴇʀ ᴏꜰ ᴄʀᴇᴅɪᴛꜱ:\n<code>100</code>",
-            E_TICKET
+            f"{E_TICKET} ɢᴇɴᴇʀᴀᴛᴇ ᴄᴏᴅᴇ",
+            "ꜱᴇɴᴅ ɴᴜᴍʙᴇʀ ᴏꜰ ᴄʀᴇᴅɪᴛꜱ:\n<code>100</code>"
         )
         await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_credit":
         ADMIN_STATE[event.sender_id] = "credit"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
         txt = simple_quote(
-            "ᴀᴅᴅ ᴄʀᴇᴅɪᴛꜱ",
-            "ꜱᴇɴᴅ ꜰᴏʀᴍᴀᴛ:\n<code>ᴜꜱᴇʀ_ɪᴅ ᴀᴍᴏᴜɴᴛ</code>",
-            E_GIFT
+            f"{E_GIFT} ᴀᴅᴅ ᴄʀᴇᴅɪᴛꜱ",
+            "ꜱᴇɴᴅ ꜰᴏʀᴍᴀᴛ:\n<code>ᴜꜱᴇʀ_ɪᴅ ᴀᴍᴏᴜɴᴛ</code>"
         )
         await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_bcast":
         ADMIN_STATE[event.sender_id] = "bcast"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
         txt = simple_quote(
-            "ʙʀᴏᴀᴅᴄᴀꜱᴛ",
-            "ꜱᴇɴᴅ ʏᴏᴜʀ ʙʀᴏᴀᴅᴄᴀꜱᴛ ᴍᴇꜱꜱᴀɢᴇ:",
-            E_BOLT
+            f"{E_BOLT} ʙʀᴏᴀᴅᴄᴀꜱᴛ",
+            "ꜱᴇɴᴅ ʏᴏᴜʀ ʙʀᴏᴀᴅᴄᴀꜱᴛ ᴍᴇꜱꜱᴀɢᴇ:"
         )
         await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_maint":
@@ -771,7 +787,7 @@ async def start(event):
                 if data.get("invite_code") == args[1] and inviter != str(uid):
                     cr = process_invite(inviter, uid)
                     try:
-                        await send_html(int(inviter), f"{E_GIFT} +{cr} ᴄʀᴇᴅɪᴛꜱ! ɴᴇᴡ ᴜꜱᴇʀ ᴊᴏɪɴᴇᴅ!")
+                        await send_html(int(inviter), success_quote("➕ ɴᴇᴡ ᴜꜱᴇʀ", f"+{cr} ᴄʀᴇᴅɪᴛꜱ ʀᴇᴡᴀʀᴅ!"))
                     except:
                         pass
                     break
@@ -844,7 +860,6 @@ async def main_menu(event):
     markup = create_main_menu(is_admin, s)
     cr = user.get("credits", 0)
     
-    # Your exact main menu format
     txt = main_quote(cr)
     
     msg = await send_html(event.chat_id, txt, reply_markup=markup)
@@ -866,9 +881,8 @@ async def msg_handler(event):
         
         if s.get("maintenance_mode", False) and uid != ADMIN_ID:
             m = await send_html(event.chat_id, simple_quote(
-                "ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ",
-                "ʙᴏᴛ ɪꜱ ᴄᴜʀʀᴇɴᴛʟʏ ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ.",
-                E_TOOLS
+                f"{E_TOOLS} ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ ᴍᴏᴅᴇ",
+                "ʙᴏᴛ ɪꜱ ᴄᴜʀʀᴇɴᴛʟʏ ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ."
             ))
             asyncio.create_task(schedule_delete(m))
             return
@@ -890,19 +904,14 @@ async def msg_handler(event):
                 try:
                     cr = int(txt)
                     code = generate_redeem_code(cr)
-                    msg = await send_html(event.chat_id, simple_quote(
+                    msg = await send_html(event.chat_id, success_quote(
                         "ᴄᴏᴅᴇ ɢᴇɴᴇʀᴀᴛᴇᴅ",
-                        [
-                            f"<code>{code}</code>",
-                            f"{E_CREDIT} <b>ᴄʀᴇᴅɪᴛꜱ:</b> {cr}"
-                        ],
-                        E_CHECK
+                        f"<code>{code}</code>\n\n{E_CREDIT} ᴄʀᴇᴅɪᴛꜱ: {cr}"
                     ))
                 except:
-                    msg = await send_html(event.chat_id, simple_quote(
+                    msg = await send_html(event.chat_id, error_quote(
                         "ᴇʀʀᴏʀ",
-                        "ɪɴᴠᴀʟɪᴅ ɴᴜᴍʙᴇʀ ꜰᴏʀᴍᴀᴛ!",
-                        E_CROSS
+                        "ɪɴᴠᴀʟɪᴅ ɴᴜᴍʙᴇʀ ꜰᴏʀᴍᴀᴛ!"
                     ))
                 asyncio.create_task(schedule_delete(msg))
                 return
@@ -910,20 +919,14 @@ async def msg_handler(event):
                 p = txt.split()
                 if len(p) >= 2:
                     bal = add_credits(p[0], int(p[1]))
-                    msg = await send_html(event.chat_id, simple_quote(
+                    msg = await send_html(event.chat_id, success_quote(
                         "ᴄʀᴇᴅɪᴛꜱ ᴀᴅᴅᴇᴅ",
-                        [
-                            f"<b>ᴜꜱᴇʀ:</b> {p[0]}",
-                            f"<b>ᴀᴅᴅᴇᴅ:</b> +{p[1]}",
-                            f"<b>ɴᴇᴡ ʙᴀʟᴀɴᴄᴇ:</b> {bal}"
-                        ],
-                        E_CHECK
+                        f"ᴜꜱᴇʀ: {p[0]}\n+{p[1]} ᴄʀᴇᴅɪᴛꜱ\nɴᴇᴡ ʙᴀʟᴀɴᴄᴇ: {bal}"
                     ))
                 else:
-                    msg = await send_html(event.chat_id, simple_quote(
+                    msg = await send_html(event.chat_id, error_quote(
                         "ᴇʀʀᴏʀ",
-                        "ꜰᴏʀᴍᴀᴛ: <code>ᴜꜱᴇʀ_ɪᴅ ᴀᴍᴏᴜɴᴛ</code>",
-                        E_CROSS
+                        "ꜰᴏʀᴍᴀᴛ: <code>ᴜꜱᴇʀ_ɪᴅ ᴀᴍᴏᴜɴᴛ</code>"
                     ))
                 asyncio.create_task(schedule_delete(msg))
                 return
@@ -933,17 +936,15 @@ async def msg_handler(event):
                 for u in users:
                     try:
                         await send_html(int(u), simple_quote(
-                            "ʙʀᴏᴀᴅᴄᴀꜱᴛ",
-                            txt,
-                            E_BOLT
+                            f"{E_BOLT} ʙʀᴏᴀᴅᴄᴀꜱᴛ",
+                            txt
                         ))
                         cnt += 1
                     except:
                         pass
-                msg = await send_html(event.chat_id, simple_quote(
+                msg = await send_html(event.chat_id, success_quote(
                     "ʙʀᴏᴀᴅᴄᴀꜱᴛ ꜱᴇɴᴛ",
-                    f"<b>ᴅᴇʟɪᴠᴇʀᴇᴅ ᴛᴏ:</b> {cnt} ᴜꜱᴇʀꜱ",
-                    E_CHECK
+                    f"ᴅᴇʟɪᴠᴇʀᴇᴅ ᴛᴏ: {cnt} ᴜꜱᴇʀꜱ"
                 ))
                 asyncio.create_task(schedule_delete(msg))
                 return
@@ -969,10 +970,9 @@ async def msg_handler(event):
                 success, msg = redeem_code(uid, txt)
                 m = await send_html(event.chat_id, msg)
             else:
-                m = await send_html(event.chat_id, simple_quote(
+                m = await send_html(event.chat_id, error_quote(
                     "ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ",
-                    "ᴄᴏᴅᴇ ᴍᴜꜱᴛ ꜱᴛᴀʀᴛ ᴡɪᴛʜ <code>HEX-</code>",
-                    E_CROSS
+                    "ᴄᴏᴅᴇ ᴍᴜꜱᴛ ꜱᴛᴀʀᴛ ᴡɪᴛʜ <code>HEX-</code>"
                 ))
             asyncio.create_task(schedule_delete(m))
             return
@@ -997,12 +997,11 @@ async def msg_handler(event):
                 link = f"https://t.me/{bot_username}?start={user['invite_code']}"
                 
                 invite_msg = simple_quote(
-                    "ɪɴᴠɪᴛᴇ & ᴇᴀʀɴ",
+                    f"{E_STAR} ɪɴᴠɪᴛᴇ & ᴇᴀʀɴ",
                     [
                         f"{E_USERS} +{INVITE_CREDITS} ᴄʀᴇᴅɪᴛꜱ ᴘᴇʀ ɪɴᴠɪᴛᴇ",
                         f"{E_LINK} <a href='{link}'>{link}</a>"
-                    ],
-                    E_STAR
+                    ]
                 )
                 m = await send_html(event.chat_id, invite_msg)
                 asyncio.create_task(schedule_delete(m, 120))
@@ -1010,18 +1009,16 @@ async def msg_handler(event):
             elif mode == "REDEEM":
                 event.redeem_mode = True
                 m = await send_html(event.chat_id, simple_quote(
-                    "ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ",
-                    "ꜱᴇɴᴅ ʏᴏᴜʀ ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ:\n<code>HEX-XXXXXXXXXX</code>",
-                    E_TICKET
+                    f"{E_TICKET} ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ",
+                    "ꜱᴇɴᴅ ʏᴏᴜʀ ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ:\n<code>HEX-XXXXXXXXXX</code>"
                 ))
                 asyncio.create_task(schedule_delete(m, 30))
                 return
             
             if feature and not s.get(f"{feature}_enabled", True):
                 m = await send_html(event.chat_id, simple_quote(
-                    "ꜱᴇʀᴠɪᴄᴇ ᴅɪꜱᴀʙʟᴇᴅ",
-                    "ᴛʜɪꜱ ꜱᴇʀᴠɪᴄᴇ ɪꜱ ᴄᴜʀʀᴇɴᴛʟʏ ᴅɪꜱᴀʙʟᴇᴅ.",
-                    E_DISABLED
+                    f"{E_DISABLED} ꜱᴇʀᴠɪᴄᴇ ᴅɪꜱᴀʙʟᴇᴅ",
+                    "ᴛʜɪꜱ ꜱᴇʀᴠɪᴄᴇ ɪꜱ ᴄᴜʀʀᴇɴᴛʟʏ ᴅɪꜱᴀʙʟᴇᴅ."
                 ))
                 asyncio.create_task(schedule_delete(m))
                 return
@@ -1030,9 +1027,8 @@ async def msg_handler(event):
                 maint, msg = check_feature_maintenance(feature)
                 if maint:
                     m = await send_html(event.chat_id, simple_quote(
-                        "ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ",
-                        msg,
-                        E_TOOLS
+                        f"{E_TOOLS} ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ",
+                        msg
                     ))
                     asyncio.create_task(schedule_delete(m))
                     return
@@ -1096,14 +1092,9 @@ async def msg_handler(event):
             
             user = get_user(uid)
             if user.get("credits", 0) <= 0:
-                m = await send_html(event.chat_id, simple_quote(
+                m = await send_html(event.chat_id, error_quote(
                     "ɪɴꜱᴜꜰꜰɪᴄɪᴇɴᴛ ᴄʀᴇᴅɪᴛꜱ",
-                    [
-                        "ɴᴏ ᴄʀᴇᴅɪᴛꜱ ʟᴇꜰᴛ!",
-                        f"ɢᴇᴛ +{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ",
-                        f"+{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ"
-                    ],
-                    E_CROSS
+                    f"ɴᴏ ᴄʀᴇᴅɪᴛꜱ ʟᴇꜰᴛ!\nɢᴇᴛ +{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ\n+{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ"
                 ))
                 asyncio.create_task(schedule_delete(m))
                 USER_MODES[uid_str] = None
@@ -1118,26 +1109,23 @@ async def msg_handler(event):
 
 async def run_query(event, mode, query):
     if not await net_ok():
-        m = await send_html(event.chat_id, simple_quote(
+        m = await send_html(event.chat_id, error_quote(
             "ɴᴏ ɪɴᴛᴇʀɴᴇᴛ",
-            "ᴘʟᴇᴀꜱᴇ ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴄᴏɴɴᴇᴄᴛɪᴏɴ.",
-            E_CROSS
+            "ᴘʟᴇᴀꜱᴇ ᴄʜᴇᴄᴋ ʏᴏᴜʀ ᴄᴏɴɴᴇᴄᴛɪᴏɴ."
         ))
         asyncio.create_task(schedule_delete(m))
         return
     
     st = await send_html(event.chat_id, simple_quote(
-        "ꜱᴇᴀʀᴄʜɪɴɢ",
-        "ᴘʀᴏᴄᴇꜱꜱɪɴɢ ʏᴏᴜʀ ʀᴇQᴜᴇꜱᴛ...",
-        E_SEARCH
+        f"{E_SEARCH} ꜱᴇᴀʀᴄʜɪɴɢ",
+        "ᴘʀᴏᴄᴇꜱꜱɪɴɢ ʏᴏᴜʀ ʀᴇQᴜᴇꜱᴛ..."
     ))
     
     for i in range(5):
         try:
             await edit_html(st, simple_quote(
-                "ꜱᴇᴀʀᴄʜɪɴɢ",
-                f"ᴘʀᴏᴄᴇꜱꜱɪɴɢ... {i+1}/5",
-                E_SEARCH
+                f"{E_SEARCH} ꜱᴇᴀʀᴄʜɪɴɢ",
+                f"ᴘʀᴏᴄᴇꜱꜱɪɴɢ... {i+1}/5"
             ))
             await asyncio.sleep(0.4)
         except:
@@ -1156,11 +1144,7 @@ async def run_query(event, mode, query):
                     use_credit(event.sender_id)
                     credit_deducted = True
             else:
-                result = simple_quote(
-                    "ᴇʀʀᴏʀ",
-                    "ꜱᴄʀɪᴘᴛ ꜰᴀɪʟᴇᴅ ᴛᴏ ᴇxᴇᴄᴜᴛᴇ.",
-                    E_CROSS
-                )
+                result = error_quote("ᴇʀʀᴏʀ", "ꜱᴄʀɪᴘᴛ ꜰᴀɪʟᴇᴅ ᴛᴏ ᴇxᴇᴄᴜᴛᴇ.")
         else:
             async with aiohttp.ClientSession() as s:
                 if mode == 'IFSC':
@@ -1170,11 +1154,7 @@ async def run_query(event, mode, query):
                 elif mode == 'PAK':
                     result = await pakistan_lookup(s, query)
                 else:
-                    result = simple_quote(
-                        "ᴇʀʀᴏʀ",
-                        "ᴜɴᴋɴᴏᴡɴ ꜱᴇʀᴠɪᴄᴇ.",
-                        E_CROSS
-                    )
+                    result = error_quote("ᴇʀʀᴏʀ", "ᴜɴᴋɴᴏᴡɴ ꜱᴇʀᴠɪᴄᴇ.")
             
             if result and f"{E_CROSS}" not in str(result) and "unavailable" not in str(result).lower():
                 use_credit(event.sender_id)
@@ -1184,8 +1164,22 @@ async def run_query(event, mode, query):
         
         # Add credit info if not already in result
         if f"{E_BOLT}" not in str(result):
-            credit_line = f"{E_WALLET} <b>ᴄʀᴇᴅɪᴛꜱ:</b> {user.get('credits', 0)}" if credit_deducted else "<b>ꜱᴛᴀᴛᴜꜱ:</b> ɴᴏ ᴄʀᴇᴅɪᴛ ᴅᴇᴅᴜᴄᴛᴇᴅ"
-            final = f"{result}\n\n{credit_line}"
+            credit_line = f"{E_WALLET} ᴄʀᴇᴅɪᴛꜱ: {user.get('credits', 0)}" if credit_deducted else "ꜱᴛᴀᴛᴜꜱ: ɴᴏ ᴄʀᴇᴅɪᴛ ᴅᴇᴅᴜᴄᴛᴇᴅ"
+            
+            # If result is already quoted, we need to add credit line inside
+            if "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬" in result:
+                # Remove the last footer and re-add with credit
+                lines = result.split('\n')
+                # Remove last 2 lines (footer and border)
+                lines = lines[:-2]
+                lines.append("")
+                lines.append(credit_line)
+                lines.append("")
+                lines.append(f"{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}")
+                lines.append("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬")
+                final = "\n".join(lines)
+            else:
+                final = f"{result}\n\n{credit_line}"
         else:
             final = result
         
@@ -1194,10 +1188,9 @@ async def run_query(event, mode, query):
     except Exception as e:
         logger.error(f"Query error: {e}")
         try:
-            await edit_html(st, simple_quote(
+            await edit_html(st, error_quote(
                 "ᴇʀʀᴏʀ",
-                "ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜɪʟᴇ ᴘʀᴏᴄᴇꜱꜱɪɴɢ.",
-                E_WARN
+                "ᴀɴ ᴇʀʀᴏʀ ᴏᴄᴄᴜʀʀᴇᴅ ᴡʜɪʟᴇ ᴘʀᴏᴄᴇꜱꜱɪɴɢ."
             ))
         except:
             pass
@@ -1207,14 +1200,14 @@ async def run_query(event, mode, query):
 async def show_verification_page(event):
     try:
         txt = simple_quote(
-            f"{BOT_NAME}",
+            f"{E_DIAMOND} {BOT_NAME} {E_DIAMOND}",
             [
                 f"@{BOT_USERNAME}",
                 "",
-                f"{E_LOCK} <b>ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ʀᴇQᴜɪʀᴇᴅ</b>",
+                f"{E_LOCK} ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ʀᴇQᴜɪʀᴇᴅ",
                 "ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ᴛᴏ ᴜɴʟᴏᴄᴋ",
                 "",
-                f"{E_STAR} <b>ɢᴜɪᴅᴇʟɪɴᴇꜱ:</b>",
+                f"{E_STAR} ɢᴜɪᴅᴇʟɪɴᴇꜱ:",
                 "• ᴇᴅᴜᴄᴀᴛɪᴏɴᴀʟ ᴘᴜʀᴘᴏꜱᴇꜱ ᴏɴʟʏ",
                 "• ᴜꜱᴇ ᴏɴ ʏᴏᴜʀ ᴏᴡɴ ᴅᴀᴛᴀ",
                 "• ʀᴇꜱᴘᴇᴄᴛ ᴘʀɪᴠᴀᴄʏ ʟᴀᴡꜱ",
@@ -1223,9 +1216,8 @@ async def show_verification_page(event):
                 f"{E_USERS} +{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ",
                 f"{E_CLOCK} {AUTO_DELETE_TIME}ꜱ ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ",
                 "",
-                f"{E_CROWN} <b>ᴏᴡɴᴇʀ: @Hexh4ckerOFC</b>"
-            ],
-            E_DIAMOND
+                f"{E_CROWN} ᴏᴡɴᴇʀ: @Hexh4ckerOFC"
+            ]
         )
         
         button1 = KeyboardButtonUrl(text="📢 JOIN CHANNEL 1", url=LINK_1)
