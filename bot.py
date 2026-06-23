@@ -348,17 +348,17 @@ def check_feature_maintenance(feature_key):
 async def show_verification_page(event):
     try:
         txt = (
-            f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>"
-            f"<blockquote>@{BOT_USERNAME}</blockquote>"
-            f"<blockquote>{E_LOCK} <b>VERIFICATION REQUIRED</b></blockquote>"
-            f"<blockquote>JOIN BOTH CHANNELS TO UNLOCK</blockquote>"
-            f"<blockquote>{E_STAR2} <b>GUIDELINES:</b></blockquote>"
-            f"<blockquote>• EDUCATIONAL PURPOSES ONLY</blockquote>"
-            f"<blockquote>• USE ON YOUR OWN DATA</blockquote>"
-            f"<blockquote>• RESPECT PRIVACY LAWS</blockquote>"
-            f"<blockquote>{E_GIFT} +{DAILY_FREE_CREDITS} DAILY {E_STAR}</blockquote>"
-            f"<blockquote>{E_USERS} +{INVITE_CREDITS} PER INVITE</blockquote>"
-            f"<blockquote>{E_CLOCK} {AUTO_DELETE_TIME}s AUTO DELETE</blockquote>"
+            f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
+            f"<blockquote>@{BOT_USERNAME}</blockquote>\n\n"
+            f"<blockquote>{E_LOCK} <b>VERIFICATION REQUIRED</b></blockquote>\n"
+            f"<blockquote>JOIN BOTH CHANNELS TO UNLOCK</blockquote>\n\n"
+            f"<blockquote>{E_STAR2} <b>GUIDELINES:</b></blockquote>\n"
+            f"<blockquote>• EDUCATIONAL PURPOSES ONLY</blockquote>\n"
+            f"<blockquote>• USE ON YOUR OWN DATA</blockquote>\n"
+            f"<blockquote>• RESPECT PRIVACY LAWS</blockquote>\n\n"
+            f"<blockquote>{E_GIFT} +{DAILY_FREE_CREDITS} DAILY {E_STAR}</blockquote>\n"
+            f"<blockquote>{E_USERS} +{INVITE_CREDITS} PER INVITE</blockquote>\n"
+            f"<blockquote>{E_CLOCK} {AUTO_DELETE_TIME}s AUTO DELETE</blockquote>\n\n"
             f"<blockquote>{E_CROWN} <b>OWNER: @Hexh4ckerOFC</b></blockquote>"
         )
         
@@ -431,7 +431,6 @@ def create_main_menu(is_admin=False, settings=None):
         rows.append(KeyboardButtonRow(buttons=next_row))
     
     else:
-        # Page 2 - only back button and admin panel
         prev_row = []
         prev_row.append(create_colored_button("◀ Pʀᴇᴠɪᴏᴜs Pᴀɢᴇ", 'danger', ICON_NEXT))
         if is_admin:
@@ -518,8 +517,8 @@ def format_records_result(records, search_type):
     }
     title = title_map.get(search_type, f'{E_CHART} RESULT')
     
-    result = f"<blockquote>{E_SPARKLE} {title} {E_SPARKLE}</blockquote>"
-    result += f"<blockquote>{E_CHART} TOTAL: {len(records)}</blockquote>"
+    result = f"<blockquote>{E_SPARKLE} {title} {E_SPARKLE}</blockquote>\n"
+    result += f"<blockquote>{E_CHART} TOTAL: {len(records)}</blockquote>\n"
     
     field_emojis = {
         'NAME': E_USER2,
@@ -532,10 +531,10 @@ def format_records_result(records, search_type):
     }
     
     for i, record in enumerate(records, 1):
-        result += f"\n<blockquote>━━ {E_USER} RECORD {i} ━━</blockquote>"
+        result += f"\n<blockquote>━━ {E_USER} RECORD {i} ━━</blockquote>\n"
         for key, value in record.items():
             emoji = field_emojis.get(key, E_USER)
-            result += f"<blockquote>{emoji} {key}: {value}</blockquote>"
+            result += f"<blockquote>{emoji} {key}: {value}</blockquote>\n"
     
     return result
 
@@ -564,10 +563,10 @@ async def ifsc_lookup(session, code):
     if not data or isinstance(data, dict) and data.get("raw_text"):
         return f"<blockquote>{E_CROSS} SERVICE UNAVAILABLE</blockquote>"
     if isinstance(data, dict):
-        return (f"<blockquote>{E_SPARKLE} {E_BANK} BANK IFSC DETAILS {E_SPARKLE}</blockquote>"
-                f"<blockquote>{E_BANK} BANK: {data.get('BANK','N/A')}</blockquote>"
-                f"<blockquote>{E_LOCATION} BRANCH: {data.get('BRANCH','N/A')}</blockquote>"
-                f"<blockquote>{E_CARD} IFSC: {data.get('IFSC',code.upper())}</blockquote>"
+        return (f"<blockquote>{E_SPARKLE} {E_BANK} BANK IFSC DETAILS {E_SPARKLE}</blockquote>\n"
+                f"<blockquote>{E_BANK} BANK: {data.get('BANK','N/A')}</blockquote>\n"
+                f"<blockquote>{E_LOCATION} BRANCH: {data.get('BRANCH','N/A')}</blockquote>\n"
+                f"<blockquote>{E_CARD} IFSC: {data.get('IFSC',code.upper())}</blockquote>\n"
                 f"<blockquote>{E_LOCATION} ADDRESS: {data.get('ADDRESS','N/A')}</blockquote>")
     return f"<blockquote>{E_CROSS} INVALID CODE</blockquote>"
 
@@ -577,11 +576,11 @@ async def gst_lookup(session, gst_number):
         return f"<blockquote>{E_CROSS} SERVICE UNAVAILABLE</blockquote>"
     if isinstance(data, dict) and data.get("status") == "success" and data.get("data"):
         d = data["data"]
-        result = f"<blockquote>{E_SPARKLE} {E_CARD} GST INFO {E_SPARKLE}</blockquote>"
+        result = f"<blockquote>{E_SPARKLE} {E_CARD} GST INFO {E_SPARKLE}</blockquote>\n"
         if d.get('TradeName'):
-            result += f"<blockquote>{E_BANK} BUSINESS: {d['TradeName']}</blockquote>"
+            result += f"<blockquote>{E_BANK} BUSINESS: {d['TradeName']}</blockquote>\n"
         if d.get('Gstin'):
-            result += f"<blockquote>{E_CARD} GST: {d['Gstin']}</blockquote>"
+            result += f"<blockquote>{E_CARD} GST: {d['Gstin']}</blockquote>\n"
         return result
     return f"<blockquote>{E_CROSS} INVALID GST</blockquote>"
 
@@ -594,18 +593,18 @@ async def pakistan_lookup(session, number):
             valid = [r for r in data["data"] if isinstance(r, dict) and any(r.get(k) for k in ['name', 'number', 'cnic', 'address'])]
             if not valid:
                 return f"<blockquote>{E_CROSS} NO DATA</blockquote>"
-            result = f"<blockquote>{E_SPARKLE} {E_PAK} PAKISTAN NUMBER INFO {E_SPARKLE}</blockquote>"
+            result = f"<blockquote>{E_SPARKLE} {E_PAK} PAKISTAN NUMBER INFO {E_SPARKLE}</blockquote>\n"
             for i, r in enumerate(valid[:3], 1):
                 if len(valid) > 1:
-                    result += f"\n<blockquote>━━ {E_USER} RECORD {i} ━━</blockquote>"
+                    result += f"\n<blockquote>━━ {E_USER} RECORD {i} ━━</blockquote>\n"
                 if r.get('number'):
-                    result += f"<blockquote>{E_PHONE2} PHONE: {r['number']}</blockquote>"
+                    result += f"<blockquote>{E_PHONE2} PHONE: {r['number']}</blockquote>\n"
                 if r.get('name'):
-                    result += f"<blockquote>{E_USER} NAME: {r['name']}</blockquote>"
+                    result += f"<blockquote>{E_USER} NAME: {r['name']}</blockquote>\n"
                 if r.get('cnic'):
-                    result += f"<blockquote>{E_CARD} CNIC: {r['cnic']}</blockquote>"
+                    result += f"<blockquote>{E_CARD} CNIC: {r['cnic']}</blockquote>\n"
                 if r.get('address'):
-                    result += f"<blockquote>{E_LOCATION} ADDRESS: {r['address'][:200]}</blockquote>"
+                    result += f"<blockquote>{E_LOCATION} ADDRESS: {r['address'][:200]}</blockquote>\n"
             return result
         return f"<blockquote>{E_CROSS} NO DATA</blockquote>"
     except:
@@ -638,7 +637,7 @@ async def admin_panel(event):
     
     markup = ReplyInlineMarkup(rows=rows)
     
-    txt = f"<blockquote>👑 ADMIN PANEL</blockquote><blockquote>👥 USERS: {len(load_json(USERS_FILE))} | 🎫 CODES: {len(load_json(REDEEM_FILE))}</blockquote>"
+    txt = f"<blockquote>👑 ADMIN PANEL</blockquote>\n<blockquote>👥 USERS: {len(load_json(USERS_FILE))} | 🎫 CODES: {len(load_json(REDEEM_FILE))}</blockquote>"
     
     if hasattr(event, 'data'):
         await event.edit(txt, buttons=markup)
@@ -656,19 +655,19 @@ async def admin_callback(event):
         await event.delete()
     elif d == "ad_codes":
         codes = load_json(REDEEM_FILE)
-        txt = f"<blockquote>🎫 CODES: {len(codes)}</blockquote>"
+        txt = f"<blockquote>🎫 CODES: {len(codes)}</blockquote>\n"
         for c, v in list(codes.items())[-15:]:
-            txt += f"<blockquote>{'✅' if not v.get('used') else '❌'} {c} | {v.get('credits')}cr</blockquote>"
+            txt += f"<blockquote>{'✅' if not v.get('used') else '❌'} {c} | {v.get('credits')}cr</blockquote>\n"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
         await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔙 Back", data=b"ad_back")])]))
     elif d == "ad_gen":
         ADMIN_STATE[event.sender_id] = "gen"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit(f"<blockquote>🎫 ENTER CREDITS:</blockquote><blockquote>100</blockquote>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔙 Back", data=b"ad_back")])]))
+        await event.edit(f"<blockquote>🎫 ENTER CREDITS:</blockquote>\n<blockquote>100</blockquote>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔙 Back", data=b"ad_back")])]))
     elif d == "ad_credit":
         ADMIN_STATE[event.sender_id] = "credit"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit(f"<blockquote>🎁 ENTER ID AMOUNT:</blockquote><blockquote>123456789 50</blockquote>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔙 Back", data=b"ad_back")])]))
+        await event.edit(f"<blockquote>🎁 ENTER ID AMOUNT:</blockquote>\n<blockquote>123456789 50</blockquote>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔙 Back", data=b"ad_back")])]))
     elif d == "ad_bcast":
         ADMIN_STATE[event.sender_id] = "bcast"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
@@ -792,13 +791,13 @@ async def main_menu(event):
     name = event.sender.first_name or "User"
     
     welcome_text = (
-        f"<blockquote>{E_DIAMOND} Hᴇx Osɪɴᴛ Bᴏᴛ {E_LION}</blockquote>"
-        f"<blockquote>{E_HAPPY} ᴡᴇʟᴄᴏᴍᴇ {name}! {E_HAPPY}</blockquote>"
-        f"<blockquote>{E_WALLET} ᴄʀᴇᴅɪᴛꜱ: {cr}</blockquote>"
-        f"<blockquote>{E_CROWN} ᴘʀᴇᴍɪᴜᴍ: ᴜɴʟɪᴍɪᴛᴇᴅ</blockquote>"
-        f"<blockquote>{E_CAMERA} ᴜꜱᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴꜱ ʙᴇʟᴏᴡ</blockquote>"
-        f"<blockquote>{E_ARROW} /Help ꜰᴏʀ ᴄᴏᴍᴍᴀɴᴅꜱ</blockquote>"
-        f"<blockquote>{E_DIAMOND2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ</blockquote>"
+        f"<blockquote>{E_DIAMOND} Hᴇx Osɪɴᴛ Bᴏᴛ {E_LION}</blockquote>\n"
+        f"<blockquote>{E_HAPPY} ᴡᴇʟᴄᴏᴍᴇ {name}! {E_HAPPY}</blockquote>\n\n"
+        f"<blockquote>{E_WALLET} ᴄʀᴇᴅɪᴛꜱ: {cr}</blockquote>\n\n"
+        f"<blockquote>{E_CROWN} ᴘʀᴇᴍɪᴜᴍ: ᴜɴʟɪᴍɪᴛᴇᴅ</blockquote>\n\n"
+        f"<blockquote>{E_CAMERA} ᴜꜱᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴꜱ ʙᴇʟᴏᴡ</blockquote>\n"
+        f"<blockquote>{E_ARROW} /Help ꜰᴏʀ ᴄᴏᴍᴍᴀɴᴅꜱ</blockquote>\n\n"
+        f"<blockquote>{E_DIAMOND2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ</blockquote>\n"
         f"<blockquote>{E_BOLT}ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC {E_STAR}</blockquote>"
     )
     
@@ -885,7 +884,10 @@ async def msg_handler(event):
         
         if hasattr(event, 'upgrade_mode') and event.upgrade_mode:
             event.upgrade_mode = False
-            m = await send_html(event.chat_id, f"<blockquote>{E_UPGRADE} Premium Upgrade</blockquote><blockquote>Contact @Hexh4ckerOFC for premium access!</blockquote>")
+            m = await send_html(event.chat_id, 
+                f"<blockquote>{E_UPGRADE} Premium Upgrade</blockquote>\n"
+                f"<blockquote>Contact @Hexh4ckerOFC for premium access!</blockquote>"
+            )
             asyncio.create_task(schedule_delete(m))
             return
         
@@ -909,10 +911,10 @@ async def msg_handler(event):
                 link = f"https://t.me/{bot_username}?start={user['invite_code']}"
                 
                 invite_msg = (
-                    f"<blockquote>{E_STAR} Invite & Earn {E_STAR}</blockquote>"
-                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>"
-                    f"<blockquote>{E_USERS} +{INVITE_CREDITS} Credits per invite</blockquote>"
-                    f"<blockquote>{E_LINK} {link}</blockquote>"
+                    f"<blockquote>{E_STAR} Invite & Earn {E_STAR}</blockquote>\n"
+                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+                    f"<blockquote>{E_USERS} +{INVITE_CREDITS} Credits per invite</blockquote>\n"
+                    f"<blockquote>{E_LINK} {link}</blockquote>\n"
                     f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
                 )
                 m = await send_html(event.chat_id, invite_msg)
@@ -921,12 +923,12 @@ async def msg_handler(event):
             elif mode == "UPGRADE":
                 event.upgrade_mode = True
                 m = await send_html(event.chat_id, 
-                    f"<blockquote>{E_UPGRADE} Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ</blockquote>"
-                    f"<blockquote>Contact @Hexh4ckerOFC to upgrade your account!</blockquote>"
-                    f"<blockquote>🌟 Premium Benefits:</blockquote>"
-                    f"<blockquote>• Unlimited Credits</blockquote>"
-                    f"<blockquote>• All Services Access</blockquote>"
-                    f"<blockquote>• Priority Support</blockquote>"
+                    f"<blockquote>{E_UPGRADE} Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ</blockquote>\n"
+                    f"<blockquote>Contact @Hexh4ckerOFC to upgrade your account!</blockquote>\n\n"
+                    f"<blockquote>🌟 Premium Benefits:</blockquote>\n"
+                    f"<blockquote>• Unlimited Credits</blockquote>\n"
+                    f"<blockquote>• All Services Access</blockquote>\n"
+                    f"<blockquote>• Priority Support</blockquote>\n"
                     f"<blockquote>• Exclusive Features</blockquote>"
                 )
                 asyncio.create_task(schedule_delete(m, 60))
@@ -948,58 +950,58 @@ async def msg_handler(event):
             
             prompts = {
                 "IFSC": (
-                    f"<blockquote>{E_STAR} Iғsᴄ Iɴғᴏ {E_STAR}</blockquote>"
-                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>"
-                    f"<blockquote>Send IFSC code</blockquote>"
-                    f"<blockquote>Example: SBIN0001234</blockquote>"
-                    f"<blockquote>Total Point: 2 Point</blockquote>"
-                    f"<blockquote>Search Cost: 1 Point</blockquote>"
+                    f"<blockquote>{E_STAR} Iғsᴄ Iɴғᴏ {E_STAR}</blockquote>\n"
+                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+                    f"<blockquote>Send IFSC code</blockquote>\n"
+                    f"<blockquote>Example: SBIN0001234</blockquote>\n\n"
+                    f"<blockquote>Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>Search Cost: 1 Point</blockquote>\n\n"
                     f"<blockquote>Bot made by: {DEV_NAME}</blockquote>"
                 ),
                 "AADHAAR": (
-                    f"<blockquote>{E_STAR} Aᴀᴅʜᴀʀ Iɴғᴏ {E_STAR}</blockquote>"
-                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>"
-                    f"<blockquote>Send 12-digit Aadhar number</blockquote>"
-                    f"<blockquote>Example: 123456789012</blockquote>"
-                    f"<blockquote>Total Point: 2 Point</blockquote>"
-                    f"<blockquote>Search Cost: 1 Point</blockquote>"
+                    f"<blockquote>{E_STAR} Aᴀᴅʜᴀʀ Iɴғᴏ {E_STAR}</blockquote>\n"
+                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+                    f"<blockquote>Send 12-digit Aadhar number</blockquote>\n"
+                    f"<blockquote>Example: 123456789012</blockquote>\n\n"
+                    f"<blockquote>Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>Search Cost: 1 Point</blockquote>\n\n"
                     f"<blockquote>Bot made by: {DEV_NAME}</blockquote>"
                 ),
                 "MOBILE": (
-                    f"<blockquote>{E_STAR} Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ {E_STAR}</blockquote>"
-                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>"
-                    f"<blockquote>Send 10-digit mobile number</blockquote>"
-                    f"<blockquote>Example: 9876543210</blockquote>"
-                    f"<blockquote>Tip: with or without +91</blockquote>"
-                    f"<blockquote>Total Point: 2 Point</blockquote>"
-                    f"<blockquote>Search Cost: 1 Point</blockquote>"
+                    f"<blockquote>{E_STAR} Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ {E_STAR}</blockquote>\n"
+                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+                    f"<blockquote>Send 10-digit mobile number</blockquote>\n"
+                    f"<blockquote>Example: 9876543210</blockquote>\n"
+                    f"<blockquote>Tip: with or without +91</blockquote>\n\n"
+                    f"<blockquote>Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>Search Cost: 1 Point</blockquote>\n\n"
                     f"<blockquote>Bot made by: {DEV_NAME}</blockquote>"
                 ),
                 "VEHICLE": (
-                    f"<blockquote>{E_STAR} Rᴄ Iɴғᴏ {E_STAR}</blockquote>"
-                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>"
-                    f"<blockquote>Send vehicle number</blockquote>"
-                    f"<blockquote>Example: KA01AB3256</blockquote>"
-                    f"<blockquote>Total Point: 2 Point</blockquote>"
-                    f"<blockquote>Search Cost: 1 Point</blockquote>"
+                    f"<blockquote>{E_STAR} Rᴄ Iɴғᴏ {E_STAR}</blockquote>\n"
+                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+                    f"<blockquote>Send vehicle number</blockquote>\n"
+                    f"<blockquote>Example: KA01AB3256</blockquote>\n\n"
+                    f"<blockquote>Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>Search Cost: 1 Point</blockquote>\n\n"
                     f"<blockquote>Bot made by: {DEV_NAME}</blockquote>"
                 ),
                 "GST": (
-                    f"<blockquote>{E_STAR} Gsᴛ Iɴғᴏ {E_STAR}</blockquote>"
-                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>"
-                    f"<blockquote>Send GST number</blockquote>"
-                    f"<blockquote>Example: 19BOKPS7056D1ZI</blockquote>"
-                    f"<blockquote>Total Point: 2 Point</blockquote>"
-                    f"<blockquote>Search Cost: 1 Point</blockquote>"
+                    f"<blockquote>{E_STAR} Gsᴛ Iɴғᴏ {E_STAR}</blockquote>\n"
+                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+                    f"<blockquote>Send GST number</blockquote>\n"
+                    f"<blockquote>Example: 19BOKPS7056D1ZI</blockquote>\n\n"
+                    f"<blockquote>Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>Search Cost: 1 Point</blockquote>\n\n"
                     f"<blockquote>Bot made by: {DEV_NAME}</blockquote>"
                 ),
                 "PAK": (
-                    f"<blockquote>{E_STAR} Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ {E_STAR}</blockquote>"
-                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>"
-                    f"<blockquote>Send Pakistan number</blockquote>"
-                    f"<blockquote>Example: 923078750447</blockquote>"
-                    f"<blockquote>Total Point: 2 Point</blockquote>"
-                    f"<blockquote>Search Cost: 1 Point</blockquote>"
+                    f"<blockquote>{E_STAR} Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ {E_STAR}</blockquote>\n"
+                    f"<blockquote>━━━━━━━━━━━━━━━━━━━</blockquote>\n"
+                    f"<blockquote>Send Pakistan number</blockquote>\n"
+                    f"<blockquote>Example: 923078750447</blockquote>\n\n"
+                    f"<blockquote>Total Point: 2 Point</blockquote>\n"
+                    f"<blockquote>Search Cost: 1 Point</blockquote>\n\n"
                     f"<blockquote>Bot made by: {DEV_NAME}</blockquote>"
                 )
             }
@@ -1014,7 +1016,9 @@ async def msg_handler(event):
             
             user = get_user(uid)
             if user.get("credits", 0) <= 0:
-                m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} No credits! +10 daily | +3 invite</blockquote>")
+                m = await send_html(event.chat_id, 
+                    f"<blockquote>{E_CROSS} No credits! +10 daily | +3 invite</blockquote>"
+                )
                 asyncio.create_task(schedule_delete(m))
                 USER_MODES[uid_str] = None
                 return
