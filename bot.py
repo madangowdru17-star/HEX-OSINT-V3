@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot ULTIMATE EDITION
+# bot.py - Hex OSINT Bot ULTIMATE EDITION (FIXED)
 
 import logging
 import asyncio
@@ -768,7 +768,7 @@ async def verify_cb(event):
             user = get_user(uid)
             user["verified"] = True
             save_user(uid, user)
-            await event.answer(f"{E_CHECK} ᴠᴇʀɪꜰɪᴇᴅ!", alert=True)
+            await event.answer("✅ Verified!", alert=True)
             try:
                 await event.delete()
             except:
@@ -779,14 +779,14 @@ async def verify_cb(event):
                 pass
             await main_menu(event)
         elif not in_channel1 and not in_channel2:
-            await event.answer(f"{E_CROSS} ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ꜰɪʀꜱᴛ!", alert=True)
+            await event.answer("❌ Join both channels first!", alert=True)
         elif not in_channel1:
-            await event.answer(f"{E_CROSS} ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷 ꜰɪʀꜱᴛ!", alert=True)
+            await event.answer("❌ Join Channel 1 first!", alert=True)
         elif not in_channel2:
-            await event.answer(f"{E_CROSS} ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟸 ꜰɪʀꜱᴛ!", alert=True)
+            await event.answer("❌ Join Channel 2 first!", alert=True)
     except Exception as e:
         logger.error(f"Verify callback error: {e}")
-        await event.answer(f"{E_CROSS} ᴇʀʀᴏʀ, ᴛʀʏ ᴀɢᴀɪɴ", alert=True)
+        await event.answer("❌ Error, try again", alert=True)
 
 @client.on(events.CallbackQuery)
 async def handle_url_callback(event):
@@ -810,7 +810,6 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     name = event.sender.first_name or "User"
     
-    # Beautiful welcome message with your exact format
     welcome_text = (
         f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
         f"<blockquote>{E_WELCOME} Wᴇʟᴄᴏᴍᴇ Tᴏ Oᴜʀ Iɴꜰᴏʀᴍᴀᴛɪᴏɴ Bᴏᴛ {E_CROISSANT}</blockquote>\n"
@@ -939,7 +938,6 @@ async def msg_handler(event):
                 bot_username = BOT_USERNAME
                 link = f"https://t.me/{bot_username}?start={user['invite_code']}"
                 
-                # Beautiful invite message
                 invite_msg = (
                     f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
                     f"<blockquote>{E_STAR} ɪɴᴠɪᴛᴇ & ᴇᴀʀɴ {E_STAR}</blockquote>\n"
@@ -971,7 +969,6 @@ async def msg_handler(event):
             
             USER_MODES[str(uid)] = mode
             
-            # Beautiful prompt message with stars
             prompts = {
                 "IFSC": (
                     f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
@@ -1073,7 +1070,6 @@ async def run_query(event, mode, query):
     
     st = await send_html(event.chat_id, f"{E_SEARCH} Searching...")
     
-    # Loading animation
     for i in range(5):
         try:
             await edit_html(st, f"{E_SEARCH} Searching... {i+1}/5")
