@@ -165,6 +165,9 @@ E_STAR4 = PE("6266969287638913443", "🌟")
 E_PRIMARY = PE("5258096772776991776", "🔵")
 E_SUCCESS = PE("5258503720928288433", "🟢")
 E_DANGER = PE("5258331647358540449", "🔴")
+E_STAR5 = PE("6266969287638913443", "⭐")
+E_BAR2 = PE("6267039884016358504", "➖")
+E_STAR6 = PE("6266969287638913443", "⭐")
 
 # --- BUTTON ICON IDs ---
 ICON_IFSC = 5264895611517300926
@@ -726,7 +729,6 @@ async def start(event):
     try:
         uid = event.sender_id
         
-        # Check if user has invite code
         args = event.message.message.split()
         if len(args) > 1 and args[1].startswith("HEX-"):
             users = load_json(USERS_FILE)
@@ -741,7 +743,6 @@ async def start(event):
         
         user = get_user(uid)
         
-        # Check verification - only show once
         if not user.get("verified"):
             if await check_channels(uid):
                 user["verified"] = True
@@ -751,7 +752,6 @@ async def start(event):
             await show_verification_page(event)
             return
         
-        # If already verified, show menu directly (don't auto-delete /start)
         await main_menu(event)
         
     except Exception as e:
@@ -800,7 +800,6 @@ async def main_menu(event):
     user = get_user(event.sender_id)
     s = get_settings()
     
-    # Re-verify if user is still in channels
     if not await check_channels(event.sender_id):
         user["verified"] = False
         save_user(event.sender_id, user)
@@ -811,35 +810,26 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     name = event.sender.first_name or "User"
     
-    # Beautiful welcome message with all details
+    # Beautiful welcome message with your exact format
     welcome_text = (
-        f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
-        f"<b>@{BOT_USERNAME}</b>\n\n"
-        f"{E_WAVE} <b>Welcome {name}!</b>\n\n"
-        f"<blockquote>{E_BOLT} Your Dashboard</blockquote>\n"
-        f"{E_CREDIT} Credits: <b>{cr}</b>\n"
-        f"{E_DICE} Daily Spin: <b>+{DAILY_FREE_CREDITS} free</b>\n"
-        f"{E_CROWN} Premium: <b>Unlimited search</b>\n"
-        f"{E_SEARCH} Total Queries: <b>{user.get('total_queries',0)}</b>\n"
-        f"{E_USERS} Invites: <b>{user.get('invites',0)}</b>\n\n"
-        f"<blockquote>{E_GEAR} Available Services</blockquote>\n"
-        f"{E_BANK} IFSC Lookup - Bank details\n"
-        f"{E_CARD} Aadhar Lookup - Identity info\n"
-        f"{E_INDIA} India Number - Mobile details\n"
-        f"{E_CAR} RC Check - Vehicle info\n"
-        f"{E_BOOK} GST Verify - Business info\n"
-        f"{E_PAK} Pakistan Number - Number lookup\n\n"
-        f"<blockquote>{E_GIFT} Rewards</blockquote>\n"
-        f"{E_REFRESH} +{DAILY_FREE_CREDITS} daily free\n"
-        f"{E_USERS} +{INVITE_CREDITS} per invite\n"
-        f"{E_CLOCK} {AUTO_DELETE_TIME}s auto delete\n\n"
-        f"{E_STAR} /help for commands\n\n"
-        f"{E_BABY} Dev: {DEV_NAME}\n\n"
-        f"{E_STAR2} Select a service below {E_STAR2}"
+        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
+        f"<blockquote>{E_WELCOME} Wᴇʟᴄᴏᴍᴇ Tᴏ Oᴜʀ Iɴꜰᴏʀᴍᴀᴛɪᴏɴ Bᴏᴛ {E_CROISSANT}</blockquote>\n"
+        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
+        f"<blockquote>{E_CROWN2} Hᴇʏ <b>{name}</b> !! {E_CHECK2}</blockquote>\n\n"
+        f"<blockquote>{E_BOLT2} ʏᴏᴜʀ ᴅᴀꜱʜʙᴏᴀʀᴅ</blockquote>\n"
+        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
+        f"<blockquote>│ {E_CREDIT} ᴄʀᴇᴅɪᴛꜱ      » {cr}</blockquote>\n"
+        f"<blockquote>│ {E_CROWN} ᴘʀᴇᴍɪᴜᴍ    » {E_INFINITY} ꜱᴇᴀʀᴄʜ</blockquote>\n"
+        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
+        f"<blockquote>{E_GEAR} ɴɪᴄʜᴇ ᴅɪʏᴇ ɢʏᴇ ʙᴜᴛᴛᴏɴ ᴜꜱᴇ ᴋʀᴇ</blockquote>\n"
+        f"<blockquote>{E_STAR3} /help ᴛᴏ ꜱᴇᴇ ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅꜱ</blockquote>\n\n"
+        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
+        f"<blockquote>{E_BABY} ᴅᴇᴠ » {DEV_NAME} {E_CHECK2}</blockquote>\n"
+        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
+        f"{E_STAR2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ {E_STAR2}"
     )
     
     msg = await send_html(event.chat_id, welcome_text, reply_markup=markup)
-    # Don't auto-delete /start message, only delete bot response after 60s
     asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
 
 @client.on(events.NewMessage)
@@ -851,7 +841,6 @@ async def msg_handler(event):
         if not txt:
             return
             
-        # Don't auto-delete /start command
         if not txt.startswith('/start'):
             asyncio.create_task(schedule_delete(event.message, AUTO_DELETE_TIME))
         
@@ -949,7 +938,17 @@ async def msg_handler(event):
                 user = get_user(uid)
                 bot_username = BOT_USERNAME
                 link = f"https://t.me/{bot_username}?start={user['invite_code']}"
-                m = await send_html(event.chat_id, f"{E_USERS} ɪɴᴠɪᴛᴇ (+{INVITE_CREDITS}ᴄʀ)\n{E_LINK} {link}")
+                
+                # Beautiful invite message
+                invite_msg = (
+                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
+                    f"<blockquote>{E_STAR} ɪɴᴠɪᴛᴇ & ᴇᴀʀɴ {E_STAR}</blockquote>\n"
+                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
+                    f"<blockquote>{E_USERS} +{INVITE_CREDITS} ᴄʀᴇᴅɪᴛꜱ ᴘᴇʀ ɪɴᴠɪᴛᴇ</blockquote>\n"
+                    f"<blockquote>{E_LINK} <code>{link}</code></blockquote>\n\n"
+                    f"<blockquote>{E_BABY} ʙᴏᴛ ᴍᴀᴅᴇ ʙʏ : {DEV_NAME} {E_STAR}</blockquote>"
+                )
+                m = await send_html(event.chat_id, invite_msg)
                 asyncio.create_task(schedule_delete(m, 120))
                 return
             elif mode == "REDEEM":
@@ -972,13 +971,69 @@ async def msg_handler(event):
             
             USER_MODES[str(uid)] = mode
             
+            # Beautiful prompt message with stars
             prompts = {
-                "IFSC": f"{E_BANK} ᴇɴᴛᴇʀ ɪꜰꜱᴄ:\nSBIN0001234, HDFC0001234",
-                "AADHAAR": f"{E_CARD} ᴇɴᴛᴇʀ ᴀᴀᴅʜᴀʀ:\n123456789012",
-                "MOBILE": f"{E_INDIA} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n9876543210, 8123456789",
-                "VEHICLE": f"{E_CAR} ᴇɴᴛᴇʀ ᴠᴇʜɪᴄʟᴇ:\nKA01AB3256, DL1CX1234",
-                "GST": f"{E_CARD} ᴇɴᴛᴇʀ ɢꜱᴛ:\n19BOKPS7056D1ZI",
-                "PAK": f"{E_PAK} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n923078750447"
+                "IFSC": (
+                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
+                    f"<blockquote>{E_STAR} ɪꜰꜱᴄ ʟᴏᴏᴋᴜᴘ {E_STAR}</blockquote>\n"
+                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
+                    f"<blockquote>{E_STAR} ꜱᴇɴᴅ ɪꜰꜱᴄ ᴄᴏᴅᴇ</blockquote>\n"
+                    f"<blockquote>ᴇxᴀᴍᴩʟᴇ: SBIN0001234, HDFC0001234</blockquote>\n\n"
+                    f"<blockquote>{E_STAR} Tᴏᴛᴀʟ Pᴏɪɴᴛ :- 2 Pᴏɪɴᴛ</blockquote>\n"
+                    f"<blockquote>{E_STAR} Sᴇᴀʀᴄʜ Cᴏꜱᴛ :- 1 Pᴏɪɴᴛ</blockquote>\n\n"
+                    f"<blockquote>{E_BABY} ʙᴏᴛ ᴍᴀᴅᴇ ʙʏ : {DEV_NAME} {E_STAR}</blockquote>"
+                ),
+                "AADHAAR": (
+                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
+                    f"<blockquote>{E_STAR} ᴀᴀᴅʜᴀʀ ʟᴏᴏᴋᴜᴘ {E_STAR}</blockquote>\n"
+                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
+                    f"<blockquote>{E_STAR} ꜱᴇɴᴅ 12-ᴅɪɢɪᴛ ᴀᴀᴅʜᴀʀ ɴᴜᴍʙᴇʀ</blockquote>\n"
+                    f"<blockquote>ᴇxᴀᴍᴩʟᴇ: 123456789012</blockquote>\n\n"
+                    f"<blockquote>{E_STAR} Tᴏᴛᴀʟ Pᴏɪɴᴛ :- 2 Pᴏɪɴᴛ</blockquote>\n"
+                    f"<blockquote>{E_STAR} Sᴇᴀʀᴄʜ Cᴏꜱᴛ :- 1 Pᴏɪɴᴛ</blockquote>\n\n"
+                    f"<blockquote>{E_BABY} ʙᴏᴛ ᴍᴀᴅᴇ ʙʏ : {DEV_NAME} {E_STAR}</blockquote>"
+                ),
+                "MOBILE": (
+                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
+                    f"<blockquote>{E_STAR} ɴᴜᴍʙᴇʀ ɪɴꜰᴏ {E_STAR}</blockquote>\n"
+                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
+                    f"<blockquote>{E_STAR} ꜱᴇɴᴅ 10-ᴅɪɢɪᴛ ᴍᴏʙɪʟᴇ ɴᴜᴍʙᴇʀ</blockquote>\n"
+                    f"<blockquote>ᴇxᴀᴍᴩʟᴇ: 9876543210</blockquote>\n\n"
+                    f"<blockquote>{E_STAR} ᴛɪᴩ: ᴡɪᴛʜ ᴏʀ ᴡɪᴛʜᴏᴜᴛ +91</blockquote>\n\n"
+                    f"<blockquote>{E_STAR} Tᴏᴛᴀʟ Pᴏɪɴᴛ :- 2 Pᴏɪɴᴛ</blockquote>\n"
+                    f"<blockquote>{E_STAR} Sᴇᴀʀᴄʜ Cᴏꜱᴛ :- 1 Pᴏɪɴᴛ</blockquote>\n\n"
+                    f"<blockquote>{E_BABY} ʙᴏᴛ ᴍᴀᴅᴇ ʙʏ : {DEV_NAME} {E_STAR}</blockquote>"
+                ),
+                "VEHICLE": (
+                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
+                    f"<blockquote>{E_STAR} ʀᴄ ᴄʜᴇᴄᴋ {E_STAR}</blockquote>\n"
+                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
+                    f"<blockquote>{E_STAR} ꜱᴇɴᴅ ᴠᴇʜɪᴄʟᴇ ɴᴜᴍʙᴇʀ</blockquote>\n"
+                    f"<blockquote>ᴇxᴀᴍᴩʟᴇ: KA01AB3256, DL1CX1234</blockquote>\n\n"
+                    f"<blockquote>{E_STAR} Tᴏᴛᴀʟ Pᴏɪɴᴛ :- 2 Pᴏɪɴᴛ</blockquote>\n"
+                    f"<blockquote>{E_STAR} Sᴇᴀʀᴄʜ Cᴏꜱᴛ :- 1 Pᴏɪɴᴛ</blockquote>\n\n"
+                    f"<blockquote>{E_BABY} ʙᴏᴛ ᴍᴀᴅᴇ ʙʏ : {DEV_NAME} {E_STAR}</blockquote>"
+                ),
+                "GST": (
+                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
+                    f"<blockquote>{E_STAR} ɢꜱᴛ ᴠᴇʀɪꜰʏ {E_STAR}</blockquote>\n"
+                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
+                    f"<blockquote>{E_STAR} ꜱᴇɴᴅ ɢꜱᴛ ɴᴜᴍʙᴇʀ</blockquote>\n"
+                    f"<blockquote>ᴇxᴀᴍᴩʟᴇ: 19BOKPS7056D1ZI</blockquote>\n\n"
+                    f"<blockquote>{E_STAR} Tᴏᴛᴀʟ Pᴏɪɴᴛ :- 2 Pᴏɪɴᴛ</blockquote>\n"
+                    f"<blockquote>{E_STAR} Sᴇᴀʀᴄʜ Cᴏꜱᴛ :- 1 Pᴏɪɴᴛ</blockquote>\n\n"
+                    f"<blockquote>{E_BABY} ʙᴏᴛ ᴍᴀᴅᴇ ʙʏ : {DEV_NAME} {E_STAR}</blockquote>"
+                ),
+                "PAK": (
+                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n"
+                    f"<blockquote>{E_STAR} ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ {E_STAR}</blockquote>\n"
+                    f"<blockquote>{E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5} {E_STAR5}</blockquote>\n\n"
+                    f"<blockquote>{E_STAR} ꜱᴇɴᴅ ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ</blockquote>\n"
+                    f"<blockquote>ᴇxᴀᴍᴩʟᴇ: 923078750447</blockquote>\n\n"
+                    f"<blockquote>{E_STAR} Tᴏᴛᴀʟ Pᴏɪɴᴛ :- 2 Pᴏɪɴᴛ</blockquote>\n"
+                    f"<blockquote>{E_STAR} Sᴇᴀʀᴄʜ Cᴏꜱᴛ :- 1 Pᴏɪɴᴛ</blockquote>\n\n"
+                    f"<blockquote>{E_BABY} ʙᴏᴛ ᴍᴀᴅᴇ ʙʏ : {DEV_NAME} {E_STAR}</blockquote>"
+                )
             }
             if mode in prompts:
                 m = await send_html(event.chat_id, prompts[mode])
