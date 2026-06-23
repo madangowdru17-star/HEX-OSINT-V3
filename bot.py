@@ -1,4 +1,4 @@
-# bot.py - Hex Terminal FINAL with Premium UI
+# bot.py - Hex OSINT Bot ULTIMATE EDITION
 
 import logging
 import asyncio
@@ -13,7 +13,6 @@ import os
 import sys
 from datetime import datetime, timedelta
 
-# Telethon import
 try:
     from telethon import TelegramClient, events, functions
     from telethon.tl.types import (
@@ -25,7 +24,7 @@ try:
     from telethon.errors import UserNotParticipantError, ChannelPrivateError
     HAS_BUTTON_STYLE = True
 except ImportError:
-    print("Installing Telethon from master branch...")
+    print("Installing Telethon...")
     subprocess.run([sys.executable, "-m", "pip", "install", "git+https://github.com/LonamiWebs/Telethon.git"])
     from telethon import TelegramClient, events, functions
     from telethon.tl.types import (
@@ -71,63 +70,102 @@ DAILY_FREE_CREDITS = 10
 INVITE_CREDITS = 3
 AUTO_DELETE_TIME = 60
 
-BOT_NAME = "𝗛𝗲𝘅 𝗧𝗲𝗿𝗺𝗶𝗻𝗮𝗹"
+BOT_NAME = "𝗛𝗲𝘅 𝗢𝗦𝗜𝗡𝗧 𝗕𝗼𝘁"
 BOT_USERNAME = "Hex_Terminal_bot"
 
-# --- PREMIUM EMOJIS FOR TEXT MESSAGES ---
+# --- ALL NEW PREMIUM EMOJI IDs (UNIQUE) ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
-EMOJI_WARN = PE("6267039884016358504", "⚠️")
-EMOJI_CHECK = PE("6267008582294705964", "✅")
-EMOJI_CROSS = PE("6267000941547885720", "❌")
-EMOJI_LOCK = PE("5316522278056399236", "🔒")
-EMOJI_CROWN = PE("6267128480601741166", "👑")
-EMOJI_DIAMOND = PE("6264791387032523779", "💎")
-EMOJI_STAR = PE("6266969287638913443", "⭐")
-EMOJI_GIFT = PE("5203996991054432397", "🎁")
-EMOJI_FIRE = PE("6264785189394717307", "🔥")
-EMOJI_SEARCH = PE("5231012545799666522", "🔍")
-EMOJI_PHONE = PE("5947494995798789024", "📞")
-EMOJI_BANK = PE("5264895611517300926", "🏦")
-EMOJI_LINK = PE("5271604874419647061", "🔗")
-EMOJI_CAR = PE("5253752975997803460", "🚘")
-EMOJI_CARD = PE("5260561650213220533", "🪪")
-EMOJI_USER = PE("5249053508681883137", "👤")
-EMOJI_INDIA = PE("6284779941489812433", "🇮🇳")
-EMOJI_PAK = PE("5913705895375672082", "🇵🇰")
-EMOJI_PHONE2 = PE("5406809207947142040", "📲")
-EMOJI_INVITE = PE("5244933196230972438", "👥")
-EMOJI_TICKET = PE("5285515895534278367", "🎫")
-EMOJI_CREDIT = PE("6267068789146260253", "💰")
-EMOJI_REFRESH = PE("5375338737028841420", "🔄")
-EMOJI_CLOCK = PE("5382194935057372936", "⏱")
-EMOJI_BOLT = PE("6284971355297290197", "⚡")
-EMOJI_GREEN = PE("5386367538735104399", "🟩")
-EMOJI_BLACK = PE("5116476703002068797", "⬛")
-EMOJI_SPARKLE = PE("5467683093693354332", "✨")
-EMOJI_ROCKET = PE("5195033767969839232", "🚀")
-EMOJI_TOOLS = PE("5462921117423384478", "🛠️")
-EMOJI_DISABLED = PE("5373165973203348165", "📴")
-EMOJI_FATHER = PE("6147864334077794239", "👨")
-EMOJI_LOCATION = PE("5391032818111363540", "📍")
-EMOJI_HOME = PE("5280955052582785391", "🏠")
-EMOJI_STATE = PE("5388927107315283144", "🏛")
-EMOJI_NETWORK = PE("5321141214735508486", "📡")
-EMOJI_SIGNAL = PE("6147892053796725336", "📶")
-EMOJI_SIM = PE("5800717980266403037", "💳")
-EMOJI_CHART = PE("6093382540784046658", "📊")
-EMOJI_ROCKET2 = PE("5195033767969839232", "🚀")
-EMOJI_CLOCK2 = PE("5382194935057372936", "⏱")
-EMOJI_SPARK = PE("5467683093693354332", "✨")
-EMOJI_TARGET = PE("5231012545799666522", "🎯")
-EMOJI_FLAG = PE("6284779941489812433", "🏁")
-EMOJI_HEART = PE("6264785189394717307", "❤️")
-EMOJI_STAR2 = PE("6266969287638913443", "🌟")
-EMOJI_FIRE2 = PE("6264785189394717307", "🔥")
-EMOJI_MAGIC = PE("5467683093693354332", "🔮")
-EMOJI_RAINBOW = PE("6266969287638913443", "🌈")
+# New unique emoji IDs
+E_STAR = PE("6266969287638913443", "⭐")
+E_DIAMOND = PE("6264791387032523779", "💎")
+E_CROWN = PE("6267128480601741166", "👑")
+E_FIRE = PE("6264785189394717307", "🔥")
+E_CHECK = PE("6267008582294705964", "✅")
+E_CROSS = PE("6267000941547885720", "❌")
+E_WARN = PE("6267039884016358504", "⚠️")
+E_LOCK = PE("5316522278056399236", "🔒")
+E_UNLOCK = PE("5316661336058696622", "🔓")
+E_PHONE = PE("5947494995798789024", "📞")
+E_PHONE2 = PE("5406809207947142040", "📲")
+E_BANK = PE("5264895611517300926", "🏦")
+E_LINK = PE("5271604874419647061", "🔗")
+E_CAR = PE("5253752975997803460", "🚘")
+E_CARD = PE("5260561650213220533", "🪪")
+E_USER = PE("5249053508681883137", "👤")
+E_USERS = PE("5244933196230972438", "👥")
+E_INDIA = PE("6284779941489812433", "🇮🇳")
+E_PAK = PE("5913705895375672082", "🇵🇰")
+E_SEARCH = PE("5231012545799666522", "🔍")
+E_CREDIT = PE("6267068789146260253", "💰")
+E_REFRESH = PE("5375338737028841420", "🔄")
+E_CLOCK = PE("5382194935057372936", "⏱")
+E_BOLT = PE("6284971355297290197", "⚡")
+E_GIFT = PE("5203996991054432397", "🎁")
+E_TICKET = PE("5285515895534278367", "🎫")
+E_TOOLS = PE("5462921117423384478", "🛠️")
+E_DISABLED = PE("5373165973203348165", "📴")
+E_LOCATION = PE("5391032818111363540", "📍")
+E_HOME = PE("5280955052582785391", "🏠")
+E_STATE = PE("5388927107315283144", "🏛")
+E_NETWORK = PE("5321141214735508486", "📡")
+E_SIGNAL = PE("6147892053796725336", "📶")
+E_SIM = PE("5800717980266403037", "💳")
+E_CHART = PE("6093382540784046658", "📊")
+E_SPARKLE = PE("5467683093693354332", "✨")
+E_ROCKET = PE("5195033767969839232", "🚀")
+E_MAGIC = PE("5467683093693354332", "🔮")
+E_STAR2 = PE("6266969287638913443", "🌟")
+E_FIRE2 = PE("6264785189394717307", "🔥")
+E_RAINBOW = PE("6266969287638913443", "🌈")
+E_TARGET = PE("5231012545799666522", "🎯")
+E_FLAG = PE("6284779941489812433", "🏁")
+E_KEY = PE("5316522278056399236", "🔑")
+E_HEART = PE("6264785189394717307", "❤️")
+E_GEAR = PE("5462921117423384478", "⚙️")
+E_MAIL = PE("5249053508681883137", "📧")
+E_GLOBE = PE("6284779941489812433", "🌐")
+E_COMPASS = PE("5391032818111363540", "🧭")
+E_BOOK = PE("5260561650213220533", "📖")
+E_BELL = PE("5382194935057372936", "🔔")
+E_MIC = PE("5406809207947142040", "🎤")
+E_CAMERA = PE("5253752975997803460", "📷")
+E_VIDEO = PE("5947494995798789024", "🎥")
+E_MUSIC = PE("6264785189394717307", "🎵")
+E_GAME = PE("5195033767969839232", "🎮")
+E_COFFEE = PE("5386367538735104399", "☕")
+E_CAKE = PE("5203996991054432397", "🎂")
+E_PIZZA = PE("6267068789146260253", "🍕")
+E_BURGER = PE("5280955052582785391", "🍔")
+E_PARTY = PE("5203996991054432397", "🎉")
+E_WAVE = PE("6147892053796725336", "👋")
+E_HANDSHAKE = PE("5244933196230972438", "🤝")
+E_TROPHY = PE("6267128480601741166", "🏆")
+E_MEDAL = PE("6264791387032523779", "🏅")
+E_SHIELD = PE("5316522278056399236", "🛡️")
+E_SWORD = PE("6264785189394717307", "⚔️")
+E_DAGGER = PE("6267039884016358504", "🗡️")
+E_SKULL = PE("6267000941547885720", "💀")
+E_GHOST = PE("5231012545799666522", "👻")
+E_ROBOT = PE("5462921117423384478", "🤖")
+E_CYBER = PE("5321141214735508486", "💻")
+E_WIFI = PE("6147892053796725336", "📶")
+E_CLOUD = PE("5386367538735104399", "☁️")
+E_SUN = PE("6266969287638913443", "☀️")
+E_MOON = PE("5382194935057372936", "🌙")
+E_STARS = PE("5467683093693354332", "🌠")
+E_TREE = PE("5280955052582785391", "🌳")
+E_FLOWER = PE("5391032818111363540", "🌸")
+E_LEAF = PE("6264785189394717307", "🍃")
+E_OCEAN = PE("6284779941489812433", "🌊")
+E_MOUNTAIN = PE("5253752975997803460", "🏔️")
+E_CITY = PE("5388927107315283144", "🏙️")
+E_AIRPLANE = PE("5195033767969839232", "✈️")
+E_ROCKET2 = PE("5195033767969839232", "🚀")
+E_SATELLITE = PE("5321141214735508486", "🛰️")
+E_ALIEN = PE("5467683093693354332", "👽")
 
-# --- SEPARATE ICON IDs FOR EACH BUTTON ---
+# --- BUTTON ICON IDs ---
 ICON_TG = 5947494995798789024
 ICON_IFSC = 5264895611517300926
 ICON_BYPASS = 5271604874419647061
@@ -146,7 +184,6 @@ ICON_NEXT = 5258331647358540449
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Create client
 client = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 ADMIN_STATE = {}
 USER_MODES = {}
@@ -238,15 +275,15 @@ def redeem_code(uid, code):
     codes = load_json(REDEEM_FILE)
     code = code.upper().strip()
     if code not in codes:
-        return False, f"{EMOJI_CROSS} ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ"
+        return False, f"{E_CROSS} ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ"
     if codes[code].get("used"):
-        return False, f"{EMOJI_CROSS} ᴀʟʀᴇᴀᴅʏ ᴜꜱᴇᴅ"
+        return False, f"{E_CROSS} ᴀʟʀᴇᴀᴅʏ ᴜꜱᴇᴅ"
     cr = codes[code]["credits"]
     codes[code]["used"] = True
     codes[code]["used_by"] = str(uid)
     save_json(REDEEM_FILE, codes)
     bal = add_credits(uid, cr)
-    return True, f"{EMOJI_CHECK} +{cr} ᴄʀᴇᴅɪᴛꜱ ᴀᴅᴅᴇᴅ!\n{EMOJI_CREDIT} ʙᴀʟᴀɴᴄᴇ: {bal}"
+    return True, f"{E_CHECK} +{cr} ᴄʀᴇᴅɪᴛꜱ ᴀᴅᴅᴇᴅ!\n{E_CREDIT} ʙᴀʟᴀɴᴄᴇ: {bal}"
 
 def get_settings():
     try:
@@ -268,7 +305,7 @@ def get_settings():
             "page": 1
         }
         for k in ["tgid", "ifsc", "bypass", "mobile", "aadhaar", "rc", "gst", "pak", "indnum", "indnum3"]:
-            d[f"maint_msg_{k}"] = f"{EMOJI_TOOLS} {k} is under maintenance."
+            d[f"maint_msg_{k}"] = f"{E_TOOLS} {k} is under maintenance."
             d[f"maint_{k}"] = False
         save_json(SETTINGS_FILE, d)
         return d
@@ -287,9 +324,7 @@ async def check_channel_member(channel_id, user_id):
         return True
     except UserNotParticipantError:
         return False
-    except ChannelPrivateError:
-        return False
-    except Exception as e:
+    except:
         return False
 
 async def check_channels(uid):
@@ -343,24 +378,24 @@ async def edit_html(msg, text, reply_markup=None):
 def check_feature_maintenance(feature_key):
     s = get_settings()
     if s.get(f"maint_{feature_key}", False):
-        return True, s.get(f"maint_msg_{feature_key}", f"{EMOJI_TOOLS} Under maintenance.")
+        return True, s.get(f"maint_msg_{feature_key}", f"{E_TOOLS} Under maintenance.")
     return False, ""
 
 async def show_verification_page(event):
     try:
         txt = (
-            f"<blockquote>{EMOJI_DIAMOND} {BOT_NAME} {EMOJI_DIAMOND}</blockquote>\n"
+            f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
             f"<b>@{BOT_USERNAME}</b>\n\n"
-            f"{EMOJI_LOCK} ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ʀᴇQᴜɪʀᴇᴅ\n"
+            f"{E_LOCK} ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ʀᴇQᴜɪʀᴇᴅ\n"
             f"ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ᴛᴏ ᴜɴʟᴏᴄᴋ\n\n"
-            f"{EMOJI_STAR2} ɢᴜɪᴅᴇʟɪɴᴇꜱ:\n"
+            f"{E_STAR2} ɢᴜɪᴅᴇʟɪɴᴇꜱ:\n"
             f"• ᴇᴅᴜᴄᴀᴛɪᴏɴᴀʟ ᴘᴜʀᴘᴏꜱᴇꜱ ᴏɴʟʏ\n"
             f"• ᴜꜱᴇ ᴏɴ ʏᴏᴜʀ ᴏᴡɴ ᴅᴀᴛᴀ\n"
             f"• ʀᴇꜱᴘᴇᴄᴛ ᴘʀɪᴠᴀᴄʏ ʟᴀᴡꜱ\n\n"
-            f"{EMOJI_GIFT} +{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ {EMOJI_STAR}\n"
-            f"{EMOJI_INVITE} +{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ\n"
-            f"{EMOJI_CLOCK} {AUTO_DELETE_TIME}ꜱ ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ\n\n"
-            f"{EMOJI_CROWN} ᴏᴡɴᴇʀ: @Hexh4ckerOFC"
+            f"{E_GIFT} +{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ {E_STAR}\n"
+            f"{E_USERS} +{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ\n"
+            f"{E_CLOCK} {AUTO_DELETE_TIME}ꜱ ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ\n\n"
+            f"{E_CROWN} ᴏᴡɴᴇʀ: @Hexh4ckerOFC"
         )
         
         button1 = KeyboardButtonUrl(text="📢 ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷", url=LINK_1)
@@ -398,9 +433,9 @@ def create_main_menu(is_admin=False, settings=None):
     if page == 1:
         row1 = []
         if settings.get("tgid_enabled", True):
-            row1.append(create_colored_button("TG ID -> Phone Number", 'primary', ICON_TG))
+            row1.append(create_colored_button("TG ID Lookup", 'primary', ICON_TG))
         if settings.get("ifsc_enabled", True):
-            row1.append(create_colored_button("IFSC Info", 'primary', ICON_IFSC))
+            row1.append(create_colored_button("IFSC Lookup", 'primary', ICON_IFSC))
         if row1:
             rows.append(KeyboardButtonRow(buttons=row1))
         
@@ -409,30 +444,30 @@ def create_main_menu(is_admin=False, settings=None):
         
         row3 = []
         if settings.get("aadhaar_enabled", True):
-            row3.append(create_colored_button("Aadhar Info", 'primary', ICON_AADHAAR))
+            row3.append(create_colored_button("Aadhar Lookup", 'primary', ICON_AADHAAR))
         if settings.get("mobile_enabled", True):
-            row3.append(create_colored_button("India Number Info", 'primary', ICON_INDIA))
+            row3.append(create_colored_button("India Number", 'primary', ICON_INDIA))
         if row3:
             rows.append(KeyboardButtonRow(buttons=row3))
         
         row4 = []
         if settings.get("rc_enabled", True):
-            row4.append(create_colored_button("RC Details", 'primary', ICON_RC))
+            row4.append(create_colored_button("RC Check", 'primary', ICON_RC))
         if settings.get("gst_enabled", True):
-            row4.append(create_colored_button("GST Lookup", 'primary', ICON_GST))
+            row4.append(create_colored_button("GST Verify", 'primary', ICON_GST))
         if row4:
             rows.append(KeyboardButtonRow(buttons=row4))
         
         row5 = []
         if settings.get("pak_enabled", True):
-            row5.append(create_colored_button("Pakistan Number Info", 'primary', ICON_PAK))
+            row5.append(create_colored_button("Pakistan Number", 'primary', ICON_PAK))
         if settings.get("indnum_enabled", True):
-            row5.append(create_colored_button("India Number Info 2", 'primary', ICON_INDNUM))
+            row5.append(create_colored_button("India Number 2", 'primary', ICON_INDNUM))
         if row5:
             rows.append(KeyboardButtonRow(buttons=row5))
         
         if settings.get("indnum3_enabled", True):
-            rows.append(KeyboardButtonRow(buttons=[create_colored_button("India Number Tracking", 'primary', ICON_INDTRACK)]))
+            rows.append(KeyboardButtonRow(buttons=[create_colored_button("India Tracking", 'primary', ICON_INDTRACK)]))
         
         rows.append(KeyboardButtonRow(buttons=[
             create_colored_button("Invite & Earn", 'primary', ICON_INVITE),
@@ -497,12 +532,12 @@ def parse_all_india_records(raw):
             continue
         record = {}
         for field, label in {
-            'Name': f'{EMOJI_USER} ɴᴀᴍᴇ',
-            "Father's Name": f'{EMOJI_FATHER} ꜰᴀᴛʜᴇʀ',
-            'Mobile': f'{EMOJI_PHONE2} ᴍᴏʙɪʟᴇ',
-            'Address': f'{EMOJI_LOCATION} ᴀᴅᴅʀᴇꜱꜱ',
-            'Circle': f'{EMOJI_NETWORK} ᴄɪʀᴄʟᴇ',
-            'State': f'{EMOJI_STATE} ꜱᴛᴀᴛᴇ'
+            'Name': f'{E_USER} ɴᴀᴍᴇ',
+            "Father's Name": f'{E_HOME} ꜰᴀᴛʜᴇʀ',
+            'Mobile': f'{E_PHONE2} ᴍᴏʙɪʟᴇ',
+            'Address': f'{E_LOCATION} ᴀᴅᴅʀᴇꜱꜱ',
+            'Circle': f'{E_NETWORK} ᴄɪʀᴄʟᴇ',
+            'State': f'{E_STATE} ꜱᴛᴀᴛᴇ'
         }.items():
             match = re.search(rf'{re.escape(field)}:\s*([^\n]+)', section, re.IGNORECASE)
             if match and match.group(1).strip() not in ['None', '', 'N/A', 'null']:
@@ -527,16 +562,16 @@ def parse_all_india_records(raw):
 
 def format_records_result(records, search_type):
     if not records:
-        return f"{EMOJI_CROSS} ɴᴏ ʀᴇᴄᴏʀᴅꜱ ꜰᴏᴜɴᴅ"
+        return f"{E_CROSS} ɴᴏ ʀᴇᴄᴏʀᴅꜱ ꜰᴏᴜɴᴅ"
     title = {
-        'aadhaar': f'{EMOJI_CARD} ᴀᴀᴅʜᴀʀ',
-        'mobile': f'{EMOJI_INDIA} ɪɴᴅ ɴᴜᴍʙᴇʀ',
-        'vehicle': f'{EMOJI_CAR} ᴠᴇʜɪᴄʟᴇ'
-    }.get(search_type, f'{EMOJI_CHART} ʀᴇꜱᴜʟᴛ')
-    result = f"{EMOJI_SPARKLE} {title} {EMOJI_SPARKLE}\n{EMOJI_CHART} ᴛᴏᴛᴀʟ: {len(records)}\n"
+        'aadhaar': f'{E_CARD} ᴀᴀᴅʜᴀʀ',
+        'mobile': f'{E_INDIA} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ',
+        'vehicle': f'{E_CAR} ᴠᴇʜɪᴄʟᴇ'
+    }.get(search_type, f'{E_CHART} ʀᴇꜱᴜʟᴛ')
+    result = f"{E_SPARKLE} {title} {E_SPARKLE}\n{E_CHART} ᴛᴏᴛᴀʟ: {len(records)}\n"
     for i, record in enumerate(records, 1):
         if len(records) > 1:
-            result += f"\n━━ {EMOJI_USER} ʀᴇᴄᴏʀᴅ {i} ━━\n"
+            result += f"\n━━ {E_USER} ʀᴇᴄᴏʀᴅ {i} ━━\n"
         for key, value in record.items():
             result += f"{key}: {value}\n"
     return result
@@ -564,83 +599,83 @@ async def safe_api_fetch(session, url, timeout=20):
 async def chatid_lookup(session, query):
     data = await safe_api_fetch(session, f"{LOOKUP_API}{query}")
     if not data:
-        return f"{EMOJI_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
+        return f"{E_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
     if isinstance(data, dict) and not data.get("raw_text") and data.get("success"):
         d = data.get("data", data)
         if isinstance(d, dict):
-            result = f"{EMOJI_SPARKLE} {EMOJI_PHONE} ᴛᴇʟᴇɢʀᴀᴍ ɪᴅ ɪɴꜰᴏ {EMOJI_SPARKLE}\n"
+            result = f"{E_SPARKLE} {E_PHONE} ᴛᴇʟᴇɢʀᴀᴍ ɪᴅ ɪɴꜰᴏ {E_SPARKLE}\n"
             if d.get('chat_id') or d.get('userid'):
-                result += f"{EMOJI_SEARCH} ᴄʜᴀᴛ ɪᴅ: {d.get('chat_id', d.get('userid', query))}\n"
+                result += f"{E_SEARCH} ᴄʜᴀᴛ ɪᴅ: {d.get('chat_id', d.get('userid', query))}\n"
             if d.get('number'):
-                result += f"{EMOJI_PHONE2} ᴘʜᴏɴᴇ: {d['number']}\n"
+                result += f"{E_PHONE2} ᴘʜᴏɴᴇ: {d['number']}\n"
             if d.get('name'):
-                result += f"{EMOJI_USER} ɴᴀᴍᴇ: {d['name']}\n"
+                result += f"{E_USER} ɴᴀᴍᴇ: {d['name']}\n"
             return result
-    return f"{EMOJI_CROSS} ɴᴏᴛ ꜰᴏᴜɴᴅ"
+    return f"{E_CROSS} ɴᴏᴛ ꜰᴏᴜɴᴅ"
 
 async def ifsc_lookup(session, code):
     data = await safe_api_fetch(session, f"{IFSC_API}{code.upper()}")
     if not data or isinstance(data, dict) and data.get("raw_text"):
-        return f"{EMOJI_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
+        return f"{E_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
     if isinstance(data, dict):
-        return (f"{EMOJI_SPARKLE} {EMOJI_BANK} ʙᴀɴᴋ ɪꜰꜱᴄ ᴅᴇᴛᴀɪʟꜱ {EMOJI_SPARKLE}\n"
-                f"{EMOJI_BANK} ʙᴀɴᴋ: {data.get('BANK','N/A')}\n"
-                f"{EMOJI_LOCATION} ʙʀᴀɴᴄʜ: {data.get('BRANCH','N/A')}\n"
-                f"{EMOJI_CARD} ɪꜰꜱᴄ: {data.get('IFSC',code.upper())}\n"
-                f"{EMOJI_LOCATION} ᴀᴅᴅʀᴇꜱꜱ: {data.get('ADDRESS','N/A')}")
-    return f"{EMOJI_CROSS} ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ"
+        return (f"{E_SPARKLE} {E_BANK} ʙᴀɴᴋ ɪꜰꜱᴄ ᴅᴇᴛᴀɪʟꜱ {E_SPARKLE}\n"
+                f"{E_BANK} ʙᴀɴᴋ: {data.get('BANK','N/A')}\n"
+                f"{E_LOCATION} ʙʀᴀɴᴄʜ: {data.get('BRANCH','N/A')}\n"
+                f"{E_CARD} ɪꜰꜱᴄ: {data.get('IFSC',code.upper())}\n"
+                f"{E_LOCATION} ᴀᴅᴅʀᴇꜱꜱ: {data.get('ADDRESS','N/A')}")
+    return f"{E_CROSS} ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ"
 
 async def bypass_lookup(session, link):
     s = get_settings()
     if s.get("bypass_maintenance", False):
-        return f"{EMOJI_TOOLS} ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ"
+        return f"{E_TOOLS} ᴜɴᴅᴇʀ ᴍᴀɪɴᴛᴇɴᴀɴᴄᴇ"
     data = await safe_api_fetch(session, f"{SHORTLINK_API}{link}", timeout=20)
     if not data or isinstance(data, dict) and data.get("raw_text"):
-        return f"{EMOJI_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
+        return f"{E_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
     if isinstance(data, dict):
         r = data.get('bypassed_url') or data.get('url') or str(data)
-        return f"{EMOJI_SPARKLE} {EMOJI_LINK} ʟɪɴᴋ ʙʏᴘᴀꜱꜱᴇᴅ {EMOJI_SPARKLE}\n{EMOJI_LINK} ᴜʀʟ: {str(r)}"
-    return f"{EMOJI_LINK} ʀᴇꜱᴜʟᴛ: {str(data)}"
+        return f"{E_SPARKLE} {E_LINK} ʟɪɴᴋ ʙʏᴘᴀꜱꜱᴇᴅ {E_SPARKLE}\n{E_LINK} ᴜʀʟ: {str(r)}"
+    return f"{E_LINK} ʀᴇꜱᴜʟᴛ: {str(data)}"
 
 async def gst_lookup(session, gst_number):
     data = await safe_api_fetch(session, f"{GST_API}{gst_number.upper()}", timeout=20)
     if not data or isinstance(data, dict) and data.get("raw_text"):
-        return f"{EMOJI_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
+        return f"{E_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
     if isinstance(data, dict) and data.get("status") == "success" and data.get("data"):
         d = data["data"]
-        result = f"{EMOJI_SPARKLE} {EMOJI_CARD} ɢꜱᴛ ɪɴꜰᴏ {EMOJI_SPARKLE}\n"
+        result = f"{E_SPARKLE} {E_CARD} ɢꜱᴛ ɪɴꜰᴏ {E_SPARKLE}\n"
         if d.get('TradeName'):
-            result += f"{EMOJI_BANK} ʙᴜꜱɪɴᴇꜱꜱ: {d['TradeName']}\n"
+            result += f"{E_BANK} ʙᴜꜱɪɴᴇꜱꜱ: {d['TradeName']}\n"
         if d.get('Gstin'):
-            result += f"{EMOJI_CARD} ɢꜱᴛ: {d['Gstin']}\n"
+            result += f"{E_CARD} ɢꜱᴛ: {d['Gstin']}\n"
         return result
-    return f"{EMOJI_CROSS} ɪɴᴠᴀʟɪᴅ ɢꜱᴛ"
+    return f"{E_CROSS} ɪɴᴠᴀʟɪᴅ ɢꜱᴛ"
 
 async def pakistan_lookup(session, number):
     try:
         data = await safe_api_fetch(session, f"{PAK_API}{number}", timeout=20)
         if not data or isinstance(data, dict) and data.get("raw_text"):
-            return f"{EMOJI_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
+            return f"{E_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
         if isinstance(data, dict) and data.get("success") and data.get("data"):
             valid = [r for r in data["data"] if isinstance(r, dict) and any(r.get(k) for k in ['name', 'number', 'cnic', 'address'])]
             if not valid:
-                return f"{EMOJI_CROSS} ɴᴏ ᴅᴀᴛᴀ"
-            result = f"{EMOJI_SPARKLE} {EMOJI_PAK} ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ {EMOJI_SPARKLE}\n"
+                return f"{E_CROSS} ɴᴏ ᴅᴀᴛᴀ"
+            result = f"{E_SPARKLE} {E_PAK} ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ {E_SPARKLE}\n"
             for i, r in enumerate(valid[:3], 1):
                 if len(valid) > 1:
-                    result += f"\n━━ {EMOJI_USER} ʀᴇᴄᴏʀᴅ {i} ━━\n"
+                    result += f"\n━━ {E_USER} ʀᴇᴄᴏʀᴅ {i} ━━\n"
                 if r.get('number'):
-                    result += f"{EMOJI_PHONE2} ᴘʜᴏɴᴇ: {r['number']}\n"
+                    result += f"{E_PHONE2} ᴘʜᴏɴᴇ: {r['number']}\n"
                 if r.get('name'):
-                    result += f"{EMOJI_USER} ɴᴀᴍᴇ: {r['name']}\n"
+                    result += f"{E_USER} ɴᴀᴍᴇ: {r['name']}\n"
                 if r.get('cnic'):
-                    result += f"{EMOJI_CARD} ᴄɴɪᴄ: {r['cnic']}\n"
+                    result += f"{E_CARD} ᴄɴɪᴄ: {r['cnic']}\n"
                 if r.get('address'):
-                    result += f"{EMOJI_LOCATION} ᴀᴅᴅʀᴇꜱꜱ: {r['address'][:200]}\n"
+                    result += f"{E_LOCATION} ᴀᴅᴅʀᴇꜱꜱ: {r['address'][:200]}\n"
             return result
-        return f"{EMOJI_CROSS} ɴᴏ ᴅᴀᴛᴀ"
+        return f"{E_CROSS} ɴᴏ ᴅᴀᴛᴀ"
     except:
-        return f"{EMOJI_CROSS} ᴇʀʀᴏʀ"
+        return f"{E_CROSS} ᴇʀʀᴏʀ"
 
 async def indnum_lookup(session, number):
     for attempt in range(3):
@@ -650,23 +685,23 @@ async def indnum_lookup(session, number):
         if attempt < 2:
             await asyncio.sleep(2)
     if not data or isinstance(data, dict) and data.get("raw_text"):
-        return f"{EMOJI_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
+        return f"{E_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
     results = data.get("results", {})
     if not results:
-        return f"{EMOJI_CROSS} ɴᴏ ʀᴇꜱᴜʟᴛꜱ"
-    result = f"{EMOJI_SPARKLE} {EMOJI_PHONE2} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴀᴅᴠᴀɴᴄᴇᴅ {EMOJI_SPARKLE}\n{EMOJI_PHONE2} ɴᴜᴍʙᴇʀ: {number}\n"
+        return f"{E_CROSS} ɴᴏ ʀᴇꜱᴜʟᴛꜱ"
+    result = f"{E_SPARKLE} {E_PHONE2} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴀᴅᴠᴀɴᴄᴇᴅ {E_SPARKLE}\n{E_PHONE2} ɴᴜᴍʙᴇʀ: {number}\n"
     found = False
     s3 = results.get("source_3", {}).get("data", {})
     if isinstance(s3, dict):
-        for k, e in [("SIM card", EMOJI_SIM), ("Connection", EMOJI_SIGNAL), ("Mobile State", EMOJI_LOCATION), ("Hometown", EMOJI_HOME)]:
+        for k, e in [("SIM card", E_SIM), ("Connection", E_SIGNAL), ("Mobile State", E_LOCATION), ("Hometown", E_HOME)]:
             if s3.get(k):
                 result += f"{e} {k}: {str(s3[k])[:200]}\n"
                 found = True
     s4 = results.get("source_4", {}).get("data", {})
     if isinstance(s4, dict) and s4.get("carrier"):
-        result += f"{EMOJI_NETWORK} ᴄᴀʀʀɪᴇʀ: {s4['carrier']}\n"
+        result += f"{E_NETWORK} ᴄᴀʀʀɪᴇʀ: {s4['carrier']}\n"
         found = True
-    return result if found else f"{EMOJI_CROSS} ɴᴏ ᴅᴀᴛᴀ"
+    return result if found else f"{E_CROSS} ɴᴏ ᴅᴀᴛᴀ"
 
 async def indnum3_lookup(session, number):
     url = f"{IND_NUM_API_3}{number}"
@@ -675,34 +710,34 @@ async def indnum3_lookup(session, number):
         async with session.get(url, timeout=aiohttp.ClientTimeout(total=25), headers=headers, allow_redirects=True) as r:
             text = await r.text()
             if not text or len(text) < 20:
-                return f"{EMOJI_CROSS} ᴇᴍᴘᴛʏ ʀᴇꜱᴘᴏɴꜱᴇ"
+                return f"{E_CROSS} ᴇᴍᴘᴛʏ ʀᴇꜱᴘᴏɴꜱᴇ"
             try:
                 data = json.loads(text)
                 if isinstance(data, dict):
-                    result = f"{EMOJI_SPARKLE} {EMOJI_INDIA} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴛʀᴀᴄᴋɪɴɢ {EMOJI_SPARKLE}\n{EMOJI_PHONE2} ɴᴜᴍʙᴇʀ: {number}\n"
+                    result = f"{E_SPARKLE} {E_INDIA} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴛʀᴀᴄᴋɪɴɢ {E_SPARKLE}\n{E_PHONE2} ɴᴜᴍʙᴇʀ: {number}\n"
                     for k, v in data.items():
                         if v and str(v).strip():
-                            result += f"{EMOJI_SEARCH} {k}: {str(v)[:200]}\n"
+                            result += f"{E_SEARCH} {k}: {str(v)[:200]}\n"
                     return result
             except:
                 pass
             clean = re.sub(r'<[^>]+>', '\n', text)
             lines = [l.strip() for l in clean.split('\n') if l.strip() and len(l.strip()) > 1]
-            result = f"{EMOJI_SPARKLE} {EMOJI_INDIA} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴛʀᴀᴄᴋɪɴɢ {EMOJI_SPARKLE}\n{EMOJI_PHONE2} ɴᴜᴍʙᴇʀ: {number}\n"
+            result = f"{E_SPARKLE} {E_INDIA} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ ᴛʀᴀᴄᴋɪɴɢ {E_SPARKLE}\n{E_PHONE2} ɴᴜᴍʙᴇʀ: {number}\n"
             found = 0
             for line in lines[:20]:
                 if ':' in line:
                     parts = line.split(':', 1)
                     key, val = parts[0].strip(), parts[1].strip() if len(parts) > 1 else ''
                     if val:
-                        e = EMOJI_USER if any(w in key.lower() for w in ['name', 'nama']) else EMOJI_NETWORK if any(w in key.lower() for w in ['carrier', 'operator', 'network', 'sim']) else EMOJI_LOCATION if any(w in key.lower() for w in ['location', 'address', 'city', 'state', 'area']) else EMOJI_PHONE2 if any(w in key.lower() for w in ['phone', 'mobile', 'number', 'no']) else EMOJI_SEARCH
+                        e = E_USER if any(w in key.lower() for w in ['name', 'nama']) else E_NETWORK if any(w in key.lower() for w in ['carrier', 'operator', 'network', 'sim']) else E_LOCATION if any(w in key.lower() for w in ['location', 'address', 'city', 'state', 'area']) else E_PHONE2 if any(w in key.lower() for w in ['phone', 'mobile', 'number', 'no']) else E_SEARCH
                         result += f"{e} {key}: {val[:200]}\n"
                         found += 1
             if found == 0:
-                result += f"{EMOJI_CARD} ʀᴀᴡ: {clean[:500]}\n"
+                result += f"{E_CARD} ʀᴀᴡ: {clean[:500]}\n"
             return result
     except:
-        return f"{EMOJI_CROSS} ᴛɪᴍᴇᴏᴜᴛ"
+        return f"{E_CROSS} ᴛɪᴍᴇᴏᴜᴛ"
 
 # --- 👑 ADMIN ---
 
@@ -710,22 +745,22 @@ async def admin_panel(event):
     if event.sender_id != ADMIN_ID:
         return
     s = get_settings()
-    ms = lambda key: f"{EMOJI_DANGER}" if s.get(f"maint_{key}") else f"{EMOJI_SUCCESS}"
+    ms = lambda key: f"{E_DANGER}" if s.get(f"maint_{key}") else f"{E_CHECK}"
     
     buttons = [
         [KeyboardButtonCallback(text="Generate Code", data=b"ad_gen"), KeyboardButtonCallback(text="List Codes", data=b"ad_codes")],
         [KeyboardButtonCallback(text="Add Credits", data=b"ad_credit"), KeyboardButtonCallback(text="Broadcast", data=b"ad_bcast")],
-        [KeyboardButtonCallback(text=f"{EMOJI_DANGER if s.get('maintenance_mode') else EMOJI_SUCCESS} Global", data=b"ad_maint")],
-        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('tgid_enabled',True) else EMOJI_DANGER} TG", data=b"ad_tgid"), KeyboardButtonCallback(text=f"{ms('tgid')} M", data=b"ad_maint_tgid")],
-        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('ifsc_enabled',True) else EMOJI_DANGER} IF", data=b"ad_ifsc"), KeyboardButtonCallback(text=f"{ms('ifsc')} M", data=b"ad_maint_ifsc")],
-        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('bypass_enabled',True) else EMOJI_DANGER} BY", data=b"ad_bypass_toggle"), KeyboardButtonCallback(text=f"{ms('bypass')} M", data=b"ad_maint_bypass")],
-        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('mobile_enabled',True) else EMOJI_DANGER} MO", data=b"ad_mobile"), KeyboardButtonCallback(text=f"{ms('mobile')} M", data=b"ad_maint_mobile")],
-        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('aadhaar_enabled',True) else EMOJI_DANGER} AA", data=b"ad_aadhaar"), KeyboardButtonCallback(text=f"{ms('aadhaar')} M", data=b"ad_maint_aadhaar")],
-        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('rc_enabled',True) else EMOJI_DANGER} RC", data=b"ad_rc"), KeyboardButtonCallback(text=f"{ms('rc')} M", data=b"ad_maint_rc")],
-        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('gst_enabled',True) else EMOJI_DANGER} GS", data=b"ad_gst"), KeyboardButtonCallback(text=f"{ms('gst')} M", data=b"ad_maint_gst")],
-        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('pak_enabled',True) else EMOJI_DANGER} PA", data=b"ad_pak"), KeyboardButtonCallback(text=f"{ms('pak')} M", data=b"ad_maint_pak")],
-        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('indnum_enabled',True) else EMOJI_DANGER} IN2", data=b"ad_indnum"), KeyboardButtonCallback(text=f"{ms('indnum')} M", data=b"ad_maint_indnum")],
-        [KeyboardButtonCallback(text=f"{EMOJI_SUCCESS if s.get('indnum3_enabled',True) else EMOJI_DANGER} IN3", data=b"ad_indnum3"), KeyboardButtonCallback(text=f"{ms('indnum3')} M", data=b"ad_maint_indnum3")],
+        [KeyboardButtonCallback(text=f"{E_DANGER if s.get('maintenance_mode') else E_CHECK} Global", data=b"ad_maint")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('tgid_enabled',True) else E_DANGER} TG", data=b"ad_tgid"), KeyboardButtonCallback(text=f"{ms('tgid')} M", data=b"ad_maint_tgid")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('ifsc_enabled',True) else E_DANGER} IF", data=b"ad_ifsc"), KeyboardButtonCallback(text=f"{ms('ifsc')} M", data=b"ad_maint_ifsc")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('bypass_enabled',True) else E_DANGER} BY", data=b"ad_bypass_toggle"), KeyboardButtonCallback(text=f"{ms('bypass')} M", data=b"ad_maint_bypass")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('mobile_enabled',True) else E_DANGER} MO", data=b"ad_mobile"), KeyboardButtonCallback(text=f"{ms('mobile')} M", data=b"ad_maint_mobile")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('aadhaar_enabled',True) else E_DANGER} AA", data=b"ad_aadhaar"), KeyboardButtonCallback(text=f"{ms('aadhaar')} M", data=b"ad_maint_aadhaar")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('rc_enabled',True) else E_DANGER} RC", data=b"ad_rc"), KeyboardButtonCallback(text=f"{ms('rc')} M", data=b"ad_maint_rc")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('gst_enabled',True) else E_DANGER} GS", data=b"ad_gst"), KeyboardButtonCallback(text=f"{ms('gst')} M", data=b"ad_maint_gst")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('pak_enabled',True) else E_DANGER} PA", data=b"ad_pak"), KeyboardButtonCallback(text=f"{ms('pak')} M", data=b"ad_maint_pak")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('indnum_enabled',True) else E_DANGER} IN2", data=b"ad_indnum"), KeyboardButtonCallback(text=f"{ms('indnum')} M", data=b"ad_maint_indnum")],
+        [KeyboardButtonCallback(text=f"{E_CHECK if s.get('indnum3_enabled',True) else E_DANGER} IN3", data=b"ad_indnum3"), KeyboardButtonCallback(text=f"{ms('indnum3')} M", data=b"ad_maint_indnum3")],
         [KeyboardButtonCallback(text="Close", data=b"ad_close")]
     ]
     
@@ -734,7 +769,7 @@ async def admin_panel(event):
         rows.append(KeyboardButtonRow(buttons=row))
     
     markup = ReplyInlineMarkup(rows=rows)
-    txt = f"{EMOJI_CROWN} ᴀᴅᴍɪɴ ᴘᴀɴᴇʟ {EMOJI_CROWN}\n{EMOJI_INVITE} ᴜꜱᴇʀꜱ: {len(load_json(USERS_FILE))} | {EMOJI_TICKET} ᴄᴏᴅᴇꜱ: {len(load_json(REDEEM_FILE))}"
+    txt = f"{E_CROWN} ᴀᴅᴍɪɴ ᴘᴀɴᴇʟ {E_CROWN}\n{E_USERS} ᴜꜱᴇʀꜱ: {len(load_json(USERS_FILE))} | {E_TICKET} ᴄᴏᴅᴇꜱ: {len(load_json(REDEEM_FILE))}"
     
     if hasattr(event, 'data'):
         await event.edit(txt, buttons=markup)
@@ -743,7 +778,7 @@ async def admin_panel(event):
 
 async def admin_callback(event):
     if event.sender_id != ADMIN_ID:
-        await event.answer(f"{EMOJI_CROSS}", alert=True)
+        await event.answer(f"{E_CROSS}", alert=True)
         return
     d = event.data.decode()
     s = get_settings()
@@ -752,23 +787,23 @@ async def admin_callback(event):
         await event.delete()
     elif d == "ad_codes":
         codes = load_json(REDEEM_FILE)
-        txt = f"{EMOJI_TICKET} ᴄᴏᴅᴇꜱ: {len(codes)}\n"
+        txt = f"{E_TICKET} ᴄᴏᴅᴇꜱ: {len(codes)}\n"
         for c, v in list(codes.items())[-15:]:
-            txt += f"{EMOJI_CHECK if not v.get('used') else EMOJI_CROSS} {c} | {v.get('credits')}cr\n"
+            txt += f"{E_CHECK if not v.get('used') else E_CROSS} {c} | {v.get('credits')}cr\n"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
         await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_gen":
         ADMIN_STATE[event.sender_id] = "gen"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit(f"{EMOJI_TICKET} ᴇɴᴛᴇʀ ᴄʀᴇᴅɪᴛꜱ:\n100", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
+        await event.edit(f"{E_TICKET} ᴇɴᴛᴇʀ ᴄʀᴇᴅɪᴛꜱ:\n100", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_credit":
         ADMIN_STATE[event.sender_id] = "credit"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit(f"{EMOJI_GIFT} ᴇɴᴛᴇʀ ɪᴅ ᴀᴍᴏᴜɴᴛ:\n123456789 50", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
+        await event.edit(f"{E_GIFT} ᴇɴᴛᴇʀ ɪᴅ ᴀᴍᴏᴜɴᴛ:\n123456789 50", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_bcast":
         ADMIN_STATE[event.sender_id] = "bcast"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit(f"{EMOJI_BOLT} ᴇɴᴛᴇʀ ᴍᴇꜱꜱᴀɢᴇ:", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
+        await event.edit(f"{E_BOLT} ᴇɴᴛᴇʀ ᴍᴇꜱꜱᴀɢᴇ:", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_maint":
         s["maintenance_mode"] = not s.get("maintenance_mode", False)
         save_settings(s)
@@ -816,7 +851,7 @@ async def start(event):
                 if data.get("invite_code") == args[1] and inviter != str(uid):
                     cr = process_invite(inviter, uid)
                     try:
-                        await send_html(int(inviter), f"{EMOJI_GIFT} +{cr} ᴄʀᴇᴅɪᴛꜱ! ɴᴇᴡ ᴜꜱᴇʀ ᴊᴏɪɴᴇᴅ!")
+                        await send_html(int(inviter), f"{E_GIFT} +{cr} ᴄʀᴇᴅɪᴛꜱ! ɴᴇᴡ ᴜꜱᴇʀ ᴊᴏɪɴᴇᴅ!")
                     except:
                         pass
                     break
@@ -845,7 +880,7 @@ async def verify_cb(event):
             user = get_user(uid)
             user["verified"] = True
             save_user(uid, user)
-            await event.answer(f"{EMOJI_CHECK} ᴠᴇʀɪꜰɪᴇᴅ!", alert=True)
+            await event.answer(f"{E_CHECK} ᴠᴇʀɪꜰɪᴇᴅ!", alert=True)
             try:
                 await event.delete()
             except:
@@ -856,21 +891,21 @@ async def verify_cb(event):
                 pass
             await main_menu(event)
         elif not in_channel1 and not in_channel2:
-            await event.answer(f"{EMOJI_CROSS} ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ꜰɪʀꜱᴛ!", alert=True)
+            await event.answer(f"{E_CROSS} ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ꜰɪʀꜱᴛ!", alert=True)
         elif not in_channel1:
-            await event.answer(f"{EMOJI_CROSS} ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷 ꜰɪʀꜱᴛ!", alert=True)
+            await event.answer(f"{E_CROSS} ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟷 ꜰɪʀꜱᴛ!", alert=True)
         elif not in_channel2:
-            await event.answer(f"{EMOJI_CROSS} ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟸 ꜰɪʀꜱᴛ!", alert=True)
+            await event.answer(f"{E_CROSS} ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ 𝟸 ꜰɪʀꜱᴛ!", alert=True)
     except Exception as e:
         logger.error(f"Verify callback error: {e}")
-        await event.answer(f"{EMOJI_CROSS} ᴇʀʀᴏʀ, ᴛʀʏ ᴀɢᴀɪɴ", alert=True)
+        await event.answer(f"{E_CROSS} ᴇʀʀᴏʀ, ᴛʀʏ ᴀɢᴀɪɴ", alert=True)
 
 @client.on(events.CallbackQuery)
 async def handle_url_callback(event):
     if event.data == b"url1":
-        await event.answer(f"{EMOJI_LINK} ᴊᴏɪɴ: {LINK_1}", alert=True)
+        await event.answer(f"{E_LINK} ᴊᴏɪɴ: {LINK_1}", alert=True)
     elif event.data == b"url2":
-        await event.answer(f"{EMOJI_LINK} ᴊᴏɪɴ: {LINK_2}", alert=True)
+        await event.answer(f"{E_LINK} ᴊᴏɪɴ: {LINK_2}", alert=True)
 
 async def main_menu(event):
     is_admin = event.sender_id == ADMIN_ID
@@ -887,17 +922,17 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     
     txt = (
-        f"<blockquote>{EMOJI_DIAMOND} ᴘʀᴇᴍɪᴜᴍ ʜᴜʙ {EMOJI_DIAMOND}</blockquote>\n"
-        f"{EMOJI_USER} ᴡᴇʟᴄᴏᴍᴇ ʙᴀᴄᴋ, <b>{event.sender.first_name}</b>\n\n"
-        f"<blockquote>{EMOJI_CHART} ʏᴏᴜʀ ꜱᴛᴀᴛɪꜱᴛɪᴄꜱ</blockquote>\n"
-        f"{EMOJI_CREDIT} ᴄʀᴇᴅɪᴛꜱ: <b>{cr}</b>\n"
-        f"{EMOJI_SEARCH} Qᴜᴇʀɪᴇꜱ: <b>{user.get('total_queries',0)}</b>\n"
-        f"{EMOJI_INVITE} ɪɴᴠɪᴛᴇꜱ: <b>{user.get('invites',0)}</b>\n\n"
-        f"<blockquote>{EMOJI_GIFT} ʀᴇᴡᴀʀᴅꜱ</blockquote>\n"
-        f"{EMOJI_REFRESH} +{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ ꜰʀᴇᴇ\n"
-        f"{EMOJI_INVITE} +{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ\n"
-        f"{EMOJI_CLOCK} {AUTO_DELETE_TIME}ꜱ ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ\n\n"
-        f"{EMOJI_STAR2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ {EMOJI_STAR2}"
+        f"<blockquote>{E_DIAMOND} ᴘʀᴇᴍɪᴜᴍ ʜᴜʙ {E_DIAMOND}</blockquote>\n"
+        f"{E_USER} ᴡᴇʟᴄᴏᴍᴇ ʙᴀᴄᴋ, <b>{event.sender.first_name}</b>\n\n"
+        f"<blockquote>{E_CHART} ʏᴏᴜʀ ꜱᴛᴀᴛɪꜱᴛɪᴄꜱ</blockquote>\n"
+        f"{E_CREDIT} ᴄʀᴇᴅɪᴛꜱ: <b>{cr}</b>\n"
+        f"{E_SEARCH} Qᴜᴇʀɪᴇꜱ: <b>{user.get('total_queries',0)}</b>\n"
+        f"{E_USERS} ɪɴᴠɪᴛᴇꜱ: <b>{user.get('invites',0)}</b>\n\n"
+        f"<blockquote>{E_GIFT} ʀᴇᴡᴀʀᴅꜱ</blockquote>\n"
+        f"{E_REFRESH} +{DAILY_FREE_CREDITS} ᴅᴀɪʟʏ ꜰʀᴇᴇ\n"
+        f"{E_USERS} +{INVITE_CREDITS} ᴘᴇʀ ɪɴᴠɪᴛᴇ\n"
+        f"{E_CLOCK} {AUTO_DELETE_TIME}ꜱ ᴀᴜᴛᴏ ᴅᴇʟᴇᴛᴇ\n\n"
+        f"{E_STAR2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ {E_STAR2}"
     )
     
     msg = await send_html(event.chat_id, txt, reply_markup=markup)
@@ -916,7 +951,7 @@ async def msg_handler(event):
         s = get_settings()
         
         if s.get("maintenance_mode", False) and uid != ADMIN_ID:
-            m = await send_html(event.chat_id, f"{EMOJI_TOOLS} Under maintenance")
+            m = await send_html(event.chat_id, f"{E_TOOLS} Under maintenance")
             asyncio.create_task(schedule_delete(m))
             return
         
@@ -937,18 +972,18 @@ async def msg_handler(event):
                 try:
                     cr = int(txt)
                     code = generate_redeem_code(cr)
-                    msg = await send_html(event.chat_id, f"{EMOJI_CHECK} {code} | {EMOJI_CREDIT} {cr}cr")
+                    msg = await send_html(event.chat_id, f"{E_CHECK} {code} | {E_CREDIT} {cr}cr")
                 except:
-                    msg = await send_html(event.chat_id, f"{EMOJI_CROSS} Number")
+                    msg = await send_html(event.chat_id, f"{E_CROSS} Number")
                 asyncio.create_task(schedule_delete(msg))
                 return
             elif state == "credit":
                 p = txt.split()
                 if len(p) >= 2:
                     bal = add_credits(p[0], int(p[1]))
-                    msg = await send_html(event.chat_id, f"{EMOJI_CHECK} +{p[1]} | {bal}")
+                    msg = await send_html(event.chat_id, f"{E_CHECK} +{p[1]} | {bal}")
                 else:
-                    msg = await send_html(event.chat_id, f"{EMOJI_CROSS} Format: ID AMOUNT")
+                    msg = await send_html(event.chat_id, f"{E_CROSS} Format: ID AMOUNT")
                 asyncio.create_task(schedule_delete(msg))
                 return
             elif state == "bcast":
@@ -956,11 +991,11 @@ async def msg_handler(event):
                 cnt = 0
                 for u in users:
                     try:
-                        await send_html(int(u), f"{EMOJI_BOLT} {txt}")
+                        await send_html(int(u), f"{E_BOLT} {txt}")
                         cnt += 1
                     except:
                         pass
-                msg = await send_html(event.chat_id, f"{EMOJI_CHECK} Sent: {cnt}")
+                msg = await send_html(event.chat_id, f"{E_CHECK} Sent: {cnt}")
                 asyncio.create_task(schedule_delete(msg))
                 return
         
@@ -985,21 +1020,21 @@ async def msg_handler(event):
                 success, msg = redeem_code(uid, txt)
                 m = await send_html(event.chat_id, msg)
             else:
-                m = await send_html(event.chat_id, f"{EMOJI_CROSS} Invalid code!")
+                m = await send_html(event.chat_id, f"{E_CROSS} Invalid code!")
             asyncio.create_task(schedule_delete(m))
             return
         
         feature_map = {
-            "TG ID -> Phone Number": ("TG", "tgid"),
-            "IFSC Info": ("IFSC", "ifsc"),
+            "TG ID Lookup": ("TG", "tgid"),
+            "IFSC Lookup": ("IFSC", "ifsc"),
             "Link Bypass": ("SHORTLINK", "bypass"),
-            "India Number Info": ("MOBILE", "mobile"),
-            "Aadhar Info": ("AADHAAR", "aadhaar"),
-            "RC Details": ("VEHICLE", "rc"),
-            "GST Lookup": ("GST", "gst"),
-            "Pakistan Number Info": ("PAK", "pak"),
-            "India Number Info 2": ("INDNUM", "indnum"),
-            "India Number Tracking": ("INDNUM3", "indnum3"),
+            "India Number": ("MOBILE", "mobile"),
+            "Aadhar Lookup": ("AADHAAR", "aadhaar"),
+            "RC Check": ("VEHICLE", "rc"),
+            "GST Verify": ("GST", "gst"),
+            "Pakistan Number": ("PAK", "pak"),
+            "India Number 2": ("INDNUM", "indnum"),
+            "India Tracking": ("INDNUM3", "indnum3"),
             "Invite & Earn": ("INVITE", None),
             "Redeem Code": ("REDEEM", None)
         }
@@ -1011,40 +1046,40 @@ async def msg_handler(event):
                 user = get_user(uid)
                 bot_username = BOT_USERNAME
                 link = f"https://t.me/{bot_username}?start={user['invite_code']}"
-                m = await send_html(event.chat_id, f"{EMOJI_INVITE} ɪɴᴠɪᴛᴇ (+{INVITE_CREDITS}ᴄʀ)\n{EMOJI_LINK} {link}")
+                m = await send_html(event.chat_id, f"{E_USERS} ɪɴᴠɪᴛᴇ (+{INVITE_CREDITS}ᴄʀ)\n{E_LINK} {link}")
                 asyncio.create_task(schedule_delete(m, 120))
                 return
             elif mode == "REDEEM":
                 event.redeem_mode = True
-                m = await send_html(event.chat_id, f"{EMOJI_TICKET} ᴇɴᴛᴇʀ ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ:\nHEX-XXXXXXXXXX")
+                m = await send_html(event.chat_id, f"{E_TICKET} ᴇɴᴛᴇʀ ʀᴇᴅᴇᴇᴍ ᴄᴏᴅᴇ:\nHEX-XXXXXXXXXX")
                 asyncio.create_task(schedule_delete(m, 30))
                 return
             
             if feature and not s.get(f"{feature}_enabled", True):
-                m = await send_html(event.chat_id, f"{EMOJI_DISABLED} Disabled")
+                m = await send_html(event.chat_id, f"{E_DISABLED} Disabled")
                 asyncio.create_task(schedule_delete(m))
                 return
             
             if feature:
                 maint, msg = check_feature_maintenance(feature)
                 if maint:
-                    m = await send_html(event.chat_id, f"{EMOJI_TOOLS} {msg}")
+                    m = await send_html(event.chat_id, f"{E_TOOLS} {msg}")
                     asyncio.create_task(schedule_delete(m))
                     return
             
             USER_MODES[str(uid)] = mode
             
             prompts = {
-                "TG": f"{EMOJI_PHONE} ᴇɴᴛᴇʀ ᴛɢ ɪᴅ:\n7123181749, 6884112825",
-                "IFSC": f"{EMOJI_BANK} ᴇɴᴛᴇʀ ɪꜰꜱᴄ:\nSBIN0001234, HDFC0001234",
-                "SHORTLINK": f"{EMOJI_LINK} ᴇɴᴛᴇʀ ʟɪɴᴋ:\nhttps://indianshortner.in/xxxx",
-                "MOBILE": f"{EMOJI_INDIA} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n9876543210, 8123456789",
-                "AADHAAR": f"{EMOJI_CARD} ᴇɴᴛᴇʀ ᴀᴀᴅʜᴀʀ:\n123456789012",
-                "VEHICLE": f"{EMOJI_CAR} ᴇɴᴛᴇʀ ᴠᴇʜɪᴄʟᴇ:\nKA01AB3256, DL1CX1234",
-                "GST": f"{EMOJI_CARD} ᴇɴᴛᴇʀ ɢꜱᴛ:\n19BOKPS7056D1ZI",
-                "PAK": f"{EMOJI_PAK} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n923078750447",
-                "INDNUM": f"{EMOJI_PHONE2} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n6363016966, 9876543210",
-                "INDNUM3": f"{EMOJI_INDIA} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n6363016966, 9876543210"
+                "TG": f"{E_PHONE} ᴇɴᴛᴇʀ ᴛɢ ɪᴅ:\n7123181749, 6884112825",
+                "IFSC": f"{E_BANK} ᴇɴᴛᴇʀ ɪꜰꜱᴄ:\nSBIN0001234, HDFC0001234",
+                "SHORTLINK": f"{E_LINK} ᴇɴᴛᴇʀ ʟɪɴᴋ:\nhttps://indianshortner.in/xxxx",
+                "MOBILE": f"{E_INDIA} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n9876543210, 8123456789",
+                "AADHAAR": f"{E_CARD} ᴇɴᴛᴇʀ ᴀᴀᴅʜᴀʀ:\n123456789012",
+                "VEHICLE": f"{E_CAR} ᴇɴᴛᴇʀ ᴠᴇʜɪᴄʟᴇ:\nKA01AB3256, DL1CX1234",
+                "GST": f"{E_CARD} ᴇɴᴛᴇʀ ɢꜱᴛ:\n19BOKPS7056D1ZI",
+                "PAK": f"{E_PAK} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n923078750447",
+                "INDNUM": f"{E_PHONE2} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n6363016966, 9876543210",
+                "INDNUM3": f"{E_INDIA} ᴇɴᴛᴇʀ ɴᴜᴍʙᴇʀ:\n6363016966, 9876543210"
             }
             if mode in prompts:
                 m = await send_html(event.chat_id, prompts[mode])
@@ -1064,7 +1099,7 @@ async def msg_handler(event):
             
             user = get_user(uid)
             if user.get("credits", 0) <= 0:
-                m = await send_html(event.chat_id, f"{EMOJI_CROSS} No credits! +10 daily | +3 invite")
+                m = await send_html(event.chat_id, f"{E_CROSS} No credits! +10 daily | +3 invite")
                 asyncio.create_task(schedule_delete(m))
                 USER_MODES[uid_str] = None
                 return
@@ -1078,29 +1113,16 @@ async def msg_handler(event):
 
 async def run_query(event, mode, query):
     if not await net_ok():
-        m = await send_html(event.chat_id, f"{EMOJI_CROSS} No internet")
+        m = await send_html(event.chat_id, f"{E_CROSS} No internet")
         asyncio.create_task(schedule_delete(m))
         return
     
-    names = {
-        'TG': f'{EMOJI_PHONE}',
-        'IFSC': f'{EMOJI_BANK}',
-        'SHORTLINK': f'{EMOJI_LINK}',
-        'AADHAAR': f'{EMOJI_CARD}',
-        'MOBILE': f'{EMOJI_INDIA}',
-        'VEHICLE': f'{EMOJI_CAR}',
-        'GST': f'{EMOJI_CARD}',
-        'PAK': f'{EMOJI_PAK}',
-        'INDNUM': f'{EMOJI_PHONE2}',
-        'INDNUM3': f'{EMOJI_INDIA}'
-    }
+    st = await send_html(event.chat_id, f"{E_SEARCH} ꜱᴇᴀʀᴄʜɪɴɢ...")
     
-    st = await send_html(event.chat_id, f"{EMOJI_GREEN} ꜱᴇᴀʀᴄʜɪɴɢ...")
-    
-    # Simple loading animation
+    # Loading animation
     for i in range(5):
         try:
-            await edit_html(st, f"{EMOJI_SEARCH} ꜱᴇᴀʀᴄʜɪɴɢ... {i+1}/5")
+            await edit_html(st, f"{E_SEARCH} ꜱᴇᴀʀᴄʜɪɴɢ... {i+1}/5")
             await asyncio.sleep(0.4)
         except:
             pass
@@ -1114,11 +1136,11 @@ async def run_query(event, mode, query):
             if raw:
                 records = parse_all_india_records(raw)
                 result = format_records_result(records, {'AADHAAR': 'aadhaar', 'MOBILE': 'mobile', 'VEHICLE': 'vehicle'}[mode])
-                if records and f"{EMOJI_CROSS}" not in str(result):
+                if records and f"{E_CROSS}" not in str(result):
                     use_credit(event.sender_id)
                     credit_deducted = True
             else:
-                result = f"{EMOJI_CROSS} Script failed"
+                result = f"{E_CROSS} Script failed"
         else:
             async with aiohttp.ClientSession() as s:
                 if mode == 'TG':
@@ -1136,28 +1158,28 @@ async def run_query(event, mode, query):
                 elif mode == 'INDNUM3':
                     result = await indnum3_lookup(s, query)
                 else:
-                    result = f"{EMOJI_CROSS}"
+                    result = f"{E_CROSS}"
             
-            if result and f"{EMOJI_CROSS}" not in str(result) and "unavailable" not in str(result).lower():
+            if result and f"{E_CROSS}" not in str(result) and "unavailable" not in str(result).lower():
                 use_credit(event.sender_id)
                 credit_deducted = True
         
         user = get_user(event.sender_id)
-        final = f"{result}\n{SEP}\n{EMOJI_CREDIT} {'ᴄʀ: '+str(user.get('credits',0)) if credit_deducted else 'ɴᴏ ᴄʀ ᴅᴇᴅᴜᴄᴛᴇᴅ'} | {EMOJI_CLOCK} {AUTO_DELETE_TIME}ꜱ{FOOTER}"
+        final = f"{result}\n{SEP}\n{E_CREDIT} {'ᴄʀ: '+str(user.get('credits',0)) if credit_deducted else 'ɴᴏ ᴄʀ ᴅᴇᴅᴜᴄᴛᴇᴅ'} | {E_CLOCK} {AUTO_DELETE_TIME}ꜱ{FOOTER}"
         sent = await edit_html(st, final)
         asyncio.create_task(schedule_delete(sent))
     except Exception as e:
         logger.error(f"Query error: {e}")
         try:
-            await edit_html(st, f"{EMOJI_WARN} Error{FOOTER}")
+            await edit_html(st, f"{E_WARN} Error{FOOTER}")
         except:
             pass
 
 # --- 🚀 START ---
 
 async def main():
-    print("Hex Terminal FINAL Version")
-    print("Premium UI with Quote Formatting")
+    print("Hex OSINT Bot ULTIMATE EDITION")
+    print("Premium UI with Unique Emojis")
     print("All features working!")
     
     try:
