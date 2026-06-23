@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot ULTIMATE EDITION
+# bot.py - Hex OSINT Bot FINAL WORKING
 
 import logging
 import asyncio
@@ -73,11 +73,9 @@ BOT_NAME = "𝗛𝗲𝘅 𝗢𝗦𝗜𝗡𝗧 𝗕𝗼𝘁"
 BOT_USERNAME = "Hex_Terminal_bot"
 DEV_NAME = "@HeX_CiPhEr"
 
-# --- ALL PREMIUM EMOJI IDs (UNIQUE FOR EACH) ---
+# --- ALL PREMIUM EMOJI IDs ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
-# Welcome & Dashboard Emojis
-E_WELCOME = PE("6266969287638913443", "✨")
 E_DIAMOND = PE("6264791387032523779", "💎")
 E_CROWN = PE("6267128480601741166", "👑")
 E_STAR = PE("6266969287638913443", "⭐")
@@ -91,7 +89,6 @@ E_WARN = PE("6267039884016358504", "⚠️")
 E_LOCK = PE("5316522278056399236", "🔒")
 E_CREDIT = PE("6267068789146260253", "💰")
 E_CLOCK = PE("5382194935057372936", "⏱")
-E_REFRESH = PE("5375338737028841420", "🔄")
 E_USERS = PE("5244933196230972438", "👥")
 E_USER = PE("5249053508681883137", "👤")
 E_LINK = PE("5271604874419647061", "🔗")
@@ -100,38 +97,7 @@ E_TICKET = PE("5285515895534278367", "🎫")
 E_TOOLS = PE("5462921117423384478", "🛠️")
 E_DISABLED = PE("5373165973203348165", "📴")
 E_SPARKLE = PE("5467683093693354332", "✨")
-E_ROCKET = PE("5195033767969839232", "🚀")
-E_FIRE = PE("6264785189394717307", "🔥")
 E_SEARCH = PE("5231012545799666522", "🔍")
-E_BELL = PE("5382194935057372936", "🔔")
-E_PARTY = PE("5203996991054432397", "🎉")
-E_TROPHY = PE("6267128480601741166", "🏆")
-E_MEDAL = PE("6264791387032523779", "🏅")
-E_SHIELD = PE("5316522278056399236", "🛡️")
-E_ROBOT = PE("5462921117423384478", "🤖")
-E_CYBER = PE("5321141214735508486", "💻")
-E_CLOUD = PE("5386367538735104399", "☁️")
-E_SUN = PE("6266969287638913443", "☀️")
-E_MOON = PE("5382194935057372936", "🌙")
-E_STARS = PE("5467683093693354332", "🌠")
-E_OCEAN = PE("6284779941489812433", "🌊")
-E_CITY = PE("5388927107315283144", "🏙️")
-E_WAVE = PE("6147892053796725336", "👋")
-E_HANDSHAKE = PE("5244933196230972438", "🤝")
-E_SWORD = PE("6264785189394717307", "⚔️")
-E_GHOST = PE("5231012545799666522", "👻")
-E_FLOWER = PE("5391032818111363540", "🌸")
-E_LEAF = PE("6264785189394717307", "🍃")
-E_COFFEE = PE("5386367538735104399", "☕")
-E_CAKE = PE("5203996991054432397", "🎂")
-E_PIZZA = PE("6267068789146260253", "🍕")
-E_BURGER = PE("5280955052582785391", "🍔")
-E_CANDY = PE("5203996991054432397", "🍬")
-E_COOKIE = PE("6267068789146260253", "🍪")
-E_MAGIC = PE("5467683093693354332", "🔮")
-E_CROISSANT = PE("5203996991054432397", "🥐")
-E_BAR = PE("6267039884016358504", "➖")
-E_INFINITY = PE("6266969287638913443", "∞")
 E_PHONE = PE("5947494995798789024", "📞")
 E_PHONE2 = PE("5406809207947142040", "📲")
 E_BANK = PE("5264895611517300926", "🏦")
@@ -146,17 +112,8 @@ E_NETWORK = PE("5321141214735508486", "📡")
 E_SIGNAL = PE("6147892053796725336", "📶")
 E_SIM = PE("5800717980266403037", "💳")
 E_CHART = PE("6093382540784046658", "📊")
-E_BOOK = PE("5260561650213220533", "📖")
-E_TARGET = PE("5231012545799666522", "🎯")
-E_FLAG = PE("6284779941489812433", "🏁")
-E_KEY = PE("5316522278056399236", "🔑")
-E_HEART = PE("6264785189394717307", "❤️")
-E_GLOBE = PE("6284779941489812433", "🌐")
-E_COMPASS = PE("5391032818111363540", "🧭")
-E_BOLT2 = PE("6284971355297290197", "⚡")
-E_CROWN2 = PE("6267128480601741166", "👑")
-E_CHECK2 = PE("6267008582294705964", "✅")
-E_STAR3 = PE("6266969287638913443", "⭐️")
+E_WAVE = PE("6147892053796725336", "👋")
+E_INFINITY = PE("6266969287638913443", "∞")
 E_IFSC = PE("5264895611517300926", "🏦")
 E_AADHAAR = PE("5260561650213220533", "🪪")
 E_INDIA_NUM = PE("6284779941489812433", "🇮🇳")
@@ -275,15 +232,15 @@ def redeem_code(uid, code):
     codes = load_json(REDEEM_FILE)
     code = code.upper().strip()
     if code not in codes:
-        return False, f"{E_CROSS} ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ"
+        return False, f"{E_CROSS} Invalid code"
     if codes[code].get("used"):
-        return False, f"{E_CROSS} ᴀʟʀᴇᴀᴅʏ ᴜꜱᴇᴅ"
+        return False, f"{E_CROSS} Already used"
     cr = codes[code]["credits"]
     codes[code]["used"] = True
     codes[code]["used_by"] = str(uid)
     save_json(REDEEM_FILE, codes)
     bal = add_credits(uid, cr)
-    return True, f"{E_CHECK} +{cr} ᴄʀᴇᴅɪᴛꜱ ᴀᴅᴅᴇᴅ!\n{E_CREDIT} ʙᴀʟᴀɴᴄᴇ: {bal}"
+    return True, f"{E_CHECK} +{cr} credits added!\n{E_CREDIT} Balance: {bal}"
 
 def get_settings():
     try:
@@ -380,18 +337,18 @@ def check_feature_maintenance(feature_key):
 async def show_verification_page(event):
     try:
         txt = (
-            f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
+            f"<b>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</b>\n"
             f"<b>@{BOT_USERNAME}</b>\n\n"
-            f"<blockquote>{E_LOCK} VERIFICATION REQUIRED</blockquote>\n"
+            f"{E_LOCK} <b>VERIFICATION REQUIRED</b>\n"
             f"JOIN BOTH CHANNELS TO UNLOCK\n\n"
-            f"<blockquote>{E_STAR2} GUIDELINES:</blockquote>\n"
+            f"{E_STAR2} <b>GUIDELINES:</b>\n"
             f"• EDUCATIONAL PURPOSES ONLY\n"
             f"• USE ON YOUR OWN DATA\n"
             f"• RESPECT PRIVACY LAWS\n\n"
-            f"<blockquote>{E_GIFT} +{DAILY_FREE_CREDITS} DAILY {E_STAR}</blockquote>\n"
-            f"<blockquote>{E_USERS} +{INVITE_CREDITS} PER INVITE</blockquote>\n"
-            f"<blockquote>{E_CLOCK} {AUTO_DELETE_TIME}s AUTO DELETE</blockquote>\n\n"
-            f"<blockquote>{E_CROWN} OWNER: @Hexh4ckerOFC</blockquote>"
+            f"{E_GIFT} +{DAILY_FREE_CREDITS} DAILY {E_STAR}\n"
+            f"{E_USERS} +{INVITE_CREDITS} PER INVITE\n"
+            f"{E_CLOCK} {AUTO_DELETE_TIME}s AUTO DELETE\n\n"
+            f"{E_CROWN} <b>OWNER: @Hexh4ckerOFC</b>"
         )
         
         button1 = KeyboardButtonUrl(text="📢 JOIN CHANNEL 1", url=LINK_1)
@@ -514,12 +471,12 @@ def parse_all_india_records(raw):
             continue
         record = {}
         for field, label in {
-            'Name': f'{E_USER} NAME',
-            "Father's Name": f'{E_HOME} FATHER',
-            'Mobile': f'{E_PHONE2} MOBILE',
-            'Address': f'{E_LOCATION} ADDRESS',
-            'Circle': f'{E_NETWORK} CIRCLE',
-            'State': f'{E_STATE} STATE'
+            'Name': 'NAME',
+            "Father's Name": 'FATHER',
+            'Mobile': 'MOBILE',
+            'Address': 'ADDRESS',
+            'Circle': 'CIRCLE',
+            'State': 'STATE'
         }.items():
             match = re.search(rf'{re.escape(field)}:\s*([^\n]+)', section, re.IGNORECASE)
             if match and match.group(1).strip() not in ['None', '', 'N/A', 'null']:
@@ -544,18 +501,18 @@ def parse_all_india_records(raw):
 
 def format_records_result(records, search_type):
     if not records:
-        return f"<blockquote>{E_CROSS} NO RECORDS FOUND</blockquote>"
+        return f"{E_CROSS} NO RECORDS FOUND"
     title = {
         'aadhaar': f'{E_AADHAAR} AADHAR',
         'mobile': f'{E_INDIA_NUM} INDIAN NUMBER',
         'vehicle': f'{E_RC} VEHICLE'
     }.get(search_type, f'{E_CHART} RESULT')
-    result = f"<blockquote>{E_SPARKLE} {title} {E_SPARKLE}</blockquote>\n"
-    result += f"<blockquote>{E_CHART} TOTAL: {len(records)}</blockquote>\n"
+    result = f"{E_SPARKLE} {title} {E_SPARKLE}\n"
+    result += f"{E_CHART} TOTAL: {len(records)}\n"
     for i, record in enumerate(records, 1):
-        result += f"\n<blockquote>━━ {E_USER} RECORD {i} ━━</blockquote>\n"
+        result += f"\n━━ {E_USER} RECORD {i} ━━\n"
         for key, value in record.items():
-            result += f"<blockquote>{key}: <code>{value}</code></blockquote>\n"
+            result += f"{key}: {value}\n"
     return result
 
 # --- 🔗 API FUNCTIONS ---
@@ -581,54 +538,54 @@ async def safe_api_fetch(session, url, timeout=20):
 async def ifsc_lookup(session, code):
     data = await safe_api_fetch(session, f"{IFSC_API}{code.upper()}")
     if not data or isinstance(data, dict) and data.get("raw_text"):
-        return f"<blockquote>{E_CROSS} SERVICE UNAVAILABLE</blockquote>"
+        return f"{E_CROSS} SERVICE UNAVAILABLE"
     if isinstance(data, dict):
-        return (f"<blockquote>{E_SPARKLE} {E_IFSC} BANK IFSC DETAILS {E_SPARKLE}</blockquote>\n"
-                f"<blockquote>{E_BANK} BANK: <code>{data.get('BANK','N/A')}</code></blockquote>\n"
-                f"<blockquote>{E_LOCATION} BRANCH: <code>{data.get('BRANCH','N/A')}</code></blockquote>\n"
-                f"<blockquote>{E_CARD} IFSC: <code>{data.get('IFSC',code.upper())}</code></blockquote>\n"
-                f"<blockquote>{E_LOCATION} ADDRESS: <code>{data.get('ADDRESS','N/A')}</code></blockquote>")
-    return f"<blockquote>{E_CROSS} INVALID CODE</blockquote>"
+        return (f"{E_SPARKLE} {E_IFSC} BANK IFSC DETAILS {E_SPARKLE}\n"
+                f"{E_BANK} BANK: {data.get('BANK','N/A')}\n"
+                f"{E_LOCATION} BRANCH: {data.get('BRANCH','N/A')}\n"
+                f"{E_CARD} IFSC: {data.get('IFSC',code.upper())}\n"
+                f"{E_LOCATION} ADDRESS: {data.get('ADDRESS','N/A')}")
+    return f"{E_CROSS} INVALID CODE"
 
 async def gst_lookup(session, gst_number):
     data = await safe_api_fetch(session, f"{GST_API}{gst_number.upper()}", timeout=20)
     if not data or isinstance(data, dict) and data.get("raw_text"):
-        return f"<blockquote>{E_CROSS} SERVICE UNAVAILABLE</blockquote>"
+        return f"{E_CROSS} SERVICE UNAVAILABLE"
     if isinstance(data, dict) and data.get("status") == "success" and data.get("data"):
         d = data["data"]
-        result = f"<blockquote>{E_SPARKLE} {E_GST} GST INFO {E_SPARKLE}</blockquote>\n"
+        result = f"{E_SPARKLE} {E_GST} GST INFO {E_SPARKLE}\n"
         if d.get('TradeName'):
-            result += f"<blockquote>{E_BANK} BUSINESS: <code>{d['TradeName']}</code></blockquote>\n"
+            result += f"{E_BANK} BUSINESS: {d['TradeName']}\n"
         if d.get('Gstin'):
-            result += f"<blockquote>{E_CARD} GST: <code>{d['Gstin']}</code></blockquote>\n"
+            result += f"{E_CARD} GST: {d['Gstin']}\n"
         return result
-    return f"<blockquote>{E_CROSS} INVALID GST</blockquote>"
+    return f"{E_CROSS} INVALID GST"
 
 async def pakistan_lookup(session, number):
     try:
         data = await safe_api_fetch(session, f"{PAK_API}{number}", timeout=20)
         if not data or isinstance(data, dict) and data.get("raw_text"):
-            return f"<blockquote>{E_CROSS} SERVICE UNAVAILABLE</blockquote>"
+            return f"{E_CROSS} SERVICE UNAVAILABLE"
         if isinstance(data, dict) and data.get("success") and data.get("data"):
             valid = [r for r in data["data"] if isinstance(r, dict) and any(r.get(k) for k in ['name', 'number', 'cnic', 'address'])]
             if not valid:
-                return f"<blockquote>{E_CROSS} NO DATA</blockquote>"
-            result = f"<blockquote>{E_SPARKLE} {E_PAK_NUM} PAKISTAN NUMBER INFO {E_SPARKLE}</blockquote>\n"
+                return f"{E_CROSS} NO DATA"
+            result = f"{E_SPARKLE} {E_PAK_NUM} PAKISTAN NUMBER INFO {E_SPARKLE}\n"
             for i, r in enumerate(valid[:3], 1):
                 if len(valid) > 1:
-                    result += f"\n<blockquote>━━ {E_USER} RECORD {i} ━━</blockquote>\n"
+                    result += f"\n━━ {E_USER} RECORD {i} ━━\n"
                 if r.get('number'):
-                    result += f"<blockquote>{E_PHONE2} PHONE: <code>{r['number']}</code></blockquote>\n"
+                    result += f"{E_PHONE2} PHONE: {r['number']}\n"
                 if r.get('name'):
-                    result += f"<blockquote>{E_USER} NAME: <code>{r['name']}</code></blockquote>\n"
+                    result += f"{E_USER} NAME: {r['name']}\n"
                 if r.get('cnic'):
-                    result += f"<blockquote>{E_CARD} CNIC: <code>{r['cnic']}</code></blockquote>\n"
+                    result += f"{E_CARD} CNIC: {r['cnic']}\n"
                 if r.get('address'):
-                    result += f"<blockquote>{E_LOCATION} ADDRESS: <code>{r['address'][:200]}</code></blockquote>\n"
+                    result += f"{E_LOCATION} ADDRESS: {r['address'][:200]}\n"
             return result
-        return f"<blockquote>{E_CROSS} NO DATA</blockquote>"
+        return f"{E_CROSS} NO DATA"
     except:
-        return f"<blockquote>{E_CROSS} ERROR</blockquote>"
+        return f"{E_CROSS} ERROR"
 
 # --- 👑 ADMIN ---
 
@@ -656,7 +613,7 @@ async def admin_panel(event):
         rows.append(KeyboardButtonRow(buttons=row))
     
     markup = ReplyInlineMarkup(rows=rows)
-    txt = f"<blockquote>{E_ADMIN} ADMIN PANEL {E_ADMIN}</blockquote>\n<blockquote>{E_USERS} USERS: {len(load_json(USERS_FILE))} | {E_TICKET} CODES: {len(load_json(REDEEM_FILE))}</blockquote>"
+    txt = f"{E_ADMIN} ADMIN PANEL {E_ADMIN}\n{E_USERS} USERS: {len(load_json(USERS_FILE))} | {E_REDEEM} CODES: {len(load_json(REDEEM_FILE))}"
     
     if hasattr(event, 'data'):
         await event.edit(txt, buttons=markup)
@@ -674,23 +631,23 @@ async def admin_callback(event):
         await event.delete()
     elif d == "ad_codes":
         codes = load_json(REDEEM_FILE)
-        txt = f"<blockquote>{E_TICKET} CODES: {len(codes)}</blockquote>\n"
+        txt = f"{E_REDEEM} CODES: {len(codes)}\n"
         for c, v in list(codes.items())[-15:]:
-            txt += f"<blockquote>{E_CHECK if not v.get('used') else E_CROSS} {c} | {v.get('credits')}cr</blockquote>\n"
+            txt += f"{E_CHECK if not v.get('used') else E_CROSS} {c} | {v.get('credits')}cr\n"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
         await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_gen":
         ADMIN_STATE[event.sender_id] = "gen"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit(f"<blockquote>{E_TICKET} ENTER CREDITS:</blockquote>\n<i>100</i>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
+        await event.edit(f"{E_TICKET} ENTER CREDITS:\n100", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_credit":
         ADMIN_STATE[event.sender_id] = "credit"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit(f"<blockquote>{E_GIFT} ENTER ID AMOUNT:</blockquote>\n<i>123456789 50</i>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
+        await event.edit(f"{E_GIFT} ENTER ID AMOUNT:\n123456789 50", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_bcast":
         ADMIN_STATE[event.sender_id] = "bcast"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
-        await event.edit(f"<blockquote>{E_BOLT} ENTER MESSAGE:</blockquote>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
+        await event.edit(f"{E_BOLT} ENTER MESSAGE:", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="Back", data=b"ad_back")])]))
     elif d == "ad_maint":
         s["maintenance_mode"] = not s.get("maintenance_mode", False)
         save_settings(s)
@@ -735,7 +692,7 @@ async def start(event):
                 if data.get("invite_code") == args[1] and inviter != str(uid):
                     cr = process_invite(inviter, uid)
                     try:
-                        await send_html(int(inviter), f"<blockquote>{E_GIFT} +{cr} CREDITS! NEW USER JOINED!</blockquote>")
+                        await send_html(int(inviter), f"{E_GIFT} +{cr} CREDITS! NEW USER JOINED!")
                     except:
                         pass
                     break
@@ -809,22 +766,21 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     name = event.sender.first_name or "User"
     
+    # SIMPLE CLEAN WELCOME - NO SPECIAL CHARACTERS, NO BLOCKQUOTE
     welcome_text = (
-        f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
-        f"<blockquote>@{BOT_USERNAME}</blockquote>\n\n"
-        f"<blockquote>{E_WAVE} Welcome <b>{name}</b>!</blockquote>\n\n"
-        f"<blockquote>{E_BOLT} Your Dashboard</blockquote>\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-        f"<blockquote>{E_CREDIT} Credits: <b>{cr}</b></blockquote>\n"
-        f"<blockquote>{E_CROWN} Premium: <b>{E_INFINITY} Search</b></blockquote>\n"
-        f"<blockquote>{E_CHART} Queries: <b>{user.get('total_queries',0)}</b></blockquote>\n"
-        f"<blockquote>{E_USERS} Invites: <b>{user.get('invites',0)}</b></blockquote>\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
-        f"<blockquote>{E_GEAR} Use the buttons below</blockquote>\n"
-        f"<blockquote>{E_STAR} /help for commands</blockquote>\n\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-        f"<blockquote>{E_BABY} Dev: {DEV_NAME} {E_CHECK}</blockquote>\n"
-        f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n\n"
+        f"{E_DIAMOND} {BOT_NAME} {E_DIAMOND}\n"
+        f"@{BOT_USERNAME}\n\n"
+        f"{E_WAVE} Welcome {name}!\n\n"
+        f"{E_BOLT} Your Dashboard\n"
+        f"━━━━━━━━━━━━━━━━━━━\n"
+        f"{E_CREDIT} Credits: {cr}\n"
+        f"{E_CROWN} Premium: {E_INFINITY} Search\n"
+        f"{E_CHART} Queries: {user.get('total_queries',0)}\n"
+        f"{E_USERS} Invites: {user.get('invites',0)}\n"
+        f"━━━━━━━━━━━━━━━━━━━\n\n"
+        f"{E_GEAR} Use the buttons below\n"
+        f"{E_STAR} /help for commands\n\n"
+        f"{E_BABY} Dev: {DEV_NAME} {E_CHECK}\n\n"
         f"{E_STAR2} Select a service below {E_STAR2}"
     )
     
@@ -846,7 +802,7 @@ async def msg_handler(event):
         s = get_settings()
         
         if s.get("maintenance_mode", False) and uid != ADMIN_ID:
-            m = await send_html(event.chat_id, f"<blockquote>{E_TOOLS} Under maintenance</blockquote>")
+            m = await send_html(event.chat_id, f"{E_TOOLS} Under maintenance")
             asyncio.create_task(schedule_delete(m))
             return
         
@@ -867,18 +823,18 @@ async def msg_handler(event):
                 try:
                     cr = int(txt)
                     code = generate_redeem_code(cr)
-                    msg = await send_html(event.chat_id, f"<blockquote>{E_CHECK} {code} | {E_CREDIT} {cr}cr</blockquote>")
+                    msg = await send_html(event.chat_id, f"{E_CHECK} {code} | {E_CREDIT} {cr}cr")
                 except:
-                    msg = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Number</blockquote>")
+                    msg = await send_html(event.chat_id, f"{E_CROSS} Number")
                 asyncio.create_task(schedule_delete(msg))
                 return
             elif state == "credit":
                 p = txt.split()
                 if len(p) >= 2:
                     bal = add_credits(p[0], int(p[1]))
-                    msg = await send_html(event.chat_id, f"<blockquote>{E_CHECK} +{p[1]} | {bal}</blockquote>")
+                    msg = await send_html(event.chat_id, f"{E_CHECK} +{p[1]} | {bal}")
                 else:
-                    msg = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Format: ID AMOUNT</blockquote>")
+                    msg = await send_html(event.chat_id, f"{E_CROSS} Format: ID AMOUNT")
                 asyncio.create_task(schedule_delete(msg))
                 return
             elif state == "bcast":
@@ -886,11 +842,11 @@ async def msg_handler(event):
                 cnt = 0
                 for u in users:
                     try:
-                        await send_html(int(u), f"<blockquote>{E_BOLT} {txt}</blockquote>")
+                        await send_html(int(u), f"{E_BOLT} {txt}")
                         cnt += 1
                     except:
                         pass
-                msg = await send_html(event.chat_id, f"<blockquote>{E_CHECK} Sent: {cnt}</blockquote>")
+                msg = await send_html(event.chat_id, f"{E_CHECK} Sent: {cnt}")
                 asyncio.create_task(schedule_delete(msg))
                 return
         
@@ -913,9 +869,9 @@ async def msg_handler(event):
             event.redeem_mode = False
             if txt.upper().startswith("HEX-"):
                 success, msg = redeem_code(uid, txt)
-                m = await send_html(event.chat_id, f"<blockquote>{msg}</blockquote>")
+                m = await send_html(event.chat_id, msg)
             else:
-                m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Invalid code!</blockquote>")
+                m = await send_html(event.chat_id, f"{E_CROSS} Invalid code!")
             asyncio.create_task(schedule_delete(m))
             return
         
@@ -939,30 +895,30 @@ async def msg_handler(event):
                 link = f"https://t.me/{bot_username}?start={user['invite_code']}"
                 
                 invite_msg = (
-                    f"<blockquote>{E_INVITE} Invite & Earn {E_INVITE}</blockquote>\n"
-                    f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-                    f"<blockquote>{E_USERS} +{INVITE_CREDITS} Credits per invite</blockquote>\n"
-                    f"<blockquote>{E_LINK} <code>{link}</code></blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
+                    f"{E_INVITE} Invite & Earn {E_INVITE}\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"{E_USERS} +{INVITE_CREDITS} Credits per invite\n"
+                    f"{E_LINK} {link}\n\n"
+                    f"{E_BABY} Bot made by: {DEV_NAME} {E_STAR}"
                 )
                 m = await send_html(event.chat_id, invite_msg)
                 asyncio.create_task(schedule_delete(m, 120))
                 return
             elif mode == "REDEEM":
                 event.redeem_mode = True
-                m = await send_html(event.chat_id, f"<blockquote>{E_REDEEM} Enter redeem code:</blockquote>\n<i>HEX-XXXXXXXXXX</i>")
+                m = await send_html(event.chat_id, f"{E_REDEEM} Enter redeem code:\nHEX-XXXXXXXXXX")
                 asyncio.create_task(schedule_delete(m, 30))
                 return
             
             if feature and not s.get(f"{feature}_enabled", True):
-                m = await send_html(event.chat_id, f"<blockquote>{E_DISABLED} Disabled</blockquote>")
+                m = await send_html(event.chat_id, f"{E_DISABLED} Disabled")
                 asyncio.create_task(schedule_delete(m))
                 return
             
             if feature:
                 maint, msg = check_feature_maintenance(feature)
                 if maint:
-                    m = await send_html(event.chat_id, f"<blockquote>{E_TOOLS} {msg}</blockquote>")
+                    m = await send_html(event.chat_id, f"{E_TOOLS} {msg}")
                     asyncio.create_task(schedule_delete(m))
                     return
             
@@ -970,59 +926,59 @@ async def msg_handler(event):
             
             prompts = {
                 "IFSC": (
-                    f"<blockquote>{E_IFSC} IFSC Lookup {E_IFSC}</blockquote>\n"
-                    f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR} Send IFSC code</blockquote>\n"
-                    f"<blockquote>Example: SBIN0001234, HDFC0001234</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point: 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost: 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
+                    f"{E_IFSC} IFSC Lookup {E_IFSC}\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"{E_STAR} Send IFSC code\n"
+                    f"Example: SBIN0001234, HDFC0001234\n\n"
+                    f"{E_STAR} Total Point: 2 Point\n"
+                    f"{E_STAR} Search Cost: 1 Point\n\n"
+                    f"{E_BABY} Bot made by: {DEV_NAME} {E_STAR}"
                 ),
                 "AADHAAR": (
-                    f"<blockquote>{E_AADHAAR} Aadhar Lookup {E_AADHAAR}</blockquote>\n"
-                    f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR} Send 12-digit Aadhar number</blockquote>\n"
-                    f"<blockquote>Example: 123456789012</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point: 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost: 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
+                    f"{E_AADHAAR} Aadhar Lookup {E_AADHAAR}\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"{E_STAR} Send 12-digit Aadhar number\n"
+                    f"Example: 123456789012\n\n"
+                    f"{E_STAR} Total Point: 2 Point\n"
+                    f"{E_STAR} Search Cost: 1 Point\n\n"
+                    f"{E_BABY} Bot made by: {DEV_NAME} {E_STAR}"
                 ),
                 "MOBILE": (
-                    f"<blockquote>{E_INDIA_NUM} Number Info {E_INDIA_NUM}</blockquote>\n"
-                    f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR} Send 10-digit mobile number</blockquote>\n"
-                    f"<blockquote>Example: 9876543210</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Tip: with or without +91</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point: 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost: 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
+                    f"{E_INDIA_NUM} Number Info {E_INDIA_NUM}\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"{E_STAR} Send 10-digit mobile number\n"
+                    f"Example: 9876543210\n\n"
+                    f"{E_STAR} Tip: with or without +91\n\n"
+                    f"{E_STAR} Total Point: 2 Point\n"
+                    f"{E_STAR} Search Cost: 1 Point\n\n"
+                    f"{E_BABY} Bot made by: {DEV_NAME} {E_STAR}"
                 ),
                 "VEHICLE": (
-                    f"<blockquote>{E_RC} RC Check {E_RC}</blockquote>\n"
-                    f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR} Send vehicle number</blockquote>\n"
-                    f"<blockquote>Example: KA01AB3256, DL1CX1234</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point: 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost: 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
+                    f"{E_RC} RC Check {E_RC}\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"{E_STAR} Send vehicle number\n"
+                    f"Example: KA01AB3256, DL1CX1234\n\n"
+                    f"{E_STAR} Total Point: 2 Point\n"
+                    f"{E_STAR} Search Cost: 1 Point\n\n"
+                    f"{E_BABY} Bot made by: {DEV_NAME} {E_STAR}"
                 ),
                 "GST": (
-                    f"<blockquote>{E_GST} GST Verify {E_GST}</blockquote>\n"
-                    f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR} Send GST number</blockquote>\n"
-                    f"<blockquote>Example: 19BOKPS7056D1ZI</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point: 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost: 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
+                    f"{E_GST} GST Verify {E_GST}\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"{E_STAR} Send GST number\n"
+                    f"Example: 19BOKPS7056D1ZI\n\n"
+                    f"{E_STAR} Total Point: 2 Point\n"
+                    f"{E_STAR} Search Cost: 1 Point\n\n"
+                    f"{E_BABY} Bot made by: {DEV_NAME} {E_STAR}"
                 ),
                 "PAK": (
-                    f"<blockquote>{E_PAK_NUM} Pakistan Number {E_PAK_NUM}</blockquote>\n"
-                    f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
-                    f"<blockquote>{E_STAR} Send Pakistan number</blockquote>\n"
-                    f"<blockquote>Example: 923078750447</blockquote>\n\n"
-                    f"<blockquote>{E_STAR} Total Point: 2 Point</blockquote>\n"
-                    f"<blockquote>{E_STAR} Search Cost: 1 Point</blockquote>\n\n"
-                    f"<blockquote>{E_BABY} Bot made by: {DEV_NAME} {E_STAR}</blockquote>"
+                    f"{E_PAK_NUM} Pakistan Number {E_PAK_NUM}\n"
+                    f"━━━━━━━━━━━━━━━━━━━\n"
+                    f"{E_STAR} Send Pakistan number\n"
+                    f"Example: 923078750447\n\n"
+                    f"{E_STAR} Total Point: 2 Point\n"
+                    f"{E_STAR} Search Cost: 1 Point\n\n"
+                    f"{E_BABY} Bot made by: {DEV_NAME} {E_STAR}"
                 )
             }
             if mode in prompts:
@@ -1036,14 +992,14 @@ async def msg_handler(event):
             
             if txt.upper().startswith("HEX-"):
                 success, msg = redeem_code(uid, txt)
-                m = await send_html(event.chat_id, f"<blockquote>{msg}</blockquote>")
+                m = await send_html(event.chat_id, msg)
                 asyncio.create_task(schedule_delete(m))
                 USER_MODES[uid_str] = None
                 return
             
             user = get_user(uid)
             if user.get("credits", 0) <= 0:
-                m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} No credits! +10 daily | +3 invite</blockquote>")
+                m = await send_html(event.chat_id, f"{E_CROSS} No credits! +10 daily | +3 invite")
                 asyncio.create_task(schedule_delete(m))
                 USER_MODES[uid_str] = None
                 return
@@ -1057,15 +1013,15 @@ async def msg_handler(event):
 
 async def run_query(event, mode, query):
     if not await net_ok():
-        m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} No internet</blockquote>")
+        m = await send_html(event.chat_id, f"{E_CROSS} No internet")
         asyncio.create_task(schedule_delete(m))
         return
     
-    st = await send_html(event.chat_id, f"<blockquote>{E_SEARCH} Searching...</blockquote>")
+    st = await send_html(event.chat_id, f"{E_SEARCH} Searching...")
     
     for i in range(5):
         try:
-            await edit_html(st, f"<blockquote>{E_SEARCH} Searching... {i+1}/5</blockquote>")
+            await edit_html(st, f"{E_SEARCH} Searching... {i+1}/5")
             await asyncio.sleep(0.4)
         except:
             pass
@@ -1083,7 +1039,7 @@ async def run_query(event, mode, query):
                     use_credit(event.sender_id)
                     credit_deducted = True
             else:
-                result = f"<blockquote>{E_CROSS} Script failed</blockquote>"
+                result = f"{E_CROSS} Script failed"
         else:
             async with aiohttp.ClientSession() as s:
                 if mode == 'IFSC':
@@ -1100,13 +1056,13 @@ async def run_query(event, mode, query):
                 credit_deducted = True
         
         user = get_user(event.sender_id)
-        final = f"{result}\n{SEP}\n<blockquote>{E_CREDIT} {'Credits: '+str(user.get('credits',0)) if credit_deducted else 'No credit deducted'} | {E_CLOCK} {AUTO_DELETE_TIME}s</blockquote>\n\n{E_DIAMOND} Powered by @Hexh4ckerOFC {E_DIAMOND}"
+        final = f"{result}\n{SEP}\n{E_CREDIT} {'Credits: '+str(user.get('credits',0)) if credit_deducted else 'No credit deducted'} | {E_CLOCK} {AUTO_DELETE_TIME}s\n\n{E_DIAMOND} Powered by @Hexh4ckerOFC {E_DIAMOND}"
         sent = await edit_html(st, final)
         asyncio.create_task(schedule_delete(sent))
     except Exception as e:
         logger.error(f"Query error: {e}")
         try:
-            await edit_html(st, f"<blockquote>{E_WARN} Error</blockquote>\n\n{E_DIAMOND} Powered by @Hexh4ckerOFC {E_DIAMOND}")
+            await edit_html(st, f"{E_WARN} Error\n\n{E_DIAMOND} Powered by @Hexh4ckerOFC {E_DIAMOND}")
         except:
             pass
 
