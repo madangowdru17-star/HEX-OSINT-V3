@@ -1,4 +1,4 @@
-# bot.py - Hex Terminal with Premium Emojis & Working Features
+# bot.py - Hex Terminal with Working Features
 
 import logging
 import asyncio
@@ -119,12 +119,6 @@ EMOJI_SIM = PE("5800717980266403037", "💳")
 EMOJI_CHART = PE("6093382540784046658", "📊")
 EMOJI_ROCKET2 = PE("5195033767969839232", "🚀")
 EMOJI_CLOCK2 = PE("5382194935057372936", "⏱")
-EMOJI_MAIL = PE("5249053508681883137", "📧")
-EMOJI_GEAR = PE("5462921117423384478", "⚙️")
-EMOJI_TARGET = PE("5231012545799666522", "🎯")
-EMOJI_FLAG = PE("6284779941489812433", "🏁")
-EMOJI_KEY = PE("5316522278056399236", "🔑")
-EMOJI_HEART = PE("6264785189394717307", "❤️")
 
 # --- SEPARATE ICON IDs FOR EACH BUTTON ---
 ICON_TG = 5947494995798789024
@@ -150,6 +144,9 @@ logger = logging.getLogger(__name__)
 # Create client
 client = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 ADMIN_STATE = {}
+
+# --- USER MODE STORAGE (FIX FOR MODE) ---
+USER_MODES = {}
 
 # --- 💾 DATA FUNCTIONS ---
 
@@ -359,27 +356,6 @@ async def edit_html(msg, text, reply_markup=None):
         buttons=reply_markup,
         parse_mode='html'
     )
-
-async def loading_animation(msg, name):
-    bars = [
-        "🟩⬛⬛⬛⬛⬛⬛⬛⬛⬛",
-        "🟩🟩⬛⬛⬛⬛⬛⬛⬛⬛",
-        "🟩🟩🟩⬛⬛⬛⬛⬛⬛⬛",
-        "🟩🟩🟩🟩⬛⬛⬛⬛⬛⬛",
-        "🟩🟩🟩🟩🟩⬛⬛⬛⬛⬛",
-        "🟩🟩🟩🟩🟩🟩⬛⬛⬛⬛",
-        "🟩🟩🟩🟩🟩🟩🟩⬛⬛⬛",
-        "🟩🟩🟩🟩🟩🟩🟩🟩⬛⬛",
-        "🟩🟩🟩🟩🟩🟩🟩🟩🟩⬛",
-        "🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩"
-    ]
-    percentages = ["0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"]
-    for i, bar in enumerate(bars):
-        try:
-            await edit_html(msg, f"<blockquote>{EMOJI_BOLT} {name}</blockquote>\n<code>{bar} {percentages[i]}</code>")
-            await asyncio.sleep(0.2)
-        except:
-            break
 
 def check_feature_maintenance(feature_key):
     s = get_settings()
@@ -1052,7 +1028,7 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
-        # Feature buttons mapping
+        # Feature buttons mapping - STORE MODE IN GLOBAL DICT
         mode = None
         feature_map = {
             "TG ID -> Phone Number": ("TG", "tgid"),
@@ -1098,8 +1074,9 @@ async def msg_handler(event):
                     asyncio.create_task(schedule_delete(m))
                     return
             
-            # Set mode and prompt for input
-            event.mode = mode
+            # STORE MODE IN GLOBAL DICT
+            USER_MODES[str(uid)] = mode
+            
             prompts = {
                 "TG": f"{EMOJI_PHONE} ᴇɴᴛᴇʀ ᴛɢ ɪᴅ:\n7123181749, 6884112825",
                 "IFSC": f"{EMOJI_BANK} ᴇɴᴛᴇʀ ɪꜰꜱᴄ:\nSBIN0001234, HDFC0001234",
@@ -1117,16 +1094,17 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(m))
             return
         
-        # Handle query mode - THIS IS WHERE THE INPUT IS PROCESSED
-        if hasattr(event, 'mode') and event.mode:
-            mode = event.mode
+        # Handle query mode - CHECK GLOBAL DICT
+        uid_str = str(uid)
+        if uid_str in USER_MODES and USER_MODES[uid_str]:
+            mode = USER_MODES[uid_str]
             
             # Check if it's a redeem code
             if txt.upper().startswith("HEX-"):
                 success, msg = redeem_code(uid, txt)
                 m = await send_html(event.chat_id, msg)
                 asyncio.create_task(schedule_delete(m))
-                event.mode = None
+                USER_MODES[uid_str] = None
                 return
             
             # Check credits
@@ -1134,21 +1112,13 @@ async def msg_handler(event):
             if user.get("credits", 0) <= 0:
                 m = await send_html(event.chat_id, f"{EMOJI_CROSS} No credits! +10 daily | +3 invite")
                 asyncio.create_task(schedule_delete(m))
-                event.mode = None
+                USER_MODES[uid_str] = None
                 return
             
             # Process the query
             await run_query(event, mode, txt)
-            event.mode = None
+            USER_MODES[uid_str] = None
             return
-        
-        # If no mode is set, but user sent a number, check if it's a valid input
-        # This handles the case where user just types a number without selecting a feature
-        if txt.isdigit() and len(txt) >= 10:
-            # Try to detect what mode they want based on context
-            if hasattr(event, 'last_mode') and event.last_mode:
-                await run_query(event, event.last_mode, txt)
-                return
         
     except Exception as e:
         logger.error(f"Msg handler error: {e}")
@@ -1173,7 +1143,19 @@ async def run_query(event, mode, query):
     }
     
     st = await send_html(event.chat_id, f"{EMOJI_GREEN} ꜱᴇᴀʀᴄʜɪɴɢ...")
-    lt = asyncio.create_task(loading_animation(st, names.get(mode, '')))
+    
+    # Simple loading animation with 5 emoji IDs
+    loading_emojis = [
+        "⏳", "🔍", "📡", "🔄", "⚡"
+    ]
+    
+    for i, emoji in enumerate(loading_emojis):
+        try:
+            await edit_html(st, f"{emoji} ꜱᴇᴀʀᴄʜɪɴɢ... {i+1}/5")
+            await asyncio.sleep(0.5)
+        except:
+            pass
+    
     credit_deducted = False
     
     try:
@@ -1211,18 +1193,11 @@ async def run_query(event, mode, query):
                 use_credit(event.sender_id)
                 credit_deducted = True
         
-        lt.cancel()
-        try:
-            await lt
-        except asyncio.CancelledError:
-            pass
-        
         user = get_user(event.sender_id)
         final = f"{result}\n{SEP}\n{EMOJI_CREDIT} {'ᴄʀ: '+str(user.get('credits',0)) if credit_deducted else 'ɴᴏ ᴄʀ ᴅᴇᴅᴜᴄᴛᴇᴅ'} | {EMOJI_CLOCK} {AUTO_DELETE_TIME}ꜱ{DISCLAIMER}{FOOTER}"
         sent = await edit_html(st, final)
         asyncio.create_task(schedule_delete(sent))
     except Exception as e:
-        lt.cancel()
         logger.error(f"Query error: {e}")
         try:
             await edit_html(st, f"{EMOJI_WARN} Error{FOOTER}")
