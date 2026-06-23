@@ -73,10 +73,10 @@ BOT_NAME = "𝗛𝗲𝘅 𝗢𝗦𝗜𝗡𝗧 𝗕𝗼𝘁"
 BOT_USERNAME = "Hex_Terminal_bot"
 DEV_NAME = "@HeX_CiPhEr"
 
-# --- PREMIUM EMOJI IDs ---
+# --- ALL PREMIUM EMOJI IDs ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
-# Text emojis
+# Main emojis
 E_STAR = PE("6266969287638913443", "⭐")
 E_DIAMOND = PE("6264791387032523779", "💎")
 E_CROWN = PE("6267128480601741166", "👑")
@@ -157,6 +157,11 @@ E_STAR3 = PE("6266969287638913443", "⭐️")
 E_BABY = PE("6264785189394717307", "🍼")
 E_CHECK2 = PE("6267008582294705964", "✅")
 E_BAR = PE("6267039884016358504", "➖")
+E_BOLT2 = PE("6284971355297290197", "⚡")
+E_SPARK = PE("5467683093693354332", "✨")
+E_TARGET2 = PE("5231012545799666522", "🎯")
+E_BOOK2 = PE("5260561650213220533", "📚")
+E_STAR4 = PE("6266969287638913443", "🌟")
 
 # --- BUTTON ICON IDs ---
 ICON_IFSC = 5264895611517300926
@@ -369,7 +374,7 @@ def check_feature_maintenance(feature_key):
 async def show_verification_page(event):
     try:
         txt = (
-            f"<b>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</b>\n"
+            f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
             f"<b>@{BOT_USERNAME}</b>\n\n"
             f"{E_LOCK} <b>ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ ʀᴇQᴜɪʀᴇᴅ</b>\n"
             f"ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ᴛᴏ ᴜɴʟᴏᴄᴋ\n\n"
@@ -539,12 +544,12 @@ def format_records_result(records, search_type):
         'mobile': f'{E_INDIA} ɪɴᴅɪᴀɴ ɴᴜᴍʙᴇʀ',
         'vehicle': f'{E_CAR} ᴠᴇʜɪᴄʟᴇ'
     }.get(search_type, f'{E_CHART} ʀᴇꜱᴜʟᴛ')
-    result = f"{E_SPARKLE} {title} {E_SPARKLE}\n{E_CHART} ᴛᴏᴛᴀʟ: {len(records)}\n"
+    result = f"<blockquote>{E_SPARKLE} {title} {E_SPARKLE}</blockquote>\n"
+    result += f"<blockquote>{E_CHART} ᴛᴏᴛᴀʟ: {len(records)}</blockquote>\n"
     for i, record in enumerate(records, 1):
-        if len(records) > 1:
-            result += f"\n━━ {E_USER} ʀᴇᴄᴏʀᴅ {i} ━━\n"
+        result += f"\n<blockquote>━━ {E_USER} ʀᴇᴄᴏʀᴅ {i} ━━</blockquote>\n"
         for key, value in record.items():
-            result += f"{key}: {value}\n"
+            result += f"<blockquote>{key}: <code>{value}</code></blockquote>\n"
     return result
 
 # --- 🔗 API FUNCTIONS ---
@@ -572,11 +577,11 @@ async def ifsc_lookup(session, code):
     if not data or isinstance(data, dict) and data.get("raw_text"):
         return f"{E_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
     if isinstance(data, dict):
-        return (f"{E_SPARKLE} {E_BANK} ʙᴀɴᴋ ɪꜰꜱᴄ ᴅᴇᴛᴀɪʟꜱ {E_SPARKLE}\n"
-                f"{E_BANK} ʙᴀɴᴋ: {data.get('BANK','N/A')}\n"
-                f"{E_LOCATION} ʙʀᴀɴᴄʜ: {data.get('BRANCH','N/A')}\n"
-                f"{E_CARD} ɪꜰꜱᴄ: {data.get('IFSC',code.upper())}\n"
-                f"{E_LOCATION} ᴀᴅᴅʀᴇꜱꜱ: {data.get('ADDRESS','N/A')}")
+        return (f"<blockquote>{E_SPARKLE} {E_BANK} ʙᴀɴᴋ ɪꜰꜱᴄ ᴅᴇᴛᴀɪʟꜱ {E_SPARKLE}</blockquote>\n"
+                f"<blockquote>{E_BANK} ʙᴀɴᴋ: <code>{data.get('BANK','N/A')}</code></blockquote>\n"
+                f"<blockquote>{E_LOCATION} ʙʀᴀɴᴄʜ: <code>{data.get('BRANCH','N/A')}</code></blockquote>\n"
+                f"<blockquote>{E_CARD} ɪꜰꜱᴄ: <code>{data.get('IFSC',code.upper())}</code></blockquote>\n"
+                f"<blockquote>{E_LOCATION} ᴀᴅᴅʀᴇꜱꜱ: <code>{data.get('ADDRESS','N/A')}</code></blockquote>")
     return f"{E_CROSS} ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ"
 
 async def gst_lookup(session, gst_number):
@@ -585,11 +590,11 @@ async def gst_lookup(session, gst_number):
         return f"{E_CROSS} ꜱᴇʀᴠɪᴄᴇ ᴜɴᴀᴠᴀɪʟᴀʙʟᴇ"
     if isinstance(data, dict) and data.get("status") == "success" and data.get("data"):
         d = data["data"]
-        result = f"{E_SPARKLE} {E_CARD} ɢꜱᴛ ɪɴꜰᴏ {E_SPARKLE}\n"
+        result = f"<blockquote>{E_SPARKLE} {E_CARD} ɢꜱᴛ ɪɴꜰᴏ {E_SPARKLE}</blockquote>\n"
         if d.get('TradeName'):
-            result += f"{E_BANK} ʙᴜꜱɪɴᴇꜱꜱ: {d['TradeName']}\n"
+            result += f"<blockquote>{E_BANK} ʙᴜꜱɪɴᴇꜱꜱ: <code>{d['TradeName']}</code></blockquote>\n"
         if d.get('Gstin'):
-            result += f"{E_CARD} ɢꜱᴛ: {d['Gstin']}\n"
+            result += f"<blockquote>{E_CARD} ɢꜱᴛ: <code>{d['Gstin']}</code></blockquote>\n"
         return result
     return f"{E_CROSS} ɪɴᴠᴀʟɪᴅ ɢꜱᴛ"
 
@@ -602,18 +607,18 @@ async def pakistan_lookup(session, number):
             valid = [r for r in data["data"] if isinstance(r, dict) and any(r.get(k) for k in ['name', 'number', 'cnic', 'address'])]
             if not valid:
                 return f"{E_CROSS} ɴᴏ ᴅᴀᴛᴀ"
-            result = f"{E_SPARKLE} {E_PAK} ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ {E_SPARKLE}\n"
+            result = f"<blockquote>{E_SPARKLE} {E_PAK} ᴘᴀᴋɪꜱᴛᴀɴ ɴᴜᴍʙᴇʀ ɪɴꜰᴏ {E_SPARKLE}</blockquote>\n"
             for i, r in enumerate(valid[:3], 1):
                 if len(valid) > 1:
-                    result += f"\n━━ {E_USER} ʀᴇᴄᴏʀᴅ {i} ━━\n"
+                    result += f"\n<blockquote>━━ {E_USER} ʀᴇᴄᴏʀᴅ {i} ━━</blockquote>\n"
                 if r.get('number'):
-                    result += f"{E_PHONE2} ᴘʜᴏɴᴇ: {r['number']}\n"
+                    result += f"<blockquote>{E_PHONE2} ᴘʜᴏɴᴇ: <code>{r['number']}</code></blockquote>\n"
                 if r.get('name'):
-                    result += f"{E_USER} ɴᴀᴍᴇ: {r['name']}\n"
+                    result += f"<blockquote>{E_USER} ɴᴀᴍᴇ: <code>{r['name']}</code></blockquote>\n"
                 if r.get('cnic'):
-                    result += f"{E_CARD} ᴄɴɪᴄ: {r['cnic']}\n"
+                    result += f"<blockquote>{E_CARD} ᴄɴɪᴄ: <code>{r['cnic']}</code></blockquote>\n"
                 if r.get('address'):
-                    result += f"{E_LOCATION} ᴀᴅᴅʀᴇꜱꜱ: {r['address'][:200]}\n"
+                    result += f"<blockquote>{E_LOCATION} ᴀᴅᴅʀᴇꜱꜱ: <code>{r['address'][:200]}</code></blockquote>\n"
             return result
         return f"{E_CROSS} ɴᴏ ᴅᴀᴛᴀ"
     except:
@@ -794,7 +799,6 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     name = event.sender.first_name or "User"
     
-    # Clean welcome message with Telegram Quote UI
     welcome_text = (
         f"<blockquote>{E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR} {E_BAR}</blockquote>\n"
         f"<blockquote>{E_WELCOME} Wᴇʟᴄᴏᴍᴇ Tᴏ Oᴜʀ Iɴꜰᴏʀᴍᴀᴛɪᴏɴ Bᴏᴛ {E_CROISSANT}</blockquote>\n"
