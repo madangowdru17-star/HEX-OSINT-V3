@@ -162,6 +162,9 @@ E_SPARK = PE("5467683093693354332", "✨")
 E_TARGET2 = PE("5231012545799666522", "🎯")
 E_BOOK2 = PE("5260561650213220533", "📚")
 E_STAR4 = PE("6266969287638913443", "🌟")
+E_PRIMARY = PE("5258096772776991776", "🔵")
+E_SUCCESS = PE("5258503720928288433", "🟢")
+E_DANGER = PE("5258331647358540449", "🔴")
 
 # --- BUTTON ICON IDs ---
 ICON_IFSC = 5264895611517300926
@@ -174,6 +177,7 @@ ICON_INVITE = 5244933196230972438
 ICON_REDEEM = 5285515895534278367
 ICON_ADMIN = 6267128480601741166
 ICON_NEXT = 5258331647358540449
+ICON_PRIMARY = 5258096772776991776
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -721,6 +725,8 @@ async def admin_callback(event):
 async def start(event):
     try:
         uid = event.sender_id
+        
+        # Check if user has invite code
         args = event.message.message.split()
         if len(args) > 1 and args[1].startswith("HEX-"):
             users = load_json(USERS_FILE)
@@ -734,6 +740,8 @@ async def start(event):
                     break
         
         user = get_user(uid)
+        
+        # Check verification - only show once
         if not user.get("verified"):
             if await check_channels(uid):
                 user["verified"] = True
@@ -742,7 +750,10 @@ async def start(event):
                 return
             await show_verification_page(event)
             return
+        
+        # If already verified, show menu directly (don't auto-delete /start)
         await main_menu(event)
+        
     except Exception as e:
         logger.error(f"Start: {e}")
 
@@ -789,6 +800,7 @@ async def main_menu(event):
     user = get_user(event.sender_id)
     s = get_settings()
     
+    # Re-verify if user is still in channels
     if not await check_channels(event.sender_id):
         user["verified"] = False
         save_user(event.sender_id, user)
@@ -799,22 +811,35 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     name = event.sender.first_name or "User"
     
-    # SIMPLE CLEAN WELCOME MESSAGE - NO SPECIAL CHARACTERS
+    # Beautiful welcome message with all details
     welcome_text = (
-        f"<b>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</b>\n"
+        f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
         f"<b>@{BOT_USERNAME}</b>\n\n"
-        f"<b>{E_WAVE} Welcome {name}!</b>\n\n"
-        f"<b>{E_BOLT} Your Dashboard</b>\n"
-        f"{E_CREDIT} Credits: {cr}\n"
-        f"{E_DICE} Daily Spin: +{DAILY_FREE_CREDITS} free\n"
-        f"{E_CROWN} Premium: Unlimited search\n\n"
-        f"<b>{E_GEAR} Use the buttons below</b>\n"
+        f"{E_WAVE} <b>Welcome {name}!</b>\n\n"
+        f"<blockquote>{E_BOLT} Your Dashboard</blockquote>\n"
+        f"{E_CREDIT} Credits: <b>{cr}</b>\n"
+        f"{E_DICE} Daily Spin: <b>+{DAILY_FREE_CREDITS} free</b>\n"
+        f"{E_CROWN} Premium: <b>Unlimited search</b>\n"
+        f"{E_SEARCH} Total Queries: <b>{user.get('total_queries',0)}</b>\n"
+        f"{E_USERS} Invites: <b>{user.get('invites',0)}</b>\n\n"
+        f"<blockquote>{E_GEAR} Available Services</blockquote>\n"
+        f"{E_BANK} IFSC Lookup - Bank details\n"
+        f"{E_CARD} Aadhar Lookup - Identity info\n"
+        f"{E_INDIA} India Number - Mobile details\n"
+        f"{E_CAR} RC Check - Vehicle info\n"
+        f"{E_BOOK} GST Verify - Business info\n"
+        f"{E_PAK} Pakistan Number - Number lookup\n\n"
+        f"<blockquote>{E_GIFT} Rewards</blockquote>\n"
+        f"{E_REFRESH} +{DAILY_FREE_CREDITS} daily free\n"
+        f"{E_USERS} +{INVITE_CREDITS} per invite\n"
+        f"{E_CLOCK} {AUTO_DELETE_TIME}s auto delete\n\n"
         f"{E_STAR} /help for commands\n\n"
         f"{E_BABY} Dev: {DEV_NAME}\n\n"
         f"{E_STAR2} Select a service below {E_STAR2}"
     )
     
     msg = await send_html(event.chat_id, welcome_text, reply_markup=markup)
+    # Don't auto-delete /start message, only delete bot response after 60s
     asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
 
 @client.on(events.NewMessage)
@@ -826,7 +851,10 @@ async def msg_handler(event):
         if not txt:
             return
             
-        asyncio.create_task(schedule_delete(event.message, AUTO_DELETE_TIME))
+        # Don't auto-delete /start command
+        if not txt.startswith('/start'):
+            asyncio.create_task(schedule_delete(event.message, AUTO_DELETE_TIME))
+        
         s = get_settings()
         
         if s.get("maintenance_mode", False) and uid != ADMIN_ID:
