@@ -768,6 +768,13 @@ async def verify_cb(event):
         logger.error(f"Verify callback error: {e}")
         await event.answer("❌ Error, try again", alert=True)
 
+# --- ADMIN CALLBACK HANDLER ---
+@client.on(events.CallbackQuery)
+async def admin_callback_handler(event):
+    # Check if it's an admin callback
+    if event.data and event.data.startswith(b"ad_"):
+        await admin_callback(event)
+
 @client.on(events.CallbackQuery)
 async def handle_url_callback(event):
     if event.data == b"url1":
