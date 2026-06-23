@@ -88,17 +88,26 @@ E_DIAMOND2 = PE("4961143940817355662", "💠")
 E_STAR = PE("5289898724976240966", "⭐")
 E_BOLT = PE("5377834924776627189", "⚡")
 
+# India Number Info Premium Emojis
+E_INDIAN_NUMBER = PE("6109380284644329775", "🇮🇳")
+E_CHART = PE("6093382540784046658", "📊")
+E_USER = PE("5249053508681883137", "👤")
+E_USER2 = PE("5258362837411045098", "👤")
+E_USER3 = PE("5258011929993026890", "👤")
+E_PHONE = PE("5967591100532134862", "☎️")
+E_LOCATION = PE("5985361068157833495", "📍")
+E_CIRCLE = PE("5472373721966597010", "🔴")
+E_GMAIL = PE("5303416490295304868", "📧")
+
 # Additional emojis
 E_CHECK = PE("6267008582294705964", "✅")
 E_CROSS = PE("6267000941547885720", "❌")
 E_WARN = PE("6267039884016358504", "⚠️")
 E_LOCK = PE("5316522278056399236", "🔒")
-E_PHONE = PE("5947494995798789024", "📞")
 E_PHONE2 = PE("5406809207947142040", "📲")
 E_BANK = PE("5264895611517300926", "🏦")
 E_CAR = PE("5253752975997803460", "🚘")
 E_CARD = PE("5260561650213220533", "🪪")
-E_USER = PE("5249053508681883137", "👤")
 E_USERS = PE("5244933196230972438", "👥")
 E_INDIA = PE("6284779941489812433", "🇮🇳")
 E_PAK = PE("5913705895375672082", "🇵🇰")
@@ -111,13 +120,11 @@ E_GIFT = PE("5203996991054432397", "🎁")
 E_TICKET = PE("5285515895534278367", "🎫")
 E_TOOLS = PE("5462921117423384478", "🛠️")
 E_DISABLED = PE("5373165973203348165", "📴")
-E_LOCATION = PE("5391032818111363540", "📍")
 E_HOME = PE("5280955052582785391", "🏠")
 E_STATE = PE("5388927107315283144", "🏛")
 E_NETWORK = PE("5321141214735508486", "📡")
 E_SIGNAL = PE("6147892053796725336", "📶")
 E_SIM = PE("5800717980266403037", "💳")
-E_CHART = PE("6093382540784046658", "📊")
 E_SPARKLE = PE("5467683093693354332", "✨")
 E_ROCKET = PE("5195033767969839232", "🚀")
 E_STAR2 = PE("6266969287638913443", "🌟")
@@ -128,6 +135,7 @@ E_WELCOME = PE("6266969287638913443", "✨")
 E_CROISSANT = PE("5203996991054432397", "🥐")
 E_BAR = PE("6267039884016358504", "➖")
 E_INFINITY = PE("6266969287638913443", "∞")
+E_FATHER = PE("6147864334077794239", "👨")
 
 # --- BUTTON ICON IDs ---
 ICON_IFSC = 5264895611517300926
@@ -480,7 +488,9 @@ def parse_all_india_records(raw):
             'Mobile': 'MOBILE',
             'Address': 'ADDRESS',
             'Circle': 'CIRCLE',
-            'State': 'STATE'
+            'State': 'STATE',
+            'GMAIL': 'GMAIL',
+            'Email': 'GMAIL'
         }.items():
             match = re.search(rf'{re.escape(field)}:\s*([^\n]+)', section, re.IGNORECASE)
             if match and match.group(1).strip() not in ['None', '', 'N/A', 'null']:
@@ -507,18 +517,34 @@ def format_records_result(records, search_type):
     if not records:
         return f"<blockquote>{E_CROSS} NO RECORDS FOUND</blockquote>"
     
-    title = {
+    # Map search type to title with premium emojis
+    title_map = {
         'aadhaar': f'{E_CARD} AADHAR',
-        'mobile': f'{E_INDIA} INDIAN NUMBER',
+        'mobile': f'{E_INDIAN_NUMBER} INDIAN NUMBER',
         'vehicle': f'{E_CAR} VEHICLE'
-    }.get(search_type, f'{E_CHART} RESULT')
+    }
+    title = title_map.get(search_type, f'{E_CHART} RESULT')
     
     result = f"<blockquote>{E_SPARKLE} {title} {E_SPARKLE}</blockquote>\n"
     result += f"<blockquote>{E_CHART} TOTAL: {len(records)}</blockquote>\n"
+    
+    # Emoji mapping for fields
+    field_emojis = {
+        'NAME': E_USER2,
+        'FATHER': E_USER3,
+        'MOBILE': E_PHONE,
+        'ADDRESS': E_LOCATION,
+        'CIRCLE': E_CIRCLE,
+        'STATE': E_STATE,
+        'GMAIL': E_GMAIL
+    }
+    
     for i, record in enumerate(records, 1):
         result += f"\n<blockquote>━━ {E_USER} RECORD {i} ━━</blockquote>\n"
         for key, value in record.items():
-            result += f"<blockquote>{key}: {value}</blockquote>\n"
+            emoji = field_emojis.get(key, E_USER)
+            result += f"<blockquote>{emoji} {key}: {value}</blockquote>\n"
+    
     return result
 
 # --- 🔗 API FUNCTIONS ---
@@ -699,7 +725,7 @@ async def start(event):
                 if data.get("invite_code") == args[1] and inviter != str(uid):
                     cr = process_invite(inviter, uid)
                     try:
-                        await send_html(int(inviter), f"{E_GIFT} +{cr} CREDITS! NEW USER JOINED!")
+                        await send_html(int(inviter), f"<blockquote>{E_GIFT} +{cr} CREDITS! NEW USER JOINED!</blockquote>")
                     except:
                         pass
                     break
@@ -773,7 +799,6 @@ async def main_menu(event):
     cr = user.get("credits", 0)
     name = event.sender.first_name or "User"
     
-    # Your exact welcome message with premium emojis
     welcome_text = (
         f"<blockquote>{E_DIAMOND} Hᴇx Osɪɴᴛ Bᴏᴛ {E_LION}</blockquote>\n"
         f"<blockquote>{E_HAPPY} ᴡᴇʟᴄᴏᴍᴇ {name}! {E_HAPPY}</blockquote>\n\n"
