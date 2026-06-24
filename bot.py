@@ -777,14 +777,16 @@ async def start(event):
                         pass
                     break
         
-        # Always send welcome video on /start
-        await send_welcome_video(event)
+        # Send welcome video or fallback
+        await send_welcome(event)
         
     except Exception as e:
         logger.error(f"Start: {e}")
+        # Fallback: send text welcome if video fails
+        await main_menu(event)
 
-async def send_welcome_video(event):
-    """Send welcome video with hex.mp4 and menu - auto deletes after 60 seconds"""
+async def send_welcome(event):
+    """Send welcome video if exists, otherwise send text welcome"""
     try:
         video_path = "hex.mp4"
         cr = get_user(event.sender_id).get('credits', 0)
@@ -804,22 +806,32 @@ async def send_welcome_video(event):
         is_admin = event.sender_id == ADMIN_ID
         markup = create_main_menu(is_admin, get_settings())
         
+        # Check if video exists
         if os.path.exists(video_path):
-            msg = await client.send_file(
-                event.chat_id,
-                video_path,
-                caption=caption,
-                parse_mode='html',
-                buttons=markup
-            )
-        else:
-            msg = await send_html(event.chat_id, caption, reply_markup=markup)
+            try:
+                msg = await client.send_file(
+                    event.chat_id,
+                    video_path,
+                    caption=caption,
+                    parse_mode='html',
+                    buttons=markup
+                )
+                # Auto delete welcome message after 60 seconds
+                asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
+                return
+            except Exception as e:
+                logger.error(f"Video send failed: {e}")
+                # Fallback to text
+                msg = await send_html(event.chat_id, caption, reply_markup=markup)
+                asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
+                return
         
-        # Auto delete welcome message after 60 seconds
+        # If video doesn't exist, send text welcome
+        msg = await send_html(event.chat_id, caption, reply_markup=markup)
         asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
         
     except Exception as e:
-        logger.error(f"Send welcome video error: {e}")
+        logger.error(f"Send welcome error: {e}")
         await main_menu(event)
 
 @client.on(events.CallbackQuery(data=b"verify"))
@@ -842,7 +854,7 @@ async def verify_cb(event):
                 await event.message.delete()
             except:
                 pass
-            await send_welcome_video(event)
+            await send_welcome(event)
         elif not in_channel1 and not in_channel2:
             await event.answer("❌ Join both channels first!", alert=True)
         elif not in_channel1:
@@ -973,7 +985,7 @@ async def msg_handler(event):
             if await check_channels(uid):
                 user["verified"] = True
                 save_user(uid, user)
-                await send_welcome_video(event)
+                await send_welcome(event)
                 return
             else:
                 await show_verification_page(event)
