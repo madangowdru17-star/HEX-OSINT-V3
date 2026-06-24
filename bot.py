@@ -172,6 +172,9 @@ client = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 ADMIN_STATE = {}
 USER_MODES = {}
 
+# Cache for uploaded video file ID
+VIDEO_FILE_ID = None
+
 # --- 💾 DATA FUNCTIONS ---
 
 def load_json(filename):
@@ -777,7 +780,7 @@ async def start(event):
                         pass
                     break
         
-        # Send welcome video or fallback
+        # Send welcome message with video (cached)
         await send_welcome(event)
         
     except Exception as e:
@@ -785,10 +788,28 @@ async def start(event):
         # Fallback: send text welcome if video fails
         await main_menu(event)
 
+async def get_cached_video():
+    """Get cached video file ID or upload it once"""
+    global VIDEO_FILE_ID
+    
+    if VIDEO_FILE_ID:
+        return VIDEO_FILE_ID
+    
+    video_path = "hex.mp4"
+    if os.path.exists(video_path):
+        try:
+            uploaded = await client.upload_file(video_path)
+            VIDEO_FILE_ID = uploaded
+            logger.info("Video uploaded and cached successfully")
+            return VIDEO_FILE_ID
+        except Exception as e:
+            logger.error(f"Video upload failed: {e}")
+            return None
+    return None
+
 async def send_welcome(event):
-    """Send welcome video if exists, otherwise send text welcome"""
+    """Send welcome video (cached) or text fallback"""
     try:
-        video_path = "hex.mp4"
         cr = get_user(event.sender_id).get('credits', 0)
         name = event.sender.first_name or "User"
         
@@ -806,12 +827,13 @@ async def send_welcome(event):
         is_admin = event.sender_id == ADMIN_ID
         markup = create_main_menu(is_admin, get_settings())
         
-        # Check if video exists
-        if os.path.exists(video_path):
+        video_file = await get_cached_video()
+        
+        if video_file:
             try:
                 msg = await client.send_file(
                     event.chat_id,
-                    video_path,
+                    video_file,
                     caption=caption,
                     parse_mode='html',
                     buttons=markup
@@ -821,12 +843,8 @@ async def send_welcome(event):
                 return
             except Exception as e:
                 logger.error(f"Video send failed: {e}")
-                # Fallback to text
-                msg = await send_html(event.chat_id, caption, reply_markup=markup)
-                asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
-                return
         
-        # If video doesn't exist, send text welcome
+        # Fallback: send text message
         msg = await send_html(event.chat_id, caption, reply_markup=markup)
         asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
         
@@ -936,6 +954,7 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
+        # Handle page navigation
         if txt == "Nᴇxᴛ Pᴀɢᴇ ➜":
             s["page"] = 2
             save_settings(s)
@@ -947,6 +966,7 @@ async def msg_handler(event):
             await main_menu(event)
             return
         
+        # Admin states
         if uid == ADMIN_ID and uid in ADMIN_STATE:
             state = ADMIN_STATE.pop(uid)
             if state == "gen":
@@ -980,21 +1000,24 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(msg))
                 return
         
+        # Check verification
         user = get_user(uid)
         if not user.get("verified"):
             if await check_channels(uid):
                 user["verified"] = True
                 save_user(uid, user)
-                await send_welcome(event)
+                await main_menu(event)
                 return
             else:
                 await show_verification_page(event)
                 return
         
+        # Admin Panel
         if txt == "Aᴅᴍɪɴ Pᴀɴᴇʟ":
             await admin_panel(event)
             return
         
+        # Upgrade mode
         if hasattr(event, 'upgrade_mode') and event.upgrade_mode:
             event.upgrade_mode = False
             m = await send_html(event.chat_id, 
@@ -1005,6 +1028,7 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
+        # Feature mapping - SUPPORTS BUTTON CLICKS WITHOUT START
         feature_map = {
             "Iғsᴄ Iɴғᴏ": ("IFSC", "ifsc"),
             "Aᴀᴅʜᴀʀ Iɴғᴏ": ("AADHAAR", "aadhaar"),
@@ -1130,6 +1154,7 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(m))
             return
         
+        # Check if user is in query mode
         uid_str = str(uid)
         if uid_str in USER_MODES and USER_MODES[uid_str]:
             mode = USER_MODES[uid_str]
@@ -1224,6 +1249,8 @@ async def main():
     print("All features working!")
     print("Group Mode: Only users who /start the bot will get responses")
     print("Welcome message auto-deletes after 60 seconds")
+    print("Video is cached for fast response!")
+    print("Buttons work without /start - just click and use!")
     
     try:
         subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4"], capture_output=True, timeout=30)
