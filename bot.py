@@ -371,10 +371,6 @@ async def show_verification_page(event):
             f"@{BOT_USERNAME}\n\n"
             f"{E_LOCK} <b>VERIFICATION REQUIRED</b>\n\n"
             f"JOIN BOTH CHANNELS TO UNLOCK\n\n"
-            f"{E_STAR2} <b>GUIDELINES:</b>\n\n"
-            f"• EDUCATIONAL PURPOSES ONLY\n\n"
-            f"• USE ON YOUR OWN DATA\n\n"
-            f"• RESPECT PRIVACY LAWS\n\n"
             f"{E_GIFT} +{DAILY_FREE_CREDITS} DAILY {E_STAR}\n\n"
             f"{E_USERS} +{INVITE_CREDITS} PER INVITE\n\n"
             f"{E_CLOCK} {AUTO_DELETE_TIME}s AUTO DELETE\n\n"
@@ -781,22 +777,14 @@ async def start(event):
                         pass
                     break
         
-        if not user.get("verified"):
-            if await check_channels(uid):
-                user["verified"] = True
-                save_user(uid, user)
-                await send_welcome_video(event)
-                return
-            await show_verification_page(event)
-            return
-        
-        await main_menu(event)
+        # Always send welcome video on /start
+        await send_welcome_video(event)
         
     except Exception as e:
         logger.error(f"Start: {e}")
 
 async def send_welcome_video(event):
-    """Send welcome video with hex.mp4 and menu"""
+    """Send welcome video with hex.mp4 and menu - auto deletes after 60 seconds"""
     try:
         video_path = "hex.mp4"
         cr = get_user(event.sender_id).get('credits', 0)
@@ -817,7 +805,7 @@ async def send_welcome_video(event):
         markup = create_main_menu(is_admin, get_settings())
         
         if os.path.exists(video_path):
-            await client.send_file(
+            msg = await client.send_file(
                 event.chat_id,
                 video_path,
                 caption=caption,
@@ -826,6 +814,10 @@ async def send_welcome_video(event):
             )
         else:
             msg = await send_html(event.chat_id, caption, reply_markup=markup)
+        
+        # Auto delete welcome message after 60 seconds
+        asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
+        
     except Exception as e:
         logger.error(f"Send welcome video error: {e}")
         await main_menu(event)
@@ -900,6 +892,7 @@ async def main_menu(event):
     )
     
     msg = await send_html(event.chat_id, welcome_text, reply_markup=markup)
+    asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
 
 @client.on(events.NewMessage)
 async def msg_handler(event):
@@ -910,15 +903,19 @@ async def msg_handler(event):
         if not txt:
             return
         
+        # Don't auto-delete /start command
+        if txt.startswith('/start'):
+            return
+        
         # GROUP HANDLING: Only respond if user has started the bot
         if event.is_group:
             user = get_user(uid)
             if not user.get("started", False):
-                # User hasn't started the bot - ignore
+                # User hasn't started the bot - completely ignore
                 return
         
-        if not txt.startswith('/start'):
-            asyncio.create_task(schedule_delete(event.message, AUTO_DELETE_TIME))
+        # Auto-delete all other messages except /start
+        asyncio.create_task(schedule_delete(event.message, AUTO_DELETE_TIME))
         
         s = get_settings()
         
@@ -1214,6 +1211,7 @@ async def main():
     print("Premium UI with Unique Emojis")
     print("All features working!")
     print("Group Mode: Only users who /start the bot will get responses")
+    print("Welcome message auto-deletes after 60 seconds")
     
     try:
         subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4"], capture_output=True, timeout=30)
