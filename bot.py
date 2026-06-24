@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot FINAL WORKING
+# bot.py - Hex OSINT Bot with GitHub Storage
 
 import logging
 import asyncio
@@ -11,7 +11,9 @@ import subprocess
 import re
 import os
 import sys
+import base64
 from datetime import datetime, timedelta
+from github import Github, GithubException
 
 try:
     from telethon import TelegramClient, events, functions
@@ -42,14 +44,17 @@ API_HASH = os.environ.get('API_HASH', '47ee9fa07b5eeb865edb3d79ada726a5')
 BOT_TOKEN = os.environ.get('BOT_TOKEN', '8687617595:AAFF6FP5XWr92RFhM0wco6UHutB7UGUpFFA')
 ADMIN_ID = int(os.environ.get('ADMIN_ID', '7898928200'))
 
+# GitHub Configuration
+GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')
+GITHUB_REPO = os.environ.get('GITHUB_REPO', '')
+GITHUB_BRANCH = os.environ.get('GITHUB_BRANCH', 'main')
+DATA_PATH = os.environ.get('DATA_PATH', 'data/')
+
 CHANNEL_1_ID = int(os.environ.get('CHANNEL_1_ID', '-1003240507339'))
 CHANNEL_2_ID = int(os.environ.get('CHANNEL_2_ID', '-1003806004135'))
 
 LINK_1 = os.environ.get('LINK_1', 'https://t.me/+dP7xLb3AoE1jNmRl')
 LINK_2 = os.environ.get('LINK_2', 'https://t.me/+9vuPcr9LJ8piODdl')
-
-FOOTER = "\n\n💎 ᴘᴏᴡᴇʀᴇᴅ ʙʏ @Hexh4ckerOFC 💎"
-SEP = "━━━━━━━━━━━━━━━━━━━"
 
 # APIs
 LOOKUP_API = "https://toxic-tg.vercel.app/?userid="
@@ -62,9 +67,15 @@ TG_INFO_API = "https://telegram-info-plum.vercel.app/api/search?q="
 
 VERIFY_SCRIPT = "verify_india.py"
 
+# Local cache for data
 USERS_FILE = os.path.join(os.getcwd(), "users.json")
 REDEEM_FILE = os.path.join(os.getcwd(), "redeem_codes.json")
 SETTINGS_FILE = os.path.join(os.getcwd(), "settings.json")
+
+# GitHub file paths
+GH_USERS_FILE = f"{DATA_PATH}users.json"
+GH_REDEEM_FILE = f"{DATA_PATH}redeem_codes.json"
+GH_SETTINGS_FILE = f"{DATA_PATH}settings.json"
 
 DAILY_FREE_CREDITS = 10
 INVITE_CREDITS = 3
@@ -74,96 +85,76 @@ BOT_NAME = "𝗛𝗲𝘅 𝗢𝗦𝗜𝗡𝗧 𝗕𝗼𝘁"
 BOT_USERNAME = "Hex_Terminal_bot"
 DEV_NAME = "@HeX_CiPhEr"
 
-# --- YOUR PREMIUM EMOJI IDs ---
-PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
-
-# Your exact emoji IDs
-E_DIAMOND = PE("6314557546753440004", "💎")
-E_LION = PE("5802980697886954454", "🦁")
-E_HAPPY = PE("6154369208076470797", "🥹")
-E_WALLET = PE("5256186332669035163", "👛")
-E_CROWN = PE("6267128480601741166", "👑")
-E_CAMERA = PE("6008258140108231117", "📸")
-E_ARROW = PE("5875450995332353523", "➡️")
-E_DIAMOND2 = PE("4961143940817355662", "💠")
-E_STAR = PE("5289898724976240966", "⭐")
-E_BOLT = PE("5377834924776627189", "⚡")
-
-# Service Emojis
-E_IFSC = PE("5264895611517300926", "🏦")
-E_AADHAAR = PE("5260561650213220533", "🪪")
-E_INDIA = PE("6284779941489812433", "🇮🇳")
-E_RC = PE("5253752975997803460", "🚘")
-E_GST = PE("5260561650213220533", "📋")
-E_PAK = PE("5913705895375672082", "🇵🇰")
-E_TG = PE("5039783602301175152", "✈️")
-
-# India Number Info Premium Emojis
-E_INDIAN_NUMBER = PE("6109380284644329775", "🇮🇳")
-E_CHART = PE("6093382540784046658", "📊")
-E_USER = PE("5249053508681883137", "👤")
-E_USER2 = PE("5258362837411045098", "👤")
-E_USER3 = PE("5258011929993026890", "👤")
-E_PHONE = PE("5967591100532134862", "☎️")
-E_LOCATION = PE("5985361068157833495", "📍")
-E_CIRCLE = PE("5472373721966597010", "🔴")
-E_GMAIL = PE("5303416490295304868", "📧")
-
-# TG User ID Info Premium Emojis
-E_TG_USER = PE("5039783602301175152", "✈️")
-E_COUNTRY = PE("5465166522030764559", "🐈‍⬛")
-E_COUNTRY_CODE = PE("5422814644093868925", "👨‍💻")
-E_PHONE_NUMBER = PE("5339534764367955381", "🌟")
-E_TG_ID = PE("5936017305585586269", "🪪")
-
-# Additional emojis
-E_CHECK = PE("6267008582294705964", "✅")
-E_CROSS = PE("6267000941547885720", "❌")
-E_WARN = PE("6267039884016358504", "⚠️")
-E_LOCK = PE("5316522278056399236", "🔒")
-E_PHONE2 = PE("5406809207947142040", "📲")
-E_BANK = PE("5264895611517300926", "🏦")
-E_CAR = PE("5253752975997803460", "🚘")
-E_CARD = PE("5260561650213220533", "🪪")
-E_USERS = PE("5244933196230972438", "👥")
-E_PAK2 = PE("5913705895375672082", "🇵🇰")
-E_SEARCH = PE("5231012545799666522", "🔍")
-E_CREDIT = PE("6267068789146260253", "💰")
-E_REFRESH = PE("5375338737028841420", "🔄")
-E_CLOCK = PE("5382194935057372936", "⏱")
-E_BOLT2 = PE("6284971355297290197", "⚡")
-E_GIFT = PE("5203996991054432397", "🎁")
-E_TICKET = PE("5285515895534278367", "🎫")
-E_TOOLS = PE("5462921117423384478", "🛠️")
-E_DISABLED = PE("5373165973203348165", "📴")
-E_HOME = PE("5280955052582785391", "🏠")
-E_STATE = PE("5388927107315283144", "🏛")
-E_NETWORK = PE("5321141214735508486", "📡")
-E_SIGNAL = PE("6147892053796725336", "📶")
-E_SIM = PE("5800717980266403037", "💳")
-E_SPARKLE = PE("5467683093693354332", "✨")
-E_ROCKET = PE("5195033767969839232", "🚀")
-E_STAR2 = PE("6266969287638913443", "🌟")
-E_LINK = PE("5271604874419647061", "🔗")
-E_BABY = PE("6264785189394717307", "🍼")
-E_GEAR = PE("5462921117423384478", "⚙️")
-E_WELCOME = PE("6266969287638913443", "✨")
-E_FATHER = PE("6147864334077794239", "👨")
-E_UPGRADE = PE("6267128480601741166", "👑")
-
-# --- BUTTON ICON IDs ---
-ICON_IFSC = 5264895611517300926
-ICON_AADHAAR = 5260561650213220533
-ICON_INDIA = 6284779941489812433
-ICON_RC = 5253752975997803460
-ICON_GST = 5260561650213220533
-ICON_PAK = 5913705895375672082
-ICON_TG = 5039783602301175152
-ICON_INVITE = 5244933196230972438
-ICON_UPGRADE = 6267128480601741166
-ICON_ADMIN = 6267128480601741166
-ICON_NEXT = 5258331647358540449
-ICON_PRIMARY = 5258096772776991776
+# Import emojis from separate file
+try:
+    from emojis import *
+except ImportError:
+    # Fallback emojis if file not found
+    PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
+    E_DIAMOND = PE("6314557546753440004", "💎")
+    E_LION = PE("5802980697886954454", "🦁")
+    E_HAPPY = PE("6154369208076470797", "🥹")
+    E_WALLET = PE("5256186332669035163", "👛")
+    E_CROWN = PE("6267128480601741166", "👑")
+    E_CAMERA = PE("6008258140108231117", "📸")
+    E_ARROW = PE("5875450995332353523", "➡️")
+    E_DIAMOND2 = PE("4961143940817355662", "💠")
+    E_STAR = PE("5289898724976240966", "⭐")
+    E_BOLT = PE("5377834924776627189", "⚡")
+    E_IFSC = PE("5264895611517300926", "🏦")
+    E_AADHAAR = PE("5260561650213220533", "🪪")
+    E_INDIA = PE("6284779941489812433", "🇮🇳")
+    E_RC = PE("5253752975997803460", "🚘")
+    E_GST = PE("5260561650213220533", "📋")
+    E_PAK = PE("5913705895375672082", "🇵🇰")
+    E_TG = PE("5039783602301175152", "✈️")
+    E_CHECK = PE("6267008582294705964", "✅")
+    E_CROSS = PE("6267000941547885720", "❌")
+    E_WARN = PE("6267039884016358504", "⚠️")
+    E_LOCK = PE("5316522278056399236", "🔒")
+    E_PHONE2 = PE("5406809207947142040", "📲")
+    E_BANK = PE("5264895611517300926", "🏦")
+    E_CAR = PE("5253752975997803460", "🚘")
+    E_CARD = PE("5260561650213220533", "🪪")
+    E_USERS = PE("5244933196230972438", "👥")
+    E_SEARCH = PE("5231012545799666522", "🔍")
+    E_CREDIT = PE("6267068789146260253", "💰")
+    E_REFRESH = PE("5375338737028841420", "🔄")
+    E_CLOCK = PE("5382194935057372936", "⏱")
+    E_BOLT2 = PE("6284971355297290197", "⚡")
+    E_GIFT = PE("5203996991054432397", "🎁")
+    E_TICKET = PE("5285515895534278367", "🎫")
+    E_TOOLS = PE("5462921117423384478", "🛠️")
+    E_DISABLED = PE("5373165973203348165", "📴")
+    E_LOCATION = PE("5391032818111363540", "📍")
+    E_STATE = PE("5388927107315283144", "🏛")
+    E_NETWORK = PE("5321141214735508486", "📡")
+    E_SIGNAL = PE("6147892053796725336", "📶")
+    E_SIM = PE("5800717980266403037", "💳")
+    E_CHART = PE("6093382540784046658", "📊")
+    E_SPARKLE = PE("5467683093693354332", "✨")
+    E_ROCKET = PE("5195033767969839232", "🚀")
+    E_STAR2 = PE("6266969287638913443", "🌟")
+    E_LINK = PE("5271604874419647061", "🔗")
+    E_BABY = PE("6264785189394717307", "🍼")
+    E_GEAR = PE("5462921117423384478", "⚙️")
+    E_WELCOME = PE("6266969287638913443", "✨")
+    E_UPGRADE = PE("6267128480601741166", "👑")
+    E_INDIAN_NUMBER = PE("6109380284644329775", "🇮🇳")
+    E_USER = PE("5249053508681883137", "👤")
+    E_USER2 = PE("5258362837411045098", "👤")
+    E_USER3 = PE("5258011929993026890", "👤")
+    E_PHONE = PE("5967591100532134862", "☎️")
+    E_CIRCLE = PE("5472373721966597010", "🔴")
+    E_GMAIL = PE("5303416490295304868", "📧")
+    E_TG_USER = PE("5039783602301175152", "✈️")
+    E_COUNTRY = PE("5465166522030764559", "🐈‍⬛")
+    E_COUNTRY_CODE = PE("5422814644093868925", "👨‍💻")
+    E_PHONE_NUMBER = PE("5339534764367955381", "🌟")
+    E_TG_ID = PE("5936017305585586269", "🪪")
+    E_FATHER = PE("6147864334077794239", "👨")
+    E_HOME = PE("5280955052582785391", "🏠")
+    E_PAK2 = PE("5913705895375672082", "🇵🇰")
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -171,25 +162,123 @@ logger = logging.getLogger(__name__)
 client = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 ADMIN_STATE = {}
 USER_MODES = {}
+EMOJI_EDIT_STATE = {}
+
+# --- 📁 GITHUB DATA FUNCTIONS ---
+
+class GitHubStorage:
+    def __init__(self, token, repo_name, branch="main"):
+        self.token = token
+        self.repo_name = repo_name
+        self.branch = branch
+        self.g = None
+        self.repo = None
+        self.connected = False
+        
+        if token and repo_name:
+            try:
+                self.g = Github(token)
+                self.repo = self.g.get_repo(repo_name)
+                self.connected = True
+                logger.info(f"Connected to GitHub repo: {repo_name}")
+            except Exception as e:
+                logger.error(f"GitHub connection failed: {e}")
+                self.connected = False
+    
+    def _get_file_content(self, file_path):
+        """Get file content from GitHub"""
+        if not self.connected:
+            return None
+        try:
+            contents = self.repo.get_contents(file_path, ref=self.branch)
+            return base64.b64decode(contents.content).decode('utf-8')
+        except GithubException as e:
+            if e.status == 404:
+                return None
+            logger.error(f"GitHub read error: {e}")
+            return None
+    
+    def _update_file(self, file_path, content, commit_msg):
+        """Update file on GitHub"""
+        if not self.connected:
+            return False
+        try:
+            try:
+                contents = self.repo.get_contents(file_path, ref=self.branch)
+                self.repo.update_file(
+                    file_path, 
+                    commit_msg, 
+                    content, 
+                    contents.sha, 
+                    branch=self.branch
+                )
+            except GithubException:
+                self.repo.create_file(
+                    file_path, 
+                    commit_msg, 
+                    content, 
+                    branch=self.branch
+                )
+            return True
+        except Exception as e:
+            logger.error(f"GitHub update error: {e}")
+            return False
+    
+    def load_json(self, file_path, local_path):
+        """Load JSON from GitHub with local fallback"""
+        if self.connected:
+            content = self._get_file_content(file_path)
+            if content:
+                try:
+                    data = json.loads(content)
+                    # Save local cache
+                    with open(local_path, 'w', encoding='utf-8') as f:
+                        json.dump(data, f, indent=2, ensure_ascii=False)
+                    return data
+                except:
+                    pass
+        
+        # Fallback to local file
+        try:
+            with open(local_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            return {}
+    
+    def save_json(self, file_path, local_path, data, commit_msg="Update data"):
+        """Save JSON to GitHub and local"""
+        # Save local
+        with open(local_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        
+        # Upload to GitHub
+        if self.connected:
+            content = json.dumps(data, indent=2, ensure_ascii=False)
+            return self._update_file(file_path, content, commit_msg)
+        return False
+
+# Initialize GitHub Storage
+gh = GitHubStorage(GITHUB_TOKEN, GITHUB_REPO, GITHUB_BRANCH)
 
 # --- 💾 DATA FUNCTIONS ---
 
-def load_json(filename):
+def load_json(filename, gh_path=None):
+    if gh_path and gh.connected:
+        return gh.load_json(gh_path, filename)
     try:
         with open(filename, 'r', encoding='utf-8') as f:
             return json.load(f)
     except:
         return {}
 
-def save_json(filename, data):
-    try:
-        with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-    except:
-        pass
+def save_json(filename, data, gh_path=None, commit_msg="Update data"):
+    with open(filename, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    if gh_path and gh.connected:
+        gh.save_json(gh_path, filename, data, commit_msg)
 
 def get_user(user_id):
-    users = load_json(USERS_FILE)
+    users = load_json(USERS_FILE, GH_USERS_FILE)
     uid = str(user_id)
     today = datetime.now().strftime("%Y-%m-%d")
     if uid not in users:
@@ -203,41 +292,41 @@ def get_user(user_id):
             "verified": False,
             "premium": False
         }
-        save_json(USERS_FILE, users)
+        save_json(USERS_FILE, users, GH_USERS_FILE, "New user added")
     elif users[uid].get("last_reset") != today:
         users[uid]["credits"] = DAILY_FREE_CREDITS
         users[uid]["daily_queries"] = 0
         users[uid]["last_reset"] = today
-        save_json(USERS_FILE, users)
+        save_json(USERS_FILE, users, GH_USERS_FILE, "Daily reset for user")
     return users[uid]
 
 def save_user(uid, data):
-    users = load_json(USERS_FILE)
+    users = load_json(USERS_FILE, GH_USERS_FILE)
     users[str(uid)] = data
-    save_json(USERS_FILE, users)
+    save_json(USERS_FILE, users, GH_USERS_FILE, f"User {uid} updated")
 
 def add_credits(uid, amount):
-    users = load_json(USERS_FILE)
+    users = load_json(USERS_FILE, GH_USERS_FILE)
     uid = str(uid)
     if uid in users:
         users[uid]["credits"] = users[uid].get("credits", 0) + amount
-        save_json(USERS_FILE, users)
+        save_json(USERS_FILE, users, GH_USERS_FILE, f"Added {amount} credits to {uid}")
         return users[uid]["credits"]
     return 0
 
 def use_credit(uid):
-    users = load_json(USERS_FILE)
+    users = load_json(USERS_FILE, GH_USERS_FILE)
     uid = str(uid)
     if uid in users and users[uid].get("credits", 0) > 0:
         users[uid]["credits"] -= 1
         users[uid]["total_queries"] = users[uid].get("total_queries", 0) + 1
         users[uid]["daily_queries"] = users[uid].get("daily_queries", 0) + 1
-        save_json(USERS_FILE, users)
+        save_json(USERS_FILE, users, GH_USERS_FILE, f"Used credit for {uid}")
         return True
     return False
 
 def process_invite(inviter_id, new_id):
-    users = load_json(USERS_FILE)
+    users = load_json(USERS_FILE, GH_USERS_FILE)
     inviter = str(inviter_id)
     new = str(new_id)
     if inviter in users:
@@ -246,18 +335,18 @@ def process_invite(inviter_id, new_id):
     if new in users:
         users[new]["credits"] = users[new].get("credits", 0) + INVITE_CREDITS
         users[new]["invited_by"] = inviter
-    save_json(USERS_FILE, users)
+    save_json(USERS_FILE, users, GH_USERS_FILE, f"Invite processed: {inviter} invited {new}")
     return INVITE_CREDITS
 
 def generate_redeem_code(credits):
     code = f"HEX-{''.join(random.choices(string.ascii_uppercase+string.digits, k=10))}"
-    codes = load_json(REDEEM_FILE)
+    codes = load_json(REDEEM_FILE, GH_REDEEM_FILE)
     codes[code] = {"credits": credits, "used": False, "created": datetime.now().isoformat()}
-    save_json(REDEEM_FILE, codes)
+    save_json(REDEEM_FILE, codes, GH_REDEEM_FILE, f"Generated code {code}")
     return code
 
 def redeem_code(uid, code):
-    codes = load_json(REDEEM_FILE)
+    codes = load_json(REDEEM_FILE, GH_REDEEM_FILE)
     code = code.upper().strip()
     if code not in codes:
         return False, f"{E_CROSS} ɪɴᴠᴀʟɪᴅ ᴄᴏᴅᴇ"
@@ -266,13 +355,13 @@ def redeem_code(uid, code):
     cr = codes[code]["credits"]
     codes[code]["used"] = True
     codes[code]["used_by"] = str(uid)
-    save_json(REDEEM_FILE, codes)
+    save_json(REDEEM_FILE, codes, GH_REDEEM_FILE, f"Redeemed {code} by {uid}")
     bal = add_credits(uid, cr)
     return True, f"{E_CHECK} +{cr} ᴄʀᴇᴅɪᴛꜱ ᴀᴅᴅᴇᴅ!\n{E_CREDIT} ʙᴀʟᴀɴᴄᴇ: {bal}"
 
 def get_settings():
     try:
-        return load_json(SETTINGS_FILE)
+        return load_json(SETTINGS_FILE, GH_SETTINGS_FILE)
     except:
         d = {
             "bypass_maintenance": False,
@@ -289,11 +378,11 @@ def get_settings():
         for k in ["ifsc", "mobile", "aadhaar", "rc", "gst", "pak", "tgid"]:
             d[f"maint_msg_{k}"] = f"{E_TOOLS} {k} is under maintenance."
             d[f"maint_{k}"] = False
-        save_json(SETTINGS_FILE, d)
+        save_json(SETTINGS_FILE, d, GH_SETTINGS_FILE, "Default settings created")
         return d
 
 def save_settings(data):
-    save_json(SETTINGS_FILE, data)
+    save_json(SETTINGS_FILE, data, GH_SETTINGS_FILE, "Settings updated")
 
 # --- 🔍 VERIFY ---
 
@@ -363,37 +452,6 @@ def check_feature_maintenance(feature_key):
         return True, s.get(f"maint_msg_{feature_key}", f"{E_TOOLS} Under maintenance.")
     return False, ""
 
-async def show_verification_page(event):
-    try:
-        txt = (
-            f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
-            f"<blockquote>@{BOT_USERNAME}</blockquote>\n\n"
-            f"<blockquote>{E_LOCK} <b>VERIFICATION REQUIRED</b></blockquote>\n"
-            f"<blockquote>JOIN BOTH CHANNELS TO UNLOCK</blockquote>\n\n"
-            f"<blockquote>{E_STAR2} <b>GUIDELINES:</b></blockquote>\n"
-            f"<blockquote>• EDUCATIONAL PURPOSES ONLY</blockquote>\n"
-            f"<blockquote>• USE ON YOUR OWN DATA</blockquote>\n"
-            f"<blockquote>• RESPECT PRIVACY LAWS</blockquote>\n\n"
-            f"<blockquote>{E_GIFT} +{DAILY_FREE_CREDITS} DAILY {E_STAR}</blockquote>\n"
-            f"<blockquote>{E_USERS} +{INVITE_CREDITS} PER INVITE</blockquote>\n"
-            f"<blockquote>{E_CLOCK} {AUTO_DELETE_TIME}s AUTO DELETE</blockquote>\n\n"
-            f"<blockquote>{E_CROWN} <b>OWNER: @Hexh4ckerOFC</b></blockquote>"
-        )
-        
-        button1 = KeyboardButtonUrl(text="📢 JOIN CHANNEL 1", url=LINK_1)
-        button2 = KeyboardButtonUrl(text="📢 JOIN CHANNEL 2", url=LINK_2)
-        button3 = KeyboardButtonCallback(text="✅ I'VE JOINED - VERIFY", data=b"verify")
-        
-        markup = ReplyInlineMarkup(rows=[
-            KeyboardButtonRow(buttons=[button1]),
-            KeyboardButtonRow(buttons=[button2]),
-            KeyboardButtonRow(buttons=[button3])
-        ])
-        
-        await send_html(event.chat_id, txt, reply_markup=markup)
-    except Exception as e:
-        logger.error(f"Verification page error: {e}")
-
 # --- 🎨 COLORED REPLY BUTTONS ---
 
 def create_colored_button(text, bg_color, emoji_id):
@@ -415,50 +473,50 @@ def create_main_menu(is_admin=False, settings=None):
     if page == 1:
         row1 = []
         if settings.get("ifsc_enabled", True):
-            row1.append(create_colored_button("Iғsᴄ Iɴғᴏ", 'primary', ICON_IFSC))
+            row1.append(create_colored_button("Iғsᴄ Iɴғᴏ", 'primary', 5264895611517300926))
         if settings.get("aadhaar_enabled", True):
-            row1.append(create_colored_button("Aᴀᴅʜᴀʀ Iɴғᴏ", 'primary', ICON_AADHAAR))
+            row1.append(create_colored_button("Aᴀᴅʜᴀʀ Iɴғᴏ", 'primary', 5260561650213220533))
         if row1:
             rows.append(KeyboardButtonRow(buttons=row1))
         
         row2 = []
         if settings.get("mobile_enabled", True):
-            row2.append(create_colored_button("Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ", 'primary', ICON_INDIA))
+            row2.append(create_colored_button("Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ", 'primary', 6284779941489812433))
         if settings.get("rc_enabled", True):
-            row2.append(create_colored_button("Rᴄ Iɴғᴏ", 'primary', ICON_RC))
+            row2.append(create_colored_button("Rᴄ Iɴғᴏ", 'primary', 5253752975997803460))
         if row2:
             rows.append(KeyboardButtonRow(buttons=row2))
         
         row3 = []
         if settings.get("gst_enabled", True):
-            row3.append(create_colored_button("Gsᴛ Iɴғᴏ", 'primary', ICON_GST))
+            row3.append(create_colored_button("Gsᴛ Iɴғᴏ", 'primary', 5260561650213220533))
         if settings.get("pak_enabled", True):
-            row3.append(create_colored_button("Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ", 'primary', ICON_PAK))
+            row3.append(create_colored_button("Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ", 'primary', 5913705895375672082))
         if row3:
             rows.append(KeyboardButtonRow(buttons=row3))
         
         row4 = []
         if settings.get("tgid_enabled", True):
-            row4.append(create_colored_button("Tɢ Usᴇʀ Iᴅ Iɴғᴏ", 'primary', ICON_TG))
+            row4.append(create_colored_button("Tɢ Usᴇʀ Iᴅ Iɴғᴏ", 'primary', 5039783602301175152))
         if row4:
             rows.append(KeyboardButtonRow(buttons=row4))
         
         rows.append(KeyboardButtonRow(buttons=[
-            create_colored_button("Iɴᴠɪᴛᴇ & Eᴀʀɴ", 'primary', ICON_INVITE),
-            create_colored_button("Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ", 'primary', ICON_UPGRADE)
+            create_colored_button("Iɴᴠɪᴛᴇ & Eᴀʀɴ", 'primary', 5244933196230972438),
+            create_colored_button("Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ", 'primary', 6267128480601741166)
         ]))
         
         next_row = []
-        next_row.append(create_colored_button("Nᴇxᴛ Pᴀɢᴇ ➜", 'danger', ICON_NEXT))
+        next_row.append(create_colored_button("Nᴇxᴛ Pᴀɢᴇ ➜", 'danger', 5258331647358540449))
         if is_admin:
-            next_row.append(create_colored_button("Aᴅᴍɪɴ Pᴀɴᴇʟ", 'danger', ICON_ADMIN))
+            next_row.append(create_colored_button("Aᴅᴍɪɴ Pᴀɴᴇʟ", 'danger', 6267128480601741166))
         rows.append(KeyboardButtonRow(buttons=next_row))
     
     else:
         prev_row = []
-        prev_row.append(create_colored_button("◀ Pʀᴇᴠɪᴏᴜs Pᴀɢᴇ", 'danger', ICON_NEXT))
+        prev_row.append(create_colored_button("◀ Pʀᴇᴠɪᴏᴜs Pᴀɢᴇ", 'danger', 5258331647358540449))
         if is_admin:
-            prev_row.append(create_colored_button("Aᴅᴍɪɴ Pᴀɴᴇʟ", 'danger', ICON_ADMIN))
+            prev_row.append(create_colored_button("Aᴅᴍɪɴ Pᴀɴᴇʟ", 'danger', 6267128480601741166))
         rows.append(KeyboardButtonRow(buttons=prev_row))
     
     return ReplyKeyboardMarkup(rows=rows, resize=True)
@@ -635,7 +693,6 @@ async def pakistan_lookup(session, number):
         return f"<blockquote>{E_CROSS} ERROR</blockquote>"
 
 async def tg_user_info(session, query):
-    """Get Telegram user info from username or chat ID"""
     try:
         url = f"{TG_INFO_API}{query}"
         data = await safe_api_fetch(session, url, timeout=20)
@@ -667,6 +724,7 @@ async def admin_panel(event):
     buttons = [
         [KeyboardButtonCallback(text="🎫 Gen Code", data=b"ad_gen"), KeyboardButtonCallback(text="📋 Codes", data=b"ad_codes")],
         [KeyboardButtonCallback(text="🎁 Add Credits", data=b"ad_credit"), KeyboardButtonCallback(text="📢 Broadcast", data=b"ad_bcast")],
+        [KeyboardButtonCallback(text="✏️ Edit Emojis", data=b"ad_emojis")],
         [KeyboardButtonCallback(text=f"{'🔴' if s.get('maintenance_mode') else '🟢'} Global", data=b"ad_maint")],
         [KeyboardButtonCallback(text=f"{'🟢' if s.get('ifsc_enabled',True) else '🔴'} IF", data=b"ad_ifsc"), KeyboardButtonCallback(text=f"{ms('ifsc')} M", data=b"ad_maint_ifsc")],
         [KeyboardButtonCallback(text=f"{'🟢' if s.get('mobile_enabled',True) else '🔴'} MO", data=b"ad_mobile"), KeyboardButtonCallback(text=f"{ms('mobile')} M", data=b"ad_maint_mobile")],
@@ -684,7 +742,7 @@ async def admin_panel(event):
     
     markup = ReplyInlineMarkup(rows=rows)
     
-    txt = f"<blockquote>👑 ADMIN PANEL</blockquote>\n<blockquote>👥 USERS: {len(load_json(USERS_FILE))} | 🎫 CODES: {len(load_json(REDEEM_FILE))}</blockquote>"
+    txt = f"<blockquote>👑 ADMIN PANEL</blockquote>\n<blockquote>👥 USERS: {len(load_json(USERS_FILE, GH_USERS_FILE))} | 🎫 CODES: {len(load_json(REDEEM_FILE, GH_REDEEM_FILE))}</blockquote>\n<blockquote>📁 GitHub: {'✅ Connected' if gh.connected else '❌ Not Connected'}</blockquote>"
     
     if hasattr(event, 'data'):
         await event.edit(txt, buttons=markup)
@@ -701,7 +759,7 @@ async def admin_callback(event):
     if d == "ad_close":
         await event.delete()
     elif d == "ad_codes":
-        codes = load_json(REDEEM_FILE)
+        codes = load_json(REDEEM_FILE, GH_REDEEM_FILE)
         txt = f"<blockquote>🎫 CODES: {len(codes)}</blockquote>\n"
         for c, v in list(codes.items())[-15:]:
             txt += f"<blockquote>{'✅' if not v.get('used') else '❌'} {c} | {v.get('credits')}cr</blockquote>\n"
@@ -719,6 +777,22 @@ async def admin_callback(event):
         ADMIN_STATE[event.sender_id] = "bcast"
         from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
         await event.edit(f"<blockquote>📢 ENTER MESSAGE:</blockquote>", buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔙 Back", data=b"ad_back")])]))
+    elif d == "ad_emojis":
+        ADMIN_STATE[event.sender_id] = "emojis"
+        from telethon.tl.types import KeyboardButtonCallback, ReplyInlineMarkup, KeyboardButtonRow
+        txt = (
+            f"<blockquote>✏️ EDIT EMOJIS</blockquote>\n"
+            f"<blockquote>Send format:</blockquote>\n"
+            f"<blockquote>EMOJI_NAME: new_emoji_id</blockquote>\n"
+            f"<blockquote>Example: E_DIAMOND: 6314557546753440004</blockquote>\n\n"
+            f"<blockquote>Available emojis to edit:</blockquote>\n"
+            f"<blockquote>E_DIAMOND, E_LION, E_HAPPY, E_WALLET</blockquote>\n"
+            f"<blockquote>E_CROWN, E_CAMERA, E_ARROW, E_DIAMOND2</blockquote>\n"
+            f"<blockquote>E_STAR, E_BOLT, E_IFSC, E_AADHAAR</blockquote>\n"
+            f"<blockquote>E_INDIA, E_RC, E_GST, E_PAK</blockquote>\n"
+            f"<blockquote>E_TG, E_CHECK, E_CROSS, E_WARN</blockquote>"
+        )
+        await event.edit(txt, buttons=ReplyInlineMarkup(rows=[KeyboardButtonRow(buttons=[KeyboardButtonCallback(text="🔙 Back", data=b"ad_back")])]))
     elif d == "ad_maint":
         s["maintenance_mode"] = not s.get("maintenance_mode", False)
         save_settings(s)
@@ -750,6 +824,32 @@ async def admin_callback(event):
         await admin_panel(event)
     await event.answer()
 
+async def update_emoji(emoji_name, new_id):
+    """Update emoji in emojis.py file"""
+    try:
+        emoji_file = os.path.join(os.getcwd(), "emojis.py")
+        with open(emoji_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Find and replace emoji ID
+        pattern = rf'{emoji_name}\s*=\s*PE\("[0-9]+"'
+        replacement = f'{emoji_name} = PE("{new_id}"'
+        new_content = re.sub(pattern, replacement, content)
+        
+        if new_content != content:
+            with open(emoji_file, 'w', encoding='utf-8') as f:
+                f.write(new_content)
+            
+            # Also update in GitHub if connected
+            if gh.connected:
+                gh._update_file("emojis.py", new_content, f"Updated emoji {emoji_name}")
+            
+            return True, f"✅ Emoji {emoji_name} updated to ID: {new_id}"
+        else:
+            return False, f"❌ Emoji {emoji_name} not found"
+    except Exception as e:
+        return False, f"❌ Error: {str(e)}"
+
 # --- 🚀 HANDLERS ---
 
 @client.on(events.NewMessage(pattern='/start'))
@@ -759,7 +859,7 @@ async def start(event):
         
         args = event.message.message.split()
         if len(args) > 1 and args[1].startswith("HEX-"):
-            users = load_json(USERS_FILE)
+            users = load_json(USERS_FILE, GH_USERS_FILE)
             for inviter, data in users.items():
                 if data.get("invite_code") == args[1] and inviter != str(uid):
                     cr = process_invite(inviter, uid)
@@ -786,7 +886,6 @@ async def start(event):
         logger.error(f"Start: {e}")
 
 async def send_welcome_video(event):
-    """Send welcome video with hex.mp4 and menu"""
     try:
         video_path = "hex.mp4"
         if os.path.exists(video_path):
@@ -859,6 +958,37 @@ async def handle_url_callback(event):
         await event.answer(f"{E_LINK} Join: {LINK_1}", alert=True)
     elif event.data == b"url2":
         await event.answer(f"{E_LINK} Join: {LINK_2}", alert=True)
+
+async def show_verification_page(event):
+    try:
+        txt = (
+            f"<blockquote>{E_DIAMOND} {BOT_NAME} {E_DIAMOND}</blockquote>\n"
+            f"<blockquote>@{BOT_USERNAME}</blockquote>\n\n"
+            f"<blockquote>{E_LOCK} <b>VERIFICATION REQUIRED</b></blockquote>\n"
+            f"<blockquote>JOIN BOTH CHANNELS TO UNLOCK</blockquote>\n\n"
+            f"<blockquote>{E_STAR2} <b>GUIDELINES:</b></blockquote>\n"
+            f"<blockquote>• EDUCATIONAL PURPOSES ONLY</blockquote>\n"
+            f"<blockquote>• USE ON YOUR OWN DATA</blockquote>\n"
+            f"<blockquote>• RESPECT PRIVACY LAWS</blockquote>\n\n"
+            f"<blockquote>{E_GIFT} +{DAILY_FREE_CREDITS} DAILY {E_STAR}</blockquote>\n"
+            f"<blockquote>{E_USERS} +{INVITE_CREDITS} PER INVITE</blockquote>\n"
+            f"<blockquote>{E_CLOCK} {AUTO_DELETE_TIME}s AUTO DELETE</blockquote>\n\n"
+            f"<blockquote>{E_CROWN} <b>OWNER: @Hexh4ckerOFC</b></blockquote>"
+        )
+        
+        button1 = KeyboardButtonUrl(text="📢 JOIN CHANNEL 1", url=LINK_1)
+        button2 = KeyboardButtonUrl(text="📢 JOIN CHANNEL 2", url=LINK_2)
+        button3 = KeyboardButtonCallback(text="✅ I'VE JOINED - VERIFY", data=b"verify")
+        
+        markup = ReplyInlineMarkup(rows=[
+            KeyboardButtonRow(buttons=[button1]),
+            KeyboardButtonRow(buttons=[button2]),
+            KeyboardButtonRow(buttons=[button3])
+        ])
+        
+        await send_html(event.chat_id, txt, reply_markup=markup)
+    except Exception as e:
+        logger.error(f"Verification page error: {e}")
 
 async def main_menu(event):
     is_admin = event.sender_id == ADMIN_ID
@@ -939,7 +1069,7 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(msg))
                 return
             elif state == "bcast":
-                users = load_json(USERS_FILE)
+                users = load_json(USERS_FILE, GH_USERS_FILE)
                 cnt = 0
                 for u in users:
                     try:
@@ -948,6 +1078,20 @@ async def msg_handler(event):
                     except:
                         pass
                 msg = await send_html(event.chat_id, f"<blockquote>{E_CHECK} Sent: {cnt}</blockquote>")
+                asyncio.create_task(schedule_delete(msg))
+                return
+            elif state == "emojis":
+                try:
+                    parts = txt.split(":", 1)
+                    if len(parts) == 2:
+                        emoji_name = parts[0].strip()
+                        new_id = parts[1].strip()
+                        success, result = await update_emoji(emoji_name, new_id)
+                        msg = await send_html(event.chat_id, f"<blockquote>{result}</blockquote>")
+                    else:
+                        msg = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Invalid format! Use: EMOJI_NAME: new_id</blockquote>")
+                except Exception as e:
+                    msg = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Error: {str(e)}</blockquote>")
                 asyncio.create_task(schedule_delete(msg))
                 return
         
@@ -1186,9 +1330,10 @@ async def main():
     print("Hex OSINT Bot ULTIMATE EDITION")
     print("Premium UI with Unique Emojis")
     print("All features working!")
+    print(f"📁 GitHub Storage: {'✅ Connected' if gh.connected else '❌ Not Connected'}")
     
     try:
-        subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4"], capture_output=True, timeout=30)
+        subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4", "PyGithub"], capture_output=True, timeout=30)
     except:
         pass
     
