@@ -201,7 +201,8 @@ def get_user(user_id):
             "invite_code": f"HEX-{''.join(random.choices(string.ascii_uppercase+string.digits, k=8))}",
             "invites": 0,
             "verified": False,
-            "premium": False
+            "premium": False,
+            "started": False
         }
         save_json(USERS_FILE, users)
     elif users[uid].get("last_reset") != today:
@@ -763,6 +764,11 @@ async def start(event):
     try:
         uid = event.sender_id
         
+        # Mark user as started
+        user = get_user(uid)
+        user["started"] = True
+        save_user(uid, user)
+        
         args = event.message.message.split()
         if len(args) > 1 and args[1].startswith("HEX-"):
             users = load_json(USERS_FILE)
@@ -774,8 +780,6 @@ async def start(event):
                     except:
                         pass
                     break
-        
-        user = get_user(uid)
         
         if not user.get("verified"):
             if await check_channels(uid):
@@ -905,7 +909,14 @@ async def msg_handler(event):
         
         if not txt:
             return
-            
+        
+        # GROUP HANDLING: Only respond if user has started the bot
+        if event.is_group:
+            user = get_user(uid)
+            if not user.get("started", False):
+                # User hasn't started the bot - ignore
+                return
+        
         if not txt.startswith('/start'):
             asyncio.create_task(schedule_delete(event.message, AUTO_DELETE_TIME))
         
@@ -1202,6 +1213,7 @@ async def main():
     print("Hex OSINT Bot ULTIMATE EDITION")
     print("Premium UI with Unique Emojis")
     print("All features working!")
+    print("Group Mode: Only users who /start the bot will get responses")
     
     try:
         subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4"], capture_output=True, timeout=30)
