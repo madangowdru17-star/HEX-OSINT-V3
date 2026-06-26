@@ -39,7 +39,7 @@ except ImportError:
 # --- ⚙️ CONFIGURATION ---
 API_ID = int(os.environ.get('API_ID', '37996037'))
 API_HASH = os.environ.get('API_HASH', '47ee9fa07b5eeb865edb3d79ada726a5')
-BOT_TOKEN = os.environ.get('BOT_TOKEN', '8687617595:AAFF6FP5XWr92RFhM0wco6UHutB7UGUpFFA')
+BOT_TOKEN = os.environ.get('BOT_TOKEN', '8687617595:AAGcgsclpi0waOdvOCYblCwJ2-g7KFVoQIc')
 ADMIN_ID = int(os.environ.get('ADMIN_ID', '7898928200'))
 
 CHANNEL_1_ID = int(os.environ.get('CHANNEL_1_ID', '-1003240507339'))
@@ -174,6 +174,7 @@ USER_MODES = {}
 
 # Cache for uploaded video file ID
 VIDEO_FILE_ID = None
+VIDEO_CACHED = False
 
 # --- 💾 DATA FUNCTIONS ---
 
@@ -780,26 +781,27 @@ async def start(event):
                         pass
                     break
         
-        # Send welcome message with video (cached)
+        # Send welcome message with video (cached) or text
         await send_welcome(event)
         
     except Exception as e:
         logger.error(f"Start: {e}")
-        # Fallback: send text welcome if video fails
         await main_menu(event)
 
 async def get_cached_video():
-    """Get cached video file ID or upload it once"""
-    global VIDEO_FILE_ID
+    """Get cached video as InputFile"""
+    global VIDEO_FILE_ID, VIDEO_CACHED
     
-    if VIDEO_FILE_ID:
+    if VIDEO_CACHED and VIDEO_FILE_ID:
         return VIDEO_FILE_ID
     
     video_path = "hex.mp4"
     if os.path.exists(video_path):
         try:
-            uploaded = await client.upload_file(video_path)
-            VIDEO_FILE_ID = uploaded
+            # Upload video once and cache as InputFile
+            video_file = await client.upload_file(video_path)
+            VIDEO_FILE_ID = video_file
+            VIDEO_CACHED = True
             logger.info("Video uploaded and cached successfully")
             return VIDEO_FILE_ID
         except Exception as e:
@@ -827,6 +829,7 @@ async def send_welcome(event):
         is_admin = event.sender_id == ADMIN_ID
         markup = create_main_menu(is_admin, get_settings())
         
+        # Try to send cached video
         video_file = await get_cached_video()
         
         if video_file:
@@ -836,13 +839,15 @@ async def send_welcome(event):
                     video_file,
                     caption=caption,
                     parse_mode='html',
-                    buttons=markup
+                    buttons=markup,
+                    force_document=False
                 )
-                # Auto delete welcome message after 60 seconds
                 asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
                 return
             except Exception as e:
                 logger.error(f"Video send failed: {e}")
+                VIDEO_CACHED = False
+                VIDEO_FILE_ID = None
         
         # Fallback: send text message
         msg = await send_html(event.chat_id, caption, reply_markup=markup)
@@ -941,7 +946,6 @@ async def msg_handler(event):
         if event.is_group:
             user = get_user(uid)
             if not user.get("started", False):
-                # User hasn't started the bot - completely ignore
                 return
         
         # Auto-delete all other messages except /start
@@ -1028,7 +1032,7 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
-        # Feature mapping - SUPPORTS BUTTON CLICKS WITHOUT START
+        # Feature mapping
         feature_map = {
             "Iғsᴄ Iɴғᴏ": ("IFSC", "ifsc"),
             "Aᴀᴅʜᴀʀ Iɴғᴏ": ("AADHAAR", "aadhaar"),
