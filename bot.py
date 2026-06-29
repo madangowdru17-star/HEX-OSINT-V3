@@ -39,7 +39,7 @@ except ImportError:
 # --- ⚙️ CONFIGURATION ---
 API_ID = int(os.environ.get('API_ID', '37996037'))
 API_HASH = os.environ.get('API_HASH', '47ee9fa07b5eeb865edb3d79ada726a5')
-BOT_TOKEN = os.environ.get('BOT_TOKEN', '8687617595:AAGcgsclpi0waOdvOCYblCwJ2-g7KFVoQIc')
+BOT_TOKEN = os.environ.get('BOT_TOKEN', '8687617595:AAFF6FP5XWr92RFhM0wco6UHutB7UGUpFFA')
 ADMIN_ID = int(os.environ.get('ADMIN_ID', '7898928200'))
 
 CHANNEL_1_ID = int(os.environ.get('CHANNEL_1_ID', '-1003240507339'))
@@ -164,6 +164,11 @@ ICON_UPGRADE = 6267128480601741166
 ICON_ADMIN = 6267128480601741166
 ICON_NEXT = 5258331647358540449
 ICON_PRIMARY = 5258096772776991776
+
+# --- VERIFICATION BUTTON ICON IDs ---
+ICON_JOIN1 = 5802980697886954454  # 🦁
+ICON_JOIN2 = 6154369208076470797  # 🥹
+ICON_VERIFY = 5289898724976240966  # ⭐
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -381,9 +386,40 @@ async def show_verification_page(event):
             f"{E_CROWN} <b>OWNER: @HeX_CiPhEr</b></blockquote>"
         )
         
-        button1 = KeyboardButtonUrl(text="📢 JOIN CHANNEL 1", url=LINK_1)
-        button2 = KeyboardButtonUrl(text="📢 JOIN CHANNEL 2", url=LINK_2)
-        button3 = KeyboardButtonCallback(text="✅ I'VE JOINED - VERIFY", data=b"verify")
+        # --- INLINE COLORED BUTTONS WITH PREMIUM ICONS ---
+        
+        # Button 1: Join Channel 1 (Primary - Blue)
+        style1 = KeyboardButtonStyle(
+            bg_primary=True,
+            icon=ICON_JOIN1
+        )
+        button1 = KeyboardButtonUrl(
+            text="📢 JOIN CHANNEL 1",
+            url=LINK_1,
+            style=style1
+        )
+        
+        # Button 2: Join Channel 2 (Success - Green)
+        style2 = KeyboardButtonStyle(
+            bg_success=True,
+            icon=ICON_JOIN2
+        )
+        button2 = KeyboardButtonUrl(
+            text="📢 JOIN CHANNEL 2",
+            url=LINK_2,
+            style=style2
+        )
+        
+        # Button 3: Verify (Danger - Red)
+        style3 = KeyboardButtonStyle(
+            bg_danger=True,
+            icon=ICON_VERIFY
+        )
+        button3 = KeyboardButtonCallback(
+            text="✅ I'VE JOINED - VERIFY",
+            data=b"verify",
+            style=style3
+        )
         
         markup = ReplyInlineMarkup(rows=[
             KeyboardButtonRow(buttons=[button1]),
@@ -798,7 +834,6 @@ async def get_cached_video():
     video_path = "hex.mp4"
     if os.path.exists(video_path):
         try:
-            # Upload video once and cache as InputFile
             video_file = await client.upload_file(video_path)
             VIDEO_FILE_ID = video_file
             VIDEO_CACHED = True
@@ -829,7 +864,6 @@ async def send_welcome(event):
         is_admin = event.sender_id == ADMIN_ID
         markup = create_main_menu(is_admin, get_settings())
         
-        # Try to send cached video
         video_file = await get_cached_video()
         
         if video_file:
@@ -849,7 +883,6 @@ async def send_welcome(event):
                 VIDEO_CACHED = False
                 VIDEO_FILE_ID = None
         
-        # Fallback: send text message
         msg = await send_html(event.chat_id, caption, reply_markup=markup)
         asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
         
@@ -938,17 +971,14 @@ async def msg_handler(event):
         if not txt:
             return
         
-        # Don't auto-delete /start command
         if txt.startswith('/start'):
             return
         
-        # GROUP HANDLING: Only respond if user has started the bot
         if event.is_group:
             user = get_user(uid)
             if not user.get("started", False):
                 return
         
-        # Auto-delete all other messages except /start
         asyncio.create_task(schedule_delete(event.message, AUTO_DELETE_TIME))
         
         s = get_settings()
@@ -958,7 +988,6 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
-        # Handle page navigation
         if txt == "Nᴇxᴛ Pᴀɢᴇ ➜":
             s["page"] = 2
             save_settings(s)
@@ -970,7 +999,6 @@ async def msg_handler(event):
             await main_menu(event)
             return
         
-        # Admin states
         if uid == ADMIN_ID and uid in ADMIN_STATE:
             state = ADMIN_STATE.pop(uid)
             if state == "gen":
@@ -1004,7 +1032,6 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(msg))
                 return
         
-        # Check verification
         user = get_user(uid)
         if not user.get("verified"):
             if await check_channels(uid):
@@ -1016,12 +1043,10 @@ async def msg_handler(event):
                 await show_verification_page(event)
                 return
         
-        # Admin Panel
         if txt == "Aᴅᴍɪɴ Pᴀɴᴇʟ":
             await admin_panel(event)
             return
         
-        # Upgrade mode
         if hasattr(event, 'upgrade_mode') and event.upgrade_mode:
             event.upgrade_mode = False
             m = await send_html(event.chat_id, 
@@ -1032,7 +1057,6 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
-        # Feature mapping
         feature_map = {
             "Iғsᴄ Iɴғᴏ": ("IFSC", "ifsc"),
             "Aᴀᴅʜᴀʀ Iɴғᴏ": ("AADHAAR", "aadhaar"),
@@ -1158,7 +1182,6 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(m))
             return
         
-        # Check if user is in query mode
         uid_str = str(uid)
         if uid_str in USER_MODES and USER_MODES[uid_str]:
             mode = USER_MODES[uid_str]
