@@ -177,10 +177,6 @@ client = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 ADMIN_STATE = {}
 USER_MODES = {}
 
-# Cache for uploaded video file ID
-VIDEO_FILE_ID = None
-VIDEO_CACHED = False
-
 # --- 💾 DATA FUNCTIONS ---
 
 def load_json(filename):
@@ -388,35 +384,32 @@ async def show_verification_page(event):
         
         # --- INLINE COLORED BUTTONS WITH PREMIUM ICONS ---
         
-        # Button 1: Join Channel 1 (Primary - Blue)
         style1 = KeyboardButtonStyle(
             bg_primary=True,
             icon=ICON_JOIN1
         )
         button1 = KeyboardButtonUrl(
-            text="📢 JOIN CHANNEL 1",
+            text="JOIN CHANNEL 1",
             url=LINK_1,
             style=style1
         )
         
-        # Button 2: Join Channel 2 (Success - Green)
         style2 = KeyboardButtonStyle(
             bg_success=True,
             icon=ICON_JOIN2
         )
         button2 = KeyboardButtonUrl(
-            text="📢 JOIN CHANNEL 2",
+            text="JOIN CHANNEL 2",
             url=LINK_2,
             style=style2
         )
         
-        # Button 3: Verify (Danger - Red)
         style3 = KeyboardButtonStyle(
             bg_danger=True,
             icon=ICON_VERIFY
         )
         button3 = KeyboardButtonCallback(
-            text="✅ I'VE JOINED - VERIFY",
+            text="VERIFY",
             data=b"verify",
             style=style3
         )
@@ -676,7 +669,6 @@ async def pakistan_lookup(session, number):
         return f"<blockquote>{E_CROSS} ERROR</blockquote>"
 
 async def tg_user_info(session, query):
-    """Get Telegram user info from username or chat ID"""
     try:
         url = f"{TG_INFO_API}{query}"
         data = await safe_api_fetch(session, url, timeout=20)
@@ -800,7 +792,6 @@ async def start(event):
     try:
         uid = event.sender_id
         
-        # Mark user as started
         user = get_user(uid)
         user["started"] = True
         save_user(uid, user)
@@ -817,35 +808,13 @@ async def start(event):
                         pass
                     break
         
-        # Send welcome message with video (cached) or text
         await send_welcome(event)
         
     except Exception as e:
         logger.error(f"Start: {e}")
         await main_menu(event)
 
-async def get_cached_video():
-    """Get cached video as InputFile"""
-    global VIDEO_FILE_ID, VIDEO_CACHED
-    
-    if VIDEO_CACHED and VIDEO_FILE_ID:
-        return VIDEO_FILE_ID
-    
-    video_path = "hex.mp4"
-    if os.path.exists(video_path):
-        try:
-            video_file = await client.upload_file(video_path)
-            VIDEO_FILE_ID = video_file
-            VIDEO_CACHED = True
-            logger.info("Video uploaded and cached successfully")
-            return VIDEO_FILE_ID
-        except Exception as e:
-            logger.error(f"Video upload failed: {e}")
-            return None
-    return None
-
 async def send_welcome(event):
-    """Send welcome video (cached) or text fallback"""
     try:
         cr = get_user(event.sender_id).get('credits', 0)
         name = event.sender.first_name or "User"
@@ -863,25 +832,6 @@ async def send_welcome(event):
         
         is_admin = event.sender_id == ADMIN_ID
         markup = create_main_menu(is_admin, get_settings())
-        
-        video_file = await get_cached_video()
-        
-        if video_file:
-            try:
-                msg = await client.send_file(
-                    event.chat_id,
-                    video_file,
-                    caption=caption,
-                    parse_mode='html',
-                    buttons=markup,
-                    force_document=False
-                )
-                asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
-                return
-            except Exception as e:
-                logger.error(f"Video send failed: {e}")
-                VIDEO_CACHED = False
-                VIDEO_FILE_ID = None
         
         msg = await send_html(event.chat_id, caption, reply_markup=markup)
         asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
@@ -1276,7 +1226,6 @@ async def main():
     print("All features working!")
     print("Group Mode: Only users who /start the bot will get responses")
     print("Welcome message auto-deletes after 60 seconds")
-    print("Video is cached for fast response!")
     print("Buttons work without /start - just click and use!")
     
     try:
