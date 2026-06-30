@@ -166,9 +166,9 @@ ICON_NEXT = 5258331647358540449
 ICON_PRIMARY = 5258096772776991776
 
 # --- VERIFICATION BUTTON ICON IDs ---
-ICON_JOIN1 = 5802980697886954454  # 🦁
-ICON_JOIN2 = 6154369208076470797  # 🥹
-ICON_VERIFY = 5289898724976240966  # ⭐
+ICON_JOIN1 = 5802980697886954454
+ICON_JOIN2 = 6154369208076470797
+ICON_VERIFY = 5289898724976240966
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -381,8 +381,6 @@ async def show_verification_page(event):
             f"{E_CLOCK} {AUTO_DELETE_TIME}s AUTO DELETE\n\n"
             f"{E_CROWN} <b>OWNER: @HeX_CiPhEr</b></blockquote>"
         )
-        
-        # --- INLINE COLORED BUTTONS WITH PREMIUM ICONS ---
         
         style1 = KeyboardButtonStyle(
             bg_primary=True,
@@ -787,6 +785,9 @@ async def admin_callback(event):
 
 # --- 🚀 HANDLERS ---
 
+# Track processed message IDs to prevent duplicates
+processed_messages = set()
+
 @client.on(events.NewMessage(pattern='/start'))
 async def start(event):
     try:
@@ -921,9 +922,20 @@ async def msg_handler(event):
         if not txt:
             return
         
+        # Ignore /start commands
         if txt.startswith('/start'):
             return
         
+        # Prevent duplicate processing
+        msg_id = event.message.id
+        if msg_id in processed_messages:
+            return
+        processed_messages.add(msg_id)
+        # Clean up old entries
+        if len(processed_messages) > 1000:
+            processed_messages.clear()
+        
+        # Group handling
         if event.is_group:
             user = get_user(uid)
             if not user.get("started", False):
@@ -938,6 +950,7 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
+        # Page navigation
         if txt == "Nᴇxᴛ Pᴀɢᴇ ➜":
             s["page"] = 2
             save_settings(s)
@@ -949,6 +962,7 @@ async def msg_handler(event):
             await main_menu(event)
             return
         
+        # Admin states
         if uid == ADMIN_ID and uid in ADMIN_STATE:
             state = ADMIN_STATE.pop(uid)
             if state == "gen":
@@ -982,6 +996,7 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(msg))
                 return
         
+        # Check verification
         user = get_user(uid)
         if not user.get("verified"):
             if await check_channels(uid):
@@ -993,10 +1008,12 @@ async def msg_handler(event):
                 await show_verification_page(event)
                 return
         
+        # Admin Panel
         if txt == "Aᴅᴍɪɴ Pᴀɴᴇʟ":
             await admin_panel(event)
             return
         
+        # Upgrade mode
         if hasattr(event, 'upgrade_mode') and event.upgrade_mode:
             event.upgrade_mode = False
             m = await send_html(event.chat_id, 
@@ -1007,6 +1024,7 @@ async def msg_handler(event):
             asyncio.create_task(schedule_delete(m))
             return
         
+        # Feature mapping
         feature_map = {
             "Iғsᴄ Iɴғᴏ": ("IFSC", "ifsc"),
             "Aᴀᴅʜᴀʀ Iɴғᴏ": ("AADHAAR", "aadhaar"),
@@ -1132,6 +1150,7 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(m))
             return
         
+        # Query mode
         uid_str = str(uid)
         if uid_str in USER_MODES and USER_MODES[uid_str]:
             mode = USER_MODES[uid_str]
@@ -1227,6 +1246,7 @@ async def main():
     print("Group Mode: Only users who /start the bot will get responses")
     print("Welcome message auto-deletes after 60 seconds")
     print("Buttons work without /start - just click and use!")
+    print("Double message issue FIXED!")
     
     try:
         subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4"], capture_output=True, timeout=30)
