@@ -926,13 +926,14 @@ async def msg_handler(event):
         if txt.startswith('/start'):
             return
         
-        # Prevent duplicate processing
+        # CRITICAL FIX: Prevent duplicate processing using message ID
         msg_id = event.message.id
         if msg_id in processed_messages:
             return
         processed_messages.add(msg_id)
-        # Clean up old entries
-        if len(processed_messages) > 1000:
+        
+        # Clean up old entries to prevent memory issues
+        if len(processed_messages) > 500:
             processed_messages.clear()
         
         # Group handling
@@ -941,6 +942,7 @@ async def msg_handler(event):
             if not user.get("started", False):
                 return
         
+        # Auto-delete user message (except /start)
         asyncio.create_task(schedule_delete(event.message, AUTO_DELETE_TIME))
         
         s = get_settings()
