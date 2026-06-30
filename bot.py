@@ -177,6 +177,10 @@ client = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 ADMIN_STATE = {}
 USER_MODES = {}
 
+# Global lock to prevent duplicate processing
+processing_lock = asyncio.Lock()
+processed_messages = set()
+
 # --- 💾 DATA FUNCTIONS ---
 
 def load_json(filename):
@@ -785,35 +789,33 @@ async def admin_callback(event):
 
 # --- 🚀 HANDLERS ---
 
-# Track processed message IDs to prevent duplicates
-processed_messages = set()
-
 @client.on(events.NewMessage(pattern='/start'))
 async def start(event):
-    try:
-        uid = event.sender_id
-        
-        user = get_user(uid)
-        user["started"] = True
-        save_user(uid, user)
-        
-        args = event.message.message.split()
-        if len(args) > 1 and args[1].startswith("HEX-"):
-            users = load_json(USERS_FILE)
-            for inviter, data in users.items():
-                if data.get("invite_code") == args[1] and inviter != str(uid):
-                    cr = process_invite(inviter, uid)
-                    try:
-                        await send_html(int(inviter), f"<blockquote>{E_GIFT} +{cr} CREDITS! NEW USER JOINED!\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
-                    except:
-                        pass
-                    break
-        
-        await send_welcome(event)
-        
-    except Exception as e:
-        logger.error(f"Start: {e}")
-        await main_menu(event)
+    async with processing_lock:
+        try:
+            uid = event.sender_id
+            
+            user = get_user(uid)
+            user["started"] = True
+            save_user(uid, user)
+            
+            args = event.message.message.split()
+            if len(args) > 1 and args[1].startswith("HEX-"):
+                users = load_json(USERS_FILE)
+                for inviter, data in users.items():
+                    if data.get("invite_code") == args[1] and inviter != str(uid):
+                        cr = process_invite(inviter, uid)
+                        try:
+                            await send_html(int(inviter), f"<blockquote>{E_GIFT} +{cr} CREDITS! NEW USER JOINED!\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
+                        except:
+                            pass
+                        break
+            
+            await send_welcome(event)
+            
+        except Exception as e:
+            logger.error(f"Start: {e}")
+            await main_menu(event)
 
 async def send_welcome(event):
     try:
@@ -915,263 +917,264 @@ async def main_menu(event):
 
 @client.on(events.NewMessage)
 async def msg_handler(event):
-    try:
-        uid = event.sender_id
-        txt = event.message.message.strip()
-        
-        if not txt:
-            return
-        
-        # Ignore /start commands
-        if txt.startswith('/start'):
-            return
-        
-        # CRITICAL FIX: Prevent duplicate processing using message ID
-        msg_id = event.message.id
-        if msg_id in processed_messages:
-            return
-        processed_messages.add(msg_id)
-        
-        # Clean up old entries to prevent memory issues
-        if len(processed_messages) > 500:
-            processed_messages.clear()
-        
-        # Group handling
-        if event.is_group:
-            user = get_user(uid)
-            if not user.get("started", False):
-                return
-        
-        # Auto-delete user message (except /start)
-        asyncio.create_task(schedule_delete(event.message, AUTO_DELETE_TIME))
-        
-        s = get_settings()
-        
-        if s.get("maintenance_mode", False) and uid != ADMIN_ID:
-            m = await send_html(event.chat_id, f"<blockquote>{E_TOOLS} Under maintenance\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
-            asyncio.create_task(schedule_delete(m))
-            return
-        
-        # Page navigation
-        if txt == "Nᴇxᴛ Pᴀɢᴇ ➜":
-            s["page"] = 2
-            save_settings(s)
-            await main_menu(event)
-            return
-        elif txt == "◀ Pʀᴇᴠɪᴏᴜs Pᴀɢᴇ":
-            s["page"] = 1
-            save_settings(s)
-            await main_menu(event)
-            return
-        
-        # Admin states
-        if uid == ADMIN_ID and uid in ADMIN_STATE:
-            state = ADMIN_STATE.pop(uid)
-            if state == "gen":
-                try:
-                    cr = int(txt)
-                    code = generate_redeem_code(cr)
-                    msg = await send_html(event.chat_id, f"<blockquote>{E_CHECK} {code} | {E_CREDIT} {cr}cr\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
-                except:
-                    msg = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Number\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
-                asyncio.create_task(schedule_delete(msg))
-                return
-            elif state == "credit":
-                p = txt.split()
-                if len(p) >= 2:
-                    bal = add_credits(p[0], int(p[1]))
-                    msg = await send_html(event.chat_id, f"<blockquote>{E_CHECK} +{p[1]} | {bal}\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
-                else:
-                    msg = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Format: ID AMOUNT\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
-                asyncio.create_task(schedule_delete(msg))
-                return
-            elif state == "bcast":
-                users = load_json(USERS_FILE)
-                cnt = 0
-                for u in users:
-                    try:
-                        await send_html(int(u), f"<blockquote>{E_BOLT} {txt}\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
-                        cnt += 1
-                    except:
-                        pass
-                msg = await send_html(event.chat_id, f"<blockquote>{E_CHECK} Sent: {cnt}\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
-                asyncio.create_task(schedule_delete(msg))
-                return
-        
-        # Check verification
-        user = get_user(uid)
-        if not user.get("verified"):
-            if await check_channels(uid):
-                user["verified"] = True
-                save_user(uid, user)
-                await main_menu(event)
-                return
-            else:
-                await show_verification_page(event)
-                return
-        
-        # Admin Panel
-        if txt == "Aᴅᴍɪɴ Pᴀɴᴇʟ":
-            await admin_panel(event)
-            return
-        
-        # Upgrade mode
-        if hasattr(event, 'upgrade_mode') and event.upgrade_mode:
-            event.upgrade_mode = False
-            m = await send_html(event.chat_id, 
-                f"<blockquote>{E_UPGRADE} Premium Upgrade\n\n"
-                f"Contact @HeX_CiPhEr for premium access!\n\n"
-                f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-            )
-            asyncio.create_task(schedule_delete(m))
-            return
-        
-        # Feature mapping
-        feature_map = {
-            "Iғsᴄ Iɴғᴏ": ("IFSC", "ifsc"),
-            "Aᴀᴅʜᴀʀ Iɴғᴏ": ("AADHAAR", "aadhaar"),
-            "Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ": ("MOBILE", "mobile"),
-            "Rᴄ Iɴғᴏ": ("VEHICLE", "rc"),
-            "Gsᴛ Iɴғᴏ": ("GST", "gst"),
-            "Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ": ("PAK", "pak"),
-            "Tɢ Usᴇʀ Iᴅ Iɴғᴏ": ("TGID", "tgid"),
-            "Iɴᴠɪᴛᴇ & Eᴀʀɴ": ("INVITE", None),
-            "Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ": ("UPGRADE", None)
-        }
-        
-        if txt in feature_map:
-            mode, feature = feature_map[txt]
+    async with processing_lock:
+        try:
+            uid = event.sender_id
+            txt = event.message.message.strip()
             
-            if mode == "INVITE":
+            if not txt:
+                return
+            
+            # Ignore /start commands
+            if txt.startswith('/start'):
+                return
+            
+            # CRITICAL FIX: Prevent duplicate processing using message ID
+            msg_id = event.message.id
+            if msg_id in processed_messages:
+                return
+            processed_messages.add(msg_id)
+            
+            # Clean up old entries to prevent memory issues
+            if len(processed_messages) > 500:
+                processed_messages.clear()
+            
+            # Group handling
+            if event.is_group:
                 user = get_user(uid)
-                bot_username = BOT_USERNAME
-                link = f"https://t.me/{bot_username}?start={user['invite_code']}"
-                
-                invite_msg = (
-                    f"<blockquote>{E_STAR} Invite & Earn {E_STAR}\n\n"
-                    f"{E_USERS} +{INVITE_CREDITS} Credits per invite\n\n"
-                    f"{E_LINK} {link}\n\n"
-                    f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-                )
-                m = await send_html(event.chat_id, invite_msg)
-                asyncio.create_task(schedule_delete(m, 120))
-                return
-            elif mode == "UPGRADE":
-                event.upgrade_mode = True
-                m = await send_html(event.chat_id, 
-                    f"<blockquote>{E_UPGRADE} Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ\n\n"
-                    f"Contact @HeX_CiPhEr to upgrade your account!\n\n"
-                    f"🌟 Premium Benefits:\n\n"
-                    f"• Unlimited Credits\n\n"
-                    f"• All Services Access\n\n"
-                    f"• Priority Support\n\n"
-                    f"• Exclusive Features\n\n"
-                    f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-                )
-                asyncio.create_task(schedule_delete(m, 60))
-                return
-            
-            if feature and not s.get(f"{feature}_enabled", True):
-                m = await send_html(event.chat_id, f"<blockquote>{E_DISABLED} Disabled\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
-                asyncio.create_task(schedule_delete(m))
-                return
-            
-            if feature:
-                maint, msg = check_feature_maintenance(feature)
-                if maint:
-                    m = await send_html(event.chat_id, f"<blockquote>{E_TOOLS} {msg}\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
-                    asyncio.create_task(schedule_delete(m))
+                if not user.get("started", False):
                     return
             
-            USER_MODES[str(uid)] = mode
+            # Auto-delete user message (except /start)
+            asyncio.create_task(schedule_delete(event.message, AUTO_DELETE_TIME))
             
-            user = get_user(uid)
-            credits = user.get("credits", 0)
+            s = get_settings()
             
-            prompts = {
-                "IFSC": (
-                    f"<blockquote>{E_IFSC} Iғsᴄ Iɴғᴏ\n\n"
-                    f"Send IFSC code\n\n"
-                    f"Example: SBIN0001234\n\n"
-                    f"{E_WALLET} Your Credits: {credits}\n\n"
-                    f"Search Cost: 1 Point\n\n"
-                    f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-                ),
-                "AADHAAR": (
-                    f"<blockquote>{E_AADHAAR} Aᴀᴅʜᴀʀ Iɴғᴏ\n\n"
-                    f"Send 12-digit Aadhar number\n\n"
-                    f"Example: 123456789012\n\n"
-                    f"{E_WALLET} Your Credits: {credits}\n\n"
-                    f"Search Cost: 1 Point\n\n"
-                    f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-                ),
-                "MOBILE": (
-                    f"<blockquote>{E_INDIA} Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ\n\n"
-                    f"Send 10-digit mobile number\n\n"
-                    f"Example: 9876543210\n\n"
-                    f"Tip: with or without +91\n\n"
-                    f"{E_WALLET} Your Credits: {credits}\n\n"
-                    f"Search Cost: 1 Point\n\n"
-                    f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-                ),
-                "VEHICLE": (
-                    f"<blockquote>{E_RC} Rᴄ Iɴғᴏ\n\n"
-                    f"Send vehicle number\n\n"
-                    f"Example: KA01AB3256\n\n"
-                    f"{E_WALLET} Your Credits: {credits}\n\n"
-                    f"Search Cost: 1 Point\n\n"
-                    f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-                ),
-                "GST": (
-                    f"<blockquote>{E_GST} Gsᴛ Iɴғᴏ\n\n"
-                    f"Send GST number\n\n"
-                    f"Example: 19BOKPS7056D1ZI\n\n"
-                    f"{E_WALLET} Your Credits: {credits}\n\n"
-                    f"Search Cost: 1 Point\n\n"
-                    f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-                ),
-                "PAK": (
-                    f"<blockquote>{E_PAK} Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ\n\n"
-                    f"Send Pakistan number\n\n"
-                    f"Example: 923078750447\n\n"
-                    f"{E_WALLET} Your Credits: {credits}\n\n"
-                    f"Search Cost: 1 Point\n\n"
-                    f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-                ),
-                "TGID": (
-                    f"<blockquote>{E_TG} Tɢ Usᴇʀ Iᴅ Iɴғᴏ\n\n"
-                    f"Send Telegram username or chat ID\n\n"
-                    f"Example: @username or 123456789\n\n"
-                    f"{E_WALLET} Your Credits: {credits}\n\n"
-                    f"Search Cost: 1 Point\n\n"
-                    f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-                )
-            }
-            if mode in prompts:
-                m = await send_html(event.chat_id, prompts[mode])
+            if s.get("maintenance_mode", False) and uid != ADMIN_ID:
+                m = await send_html(event.chat_id, f"<blockquote>{E_TOOLS} Under maintenance\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
                 asyncio.create_task(schedule_delete(m))
-            return
-        
-        # Query mode
-        uid_str = str(uid)
-        if uid_str in USER_MODES and USER_MODES[uid_str]:
-            mode = USER_MODES[uid_str]
+                return
             
+            # Page navigation
+            if txt == "Nᴇxᴛ Pᴀɢᴇ ➜":
+                s["page"] = 2
+                save_settings(s)
+                await main_menu(event)
+                return
+            elif txt == "◀ Pʀᴇᴠɪᴏᴜs Pᴀɢᴇ":
+                s["page"] = 1
+                save_settings(s)
+                await main_menu(event)
+                return
+            
+            # Admin states
+            if uid == ADMIN_ID and uid in ADMIN_STATE:
+                state = ADMIN_STATE.pop(uid)
+                if state == "gen":
+                    try:
+                        cr = int(txt)
+                        code = generate_redeem_code(cr)
+                        msg = await send_html(event.chat_id, f"<blockquote>{E_CHECK} {code} | {E_CREDIT} {cr}cr\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
+                    except:
+                        msg = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Number\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
+                    asyncio.create_task(schedule_delete(msg))
+                    return
+                elif state == "credit":
+                    p = txt.split()
+                    if len(p) >= 2:
+                        bal = add_credits(p[0], int(p[1]))
+                        msg = await send_html(event.chat_id, f"<blockquote>{E_CHECK} +{p[1]} | {bal}\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
+                    else:
+                        msg = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Format: ID AMOUNT\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
+                    asyncio.create_task(schedule_delete(msg))
+                    return
+                elif state == "bcast":
+                    users = load_json(USERS_FILE)
+                    cnt = 0
+                    for u in users:
+                        try:
+                            await send_html(int(u), f"<blockquote>{E_BOLT} {txt}\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
+                            cnt += 1
+                        except:
+                            pass
+                    msg = await send_html(event.chat_id, f"<blockquote>{E_CHECK} Sent: {cnt}\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
+                    asyncio.create_task(schedule_delete(msg))
+                    return
+            
+            # Check verification
             user = get_user(uid)
-            if user.get("credits", 0) <= 0:
+            if not user.get("verified"):
+                if await check_channels(uid):
+                    user["verified"] = True
+                    save_user(uid, user)
+                    await main_menu(event)
+                    return
+                else:
+                    await show_verification_page(event)
+                    return
+            
+            # Admin Panel
+            if txt == "Aᴅᴍɪɴ Pᴀɴᴇʟ":
+                await admin_panel(event)
+                return
+            
+            # Upgrade mode
+            if hasattr(event, 'upgrade_mode') and event.upgrade_mode:
+                event.upgrade_mode = False
                 m = await send_html(event.chat_id, 
-                    f"<blockquote>{E_CROSS} No credits! +10 daily | +3 invite\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+                    f"<blockquote>{E_UPGRADE} Premium Upgrade\n\n"
+                    f"Contact @HeX_CiPhEr for premium access!\n\n"
+                    f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
                 )
                 asyncio.create_task(schedule_delete(m))
+                return
+            
+            # Feature mapping
+            feature_map = {
+                "Iғsᴄ Iɴғᴏ": ("IFSC", "ifsc"),
+                "Aᴀᴅʜᴀʀ Iɴғᴏ": ("AADHAAR", "aadhaar"),
+                "Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ": ("MOBILE", "mobile"),
+                "Rᴄ Iɴғᴏ": ("VEHICLE", "rc"),
+                "Gsᴛ Iɴғᴏ": ("GST", "gst"),
+                "Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ": ("PAK", "pak"),
+                "Tɢ Usᴇʀ Iᴅ Iɴғᴏ": ("TGID", "tgid"),
+                "Iɴᴠɪᴛᴇ & Eᴀʀɴ": ("INVITE", None),
+                "Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ": ("UPGRADE", None)
+            }
+            
+            if txt in feature_map:
+                mode, feature = feature_map[txt]
+                
+                if mode == "INVITE":
+                    user = get_user(uid)
+                    bot_username = BOT_USERNAME
+                    link = f"https://t.me/{bot_username}?start={user['invite_code']}"
+                    
+                    invite_msg = (
+                        f"<blockquote>{E_STAR} Invite & Earn {E_STAR}\n\n"
+                        f"{E_USERS} +{INVITE_CREDITS} Credits per invite\n\n"
+                        f"{E_LINK} {link}\n\n"
+                        f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+                    )
+                    m = await send_html(event.chat_id, invite_msg)
+                    asyncio.create_task(schedule_delete(m, 120))
+                    return
+                elif mode == "UPGRADE":
+                    event.upgrade_mode = True
+                    m = await send_html(event.chat_id, 
+                        f"<blockquote>{E_UPGRADE} Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ\n\n"
+                        f"Contact @HeX_CiPhEr to upgrade your account!\n\n"
+                        f"🌟 Premium Benefits:\n\n"
+                        f"• Unlimited Credits\n\n"
+                        f"• All Services Access\n\n"
+                        f"• Priority Support\n\n"
+                        f"• Exclusive Features\n\n"
+                        f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+                    )
+                    asyncio.create_task(schedule_delete(m, 60))
+                    return
+                
+                if feature and not s.get(f"{feature}_enabled", True):
+                    m = await send_html(event.chat_id, f"<blockquote>{E_DISABLED} Disabled\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
+                    asyncio.create_task(schedule_delete(m))
+                    return
+                
+                if feature:
+                    maint, msg = check_feature_maintenance(feature)
+                    if maint:
+                        m = await send_html(event.chat_id, f"<blockquote>{E_TOOLS} {msg}\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
+                        asyncio.create_task(schedule_delete(m))
+                        return
+                
+                USER_MODES[str(uid)] = mode
+                
+                user = get_user(uid)
+                credits = user.get("credits", 0)
+                
+                prompts = {
+                    "IFSC": (
+                        f"<blockquote>{E_IFSC} Iғsᴄ Iɴғᴏ\n\n"
+                        f"Send IFSC code\n\n"
+                        f"Example: SBIN0001234\n\n"
+                        f"{E_WALLET} Your Credits: {credits}\n\n"
+                        f"Search Cost: 1 Point\n\n"
+                        f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+                    ),
+                    "AADHAAR": (
+                        f"<blockquote>{E_AADHAAR} Aᴀᴅʜᴀʀ Iɴғᴏ\n\n"
+                        f"Send 12-digit Aadhar number\n\n"
+                        f"Example: 123456789012\n\n"
+                        f"{E_WALLET} Your Credits: {credits}\n\n"
+                        f"Search Cost: 1 Point\n\n"
+                        f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+                    ),
+                    "MOBILE": (
+                        f"<blockquote>{E_INDIA} Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ\n\n"
+                        f"Send 10-digit mobile number\n\n"
+                        f"Example: 9876543210\n\n"
+                        f"Tip: with or without +91\n\n"
+                        f"{E_WALLET} Your Credits: {credits}\n\n"
+                        f"Search Cost: 1 Point\n\n"
+                        f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+                    ),
+                    "VEHICLE": (
+                        f"<blockquote>{E_RC} Rᴄ Iɴғᴏ\n\n"
+                        f"Send vehicle number\n\n"
+                        f"Example: KA01AB3256\n\n"
+                        f"{E_WALLET} Your Credits: {credits}\n\n"
+                        f"Search Cost: 1 Point\n\n"
+                        f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+                    ),
+                    "GST": (
+                        f"<blockquote>{E_GST} Gsᴛ Iɴғᴏ\n\n"
+                        f"Send GST number\n\n"
+                        f"Example: 19BOKPS7056D1ZI\n\n"
+                        f"{E_WALLET} Your Credits: {credits}\n\n"
+                        f"Search Cost: 1 Point\n\n"
+                        f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+                    ),
+                    "PAK": (
+                        f"<blockquote>{E_PAK} Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ\n\n"
+                        f"Send Pakistan number\n\n"
+                        f"Example: 923078750447\n\n"
+                        f"{E_WALLET} Your Credits: {credits}\n\n"
+                        f"Search Cost: 1 Point\n\n"
+                        f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+                    ),
+                    "TGID": (
+                        f"<blockquote>{E_TG} Tɢ Usᴇʀ Iᴅ Iɴғᴏ\n\n"
+                        f"Send Telegram username or chat ID\n\n"
+                        f"Example: @username or 123456789\n\n"
+                        f"{E_WALLET} Your Credits: {credits}\n\n"
+                        f"Search Cost: 1 Point\n\n"
+                        f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+                    )
+                }
+                if mode in prompts:
+                    m = await send_html(event.chat_id, prompts[mode])
+                    asyncio.create_task(schedule_delete(m))
+                return
+            
+            # Query mode
+            uid_str = str(uid)
+            if uid_str in USER_MODES and USER_MODES[uid_str]:
+                mode = USER_MODES[uid_str]
+                
+                user = get_user(uid)
+                if user.get("credits", 0) <= 0:
+                    m = await send_html(event.chat_id, 
+                        f"<blockquote>{E_CROSS} No credits! +10 daily | +3 invite\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+                    )
+                    asyncio.create_task(schedule_delete(m))
+                    USER_MODES[uid_str] = None
+                    return
+                
+                await run_query(event, mode, txt)
                 USER_MODES[uid_str] = None
                 return
             
-            await run_query(event, mode, txt)
-            USER_MODES[uid_str] = None
-            return
-        
-    except Exception as e:
-        logger.error(f"Msg handler error: {e}")
+        except Exception as e:
+            logger.error(f"Msg handler error: {e}")
 
 async def run_query(event, mode, query):
     if not await net_ok():
@@ -1248,7 +1251,7 @@ async def main():
     print("Group Mode: Only users who /start the bot will get responses")
     print("Welcome message auto-deletes after 60 seconds")
     print("Buttons work without /start - just click and use!")
-    print("Double message issue FIXED!")
+    print("Double message issue FIXED with Async Lock!")
     
     try:
         subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4"], capture_output=True, timeout=30)
