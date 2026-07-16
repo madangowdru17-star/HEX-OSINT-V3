@@ -42,7 +42,6 @@ except ImportError:
 # ---- FIX: robust import of gen.py ----
 GEN_AVAILABLE = False
 try:
-    # Add the current directory to sys.path if needed
     script_dir = os.path.dirname(os.path.abspath(__file__))
     if script_dir not in sys.path:
         sys.path.insert(0, script_dir)
@@ -51,11 +50,9 @@ try:
     print("✅ gen.py imported successfully")
 except ImportError as e:
     print(f"⚠️ gen.py not found: {e}. Guest Generator will be disabled.")
-    # Define dummy REGION_LANG to avoid NameError later
     REGION_LANG = {"ME":"ar","IND":"hi","ID":"id","VN":"vi","TH":"th","BD":"bn","PK":"ur","TW":"zh","CIS":"ru","SAC":"es","BR":"pt"}
     def generate_accounts(*args, **kwargs):
         return []
-# -------------------------------------------------
 
 # --- ⚙️ CONFIGURATION ---
 API_ID = int(os.environ.get('API_ID', '37996037'))
@@ -504,12 +501,13 @@ def create_main_menu(is_admin=False, settings=None):
         if row4:
             rows.append(KeyboardButtonRow(buttons=row4))
         
-        # NEW ROW: Guest Generator (only if available)
+        # ---- GUEST GENERATOR BUTTON ----
         if GEN_AVAILABLE and settings.get("guest_enabled", True):
             row5 = []
             row5.append(create_colored_button("Fғ Gᴜᴇsᴛ Gᴇɴ", 'primary', ICON_GUEST))
             if row5:
                 rows.append(KeyboardButtonRow(buttons=row5))
+        # ---------------------------------
         
         rows.append(KeyboardButtonRow(buttons=[
             create_colored_button("Iɴᴠɪᴛᴇ & Eᴀʀɴ", 'primary', ICON_INVITE),
