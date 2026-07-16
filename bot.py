@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot FINAL WORKING
+# bot.py - Hex OSINT Bot with FF Guest Generator
 
 import logging
 import asyncio
@@ -11,7 +11,10 @@ import subprocess
 import re
 import os
 import sys
+import threading
+import time
 from datetime import datetime, timedelta
+from io import BytesIO
 
 try:
     from telethon import TelegramClient, events, functions
@@ -36,10 +39,17 @@ except ImportError:
     from telethon.errors import UserNotParticipantError, ChannelPrivateError
     HAS_BUTTON_STYLE = True
 
+# Import the guest generator
+try:
+    from gen import generate_accounts, REGION_LANG
+except ImportError:
+    print("gen.py not found! Please ensure gen.py is in the same directory.")
+    sys.exit(1)
+
 # --- ⚙️ CONFIGURATION ---
 API_ID = int(os.environ.get('API_ID', '37996037'))
 API_HASH = os.environ.get('API_HASH', '47ee9fa07b5eeb865edb3d79ada726a5')
-BOT_TOKEN = os.environ.get('BOT_TOKEN', '8687617595:AAFF6FP5XWr92RFhM0wco6UHutB7UGUpFFA')
+BOT_TOKEN = os.environ.get('BOT_TOKEN', '8687617595:AAGXvP6YiOX39vlRI0VYxpZjvlfmR7QMyf4')
 ADMIN_ID = int(os.environ.get('ADMIN_ID', '7898928200'))
 
 CHANNEL_1_ID = int(os.environ.get('CHANNEL_1_ID', '-1003240507339'))
@@ -116,6 +126,9 @@ E_COUNTRY_CODE = PE("5422814644093868925", "👨‍💻")
 E_PHONE_NUMBER = PE("5339534764367955381", "🌟")
 E_TG_ID = PE("5936017305585586269", "🪪")
 
+# Guest Generator Emoji
+E_GUEST = PE("5802980697886954454", "🎮")  # Reuse lion emoji or any premium
+
 # Additional emojis
 E_CHECK = PE("6267008582294705964", "✅")
 E_CROSS = PE("6267000941547885720", "❌")
@@ -161,6 +174,7 @@ ICON_PAK = 5913705895375672082
 ICON_TG = 5039783602301175152
 ICON_INVITE = 5244933196230972438
 ICON_UPGRADE = 6267128480601741166
+ICON_GUEST = 5802980697886954454  # reuse lion
 ICON_ADMIN = 6267128480601741166
 ICON_NEXT = 5258331647358540449
 ICON_PRIMARY = 5258096772776991776
@@ -176,6 +190,9 @@ logger = logging.getLogger(__name__)
 client = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 ADMIN_STATE = {}
 USER_MODES = {}
+
+# Guest generator state
+GUEST_STATE = {}
 
 # Global lock to prevent duplicate processing
 processing_lock = asyncio.Lock()
@@ -293,10 +310,11 @@ def get_settings():
             "gst_enabled": True,
             "pak_enabled": True,
             "tgid_enabled": True,
+            "guest_enabled": True,
             "maintenance_mode": False,
             "page": 1
         }
-        for k in ["ifsc", "mobile", "aadhaar", "rc", "gst", "pak", "tgid"]:
+        for k in ["ifsc", "mobile", "aadhaar", "rc", "gst", "pak", "tgid", "guest"]:
             d[f"maint_msg_{k}"] = f"{E_TOOLS} {k} is under maintenance."
             d[f"maint_{k}"] = False
         save_json(SETTINGS_FILE, d)
@@ -474,6 +492,13 @@ def create_main_menu(is_admin=False, settings=None):
             row4.append(create_colored_button("Tɢ Usᴇʀ Iᴅ Iɴғᴏ", 'primary', ICON_TG))
         if row4:
             rows.append(KeyboardButtonRow(buttons=row4))
+        
+        # NEW ROW: Guest Generator
+        row5 = []
+        if settings.get("guest_enabled", True):
+            row5.append(create_colored_button("Fғ Gᴜᴇsᴛ Gᴇɴ", 'primary', ICON_GUEST))
+        if row5:
+            rows.append(KeyboardButtonRow(buttons=row5))
         
         rows.append(KeyboardButtonRow(buttons=[
             create_colored_button("Iɴᴠɪᴛᴇ & Eᴀʀɴ", 'primary', ICON_INVITE),
@@ -711,6 +736,7 @@ async def admin_panel(event):
         [KeyboardButtonCallback(text=f"{'🟢' if s.get('gst_enabled',True) else '🔴'} GS", data=b"ad_gst"), KeyboardButtonCallback(text=f"{ms('gst')} M", data=b"ad_maint_gst")],
         [KeyboardButtonCallback(text=f"{'🟢' if s.get('pak_enabled',True) else '🔴'} PA", data=b"ad_pak"), KeyboardButtonCallback(text=f"{ms('pak')} M", data=b"ad_maint_pak")],
         [KeyboardButtonCallback(text=f"{'🟢' if s.get('tgid_enabled',True) else '🔴'} TG", data=b"ad_tgid"), KeyboardButtonCallback(text=f"{ms('tgid')} M", data=b"ad_maint_tgid")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('guest_enabled',True) else '🔴'} GU", data=b"ad_guest"), KeyboardButtonCallback(text=f"{ms('guest')} M", data=b"ad_maint_guest")],
         [KeyboardButtonCallback(text="❌ Close", data=b"ad_close")]
     ]
     
@@ -775,7 +801,8 @@ async def admin_callback(event):
             "ad_rc": "rc_enabled",
             "ad_gst": "gst_enabled",
             "ad_pak": "pak_enabled",
-            "ad_tgid": "tgid_enabled"
+            "ad_tgid": "tgid_enabled",
+            "ad_guest": "guest_enabled"
         }
         if d in toggle_map:
             k = toggle_map[d]
@@ -786,6 +813,132 @@ async def admin_callback(event):
     elif d == "ad_back":
         await admin_panel(event)
     await event.answer()
+
+# --- 🚀 GUEST GENERATOR INTEGRATION ---
+
+async def send_json_direct(chat_id, data, filename, caption=""):
+    """Send JSON data as a file without saving to disk"""
+    try:
+        if data and len(data) > 0:
+            json_str = json.dumps(data, indent=2, ensure_ascii=False)
+            json_bytes = json_str.encode('utf-8')
+            bio = BytesIO(json_bytes)
+            bio.seek(0)
+            await client.send_file(
+                chat_id,
+                bio,
+                file_name=filename,
+                caption=caption,
+                parse_mode='html'
+            )
+            return True
+        return False
+    except Exception as e:
+        logger.error(f"send_json_direct error: {e}")
+        return False
+
+def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix, total):
+    """Run guest generation in a separate thread and send results"""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    
+    try:
+        # Send start message
+        loop.run_until_complete(send_html(
+            chat_id,
+            f"<blockquote>{E_GUEST} Fғ Gᴜᴇsᴛ Gᴇɴ {E_GUEST}\n\n"
+            f"<b>Region:</b> {region} {'(GHOST)' if is_ghost else ''}\n"
+            f"<b>Name Prefix:</b> {name_prefix}\n"
+            f"<b>Password Prefix:</b> {password_prefix}\n"
+            f"<b>Total:</b> {total} accounts\n"
+            f"<b>Threads:</b> 100 (ULTRA SPEED!)\n\n"
+            f"{E_SEARCH} Generating... Please wait.</blockquote>"
+        ))
+        
+        # Collect results
+        accounts = []
+        rare_accounts = []
+        couple_pairs = []
+        rare_count = 0
+        couple_count = 0
+        
+        def progress_callback(account_data, is_rare, is_couple, reason, partner):
+            nonlocal rare_count, couple_count
+            accounts.append(account_data)
+            if is_rare:
+                rare_count += 1
+                rare_accounts.append({
+                    "account": account_data,
+                    "reason": reason,
+                    "score": account_data.get('rarity_score', 0)
+                })
+            if is_couple and partner:
+                couple_count += 1
+                couple_pairs.append({
+                    "account1": account_data,
+                    "account2": partner,
+                    "reason": reason
+                })
+        
+        # Start generation
+        start_time = time.time()
+        generated = generate_accounts(
+            region=region,
+            name_prefix=name_prefix,
+            password_prefix=password_prefix,
+            total=total,
+            is_ghost=is_ghost,
+            progress_callback=progress_callback
+        )
+        elapsed = time.time() - start_time
+        
+        # Send summary
+        summary_msg = (
+            f"<blockquote>{E_CHECK} Gᴇɴᴇʀᴀᴛɪᴏɴ Cᴏᴍᴘʟᴇᴛᴇ!\n\n"
+            f"<b>Total Accounts:</b> {len(accounts)}\n"
+            f"<b>Rare Found:</b> {rare_count}\n"
+            f"<b>Couple Pairs:</b> {couple_count}\n"
+            f"<b>Time:</b> {elapsed:.2f}s\n\n"
+            f"{E_CREDIT} Sending JSON files...</blockquote>"
+        )
+        loop.run_until_complete(send_html(chat_id, summary_msg))
+        
+        # Send JSON files
+        if accounts:
+            await send_json_direct(chat_id, accounts, f"guest_accounts_{region}.json", f"📁 {len(accounts)} accounts")
+        if rare_accounts:
+            await send_json_direct(chat_id, rare_accounts, f"guest_rare_{region}.json", f"⭐ {rare_count} rare accounts")
+        if couple_pairs:
+            await send_json_direct(chat_id, couple_pairs, f"guest_couples_{region}.json", f"💑 {couple_count} couples")
+        
+        # Send combined file
+        full_data = {
+            "generated_at": datetime.now().isoformat(),
+            "region": region,
+            "is_ghost": is_ghost,
+            "total": len(accounts),
+            "rare_count": rare_count,
+            "couple_count": couple_count,
+            "accounts": accounts
+        }
+        await send_json_direct(chat_id, full_data, f"guest_full_{region}.json", "📦 Complete data")
+        
+        loop.run_until_complete(send_html(
+            chat_id,
+            f"<blockquote>{E_DIAMOND} Aʟʟ ғɪʟᴇs sᴇɴᴛ! {E_DIAMOND}\n\n"
+            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+        ))
+        
+    except Exception as e:
+        logger.error(f"Guest generation error: {e}")
+        loop.run_until_complete(send_html(
+            chat_id,
+            f"<blockquote>{E_CROSS} Gᴇɴᴇʀᴀᴛɪᴏɴ Fᴀɪʟᴇᴅ\n\n"
+            f"Error: {str(e)}\n\n"
+            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+        ))
+    finally:
+        loop.close()
 
 # --- 🚀 HANDLERS ---
 
@@ -925,17 +1078,14 @@ async def msg_handler(event):
             if not txt:
                 return
             
-            # Ignore /start commands
             if txt.startswith('/start'):
                 return
             
-            # CRITICAL FIX: Prevent duplicate processing using message ID
             msg_id = event.message.id
             if msg_id in processed_messages:
                 return
             processed_messages.add(msg_id)
             
-            # Clean up old entries to prevent memory issues
             if len(processed_messages) > 500:
                 processed_messages.clear()
             
@@ -1018,7 +1168,77 @@ async def msg_handler(event):
                 await admin_panel(event)
                 return
             
-            # Upgrade mode
+            # ---- GUEST GENERATOR FLOW ----
+            if txt == "Fғ Gᴜᴇsᴛ Gᴇɴ":
+                # Start guest generator flow
+                GUEST_STATE[uid] = {"step": "region"}
+                await send_guest_region_menu(event)
+                return
+            
+            # Handle guest generator steps
+            if uid in GUEST_STATE:
+                state = GUEST_STATE[uid]
+                step = state.get("step")
+                
+                if step == "region":
+                    # User sent region selection (should be from inline keyboard, but handle text too)
+                    # We'll handle via callback, but if user types, we can treat as region
+                    if txt.upper() in REGION_LANG or txt.upper() == "GHOST":
+                        region = txt.upper()
+                        is_ghost = region == "GHOST"
+                        if is_ghost:
+                            region = "BR"  # Default for ghost
+                        state["region"] = region
+                        state["is_ghost"] = is_ghost
+                        state["step"] = "name"
+                        await send_html(event.chat_id, f"<blockquote>✅ Region set to <b>{region}</b> {'(GHOST)' if is_ghost else ''}\n\n📝 Enter <b>Name Prefix</b> (e.g., JXE):</blockquote>")
+                    else:
+                        await send_html(event.chat_id, f"<blockquote>❌ Invalid region. Please select from the inline buttons.</blockquote>")
+                    return
+                
+                elif step == "name":
+                    state["name"] = txt
+                    state["step"] = "password"
+                    await send_html(event.chat_id, f"<blockquote>✅ Name prefix set to <b>{txt}</b>\n\n📝 Enter <b>Password Prefix</b> (e.g., JXE2026):</blockquote>")
+                    return
+                
+                elif step == "password":
+                    state["password"] = txt
+                    state["step"] = "total"
+                    await send_html(event.chat_id, f"<blockquote>✅ Password prefix set to <b>{txt}</b>\n\n📝 Enter <b>Total Accounts</b> (number):</blockquote>")
+                    return
+                
+                elif step == "total":
+                    if txt.isdigit() and int(txt) > 0:
+                        total = int(txt)
+                        state["total"] = total
+                        region = state["region"]
+                        is_ghost = state["is_ghost"]
+                        name_prefix = state["name"]
+                        password_prefix = state["password"]
+                        
+                        # Start generation in a separate thread
+                        chat_id = event.chat_id
+                        threading.Thread(
+                            target=run_guest_generation,
+                            args=(chat_id, region, is_ghost, name_prefix, password_prefix, total),
+                            daemon=True
+                        ).start()
+                        
+                        # Clear state
+                        del GUEST_STATE[uid]
+                        
+                        await send_html(event.chat_id, f"<blockquote>🚀 Starting ULTRA SPEED generation with {total} accounts...\n\nResults will appear here.</blockquote>")
+                    else:
+                        await send_html(event.chat_id, f"<blockquote>❌ Please enter a valid positive number.</blockquote>")
+                    return
+                else:
+                    # Unknown step, reset
+                    del GUEST_STATE[uid]
+                    await send_html(event.chat_id, f"<blockquote>⚠️ Session reset. Please click Fғ Gᴜᴇsᴛ Gᴇɴ again.</blockquote>")
+                    return
+            
+            # ---- OTHER FEATURES ----
             if hasattr(event, 'upgrade_mode') and event.upgrade_mode:
                 event.upgrade_mode = False
                 m = await send_html(event.chat_id, 
@@ -1029,7 +1249,6 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(m))
                 return
             
-            # Feature mapping
             feature_map = {
                 "Iғsᴄ Iɴғᴏ": ("IFSC", "ifsc"),
                 "Aᴀᴅʜᴀʀ Iɴғᴏ": ("AADHAAR", "aadhaar"),
@@ -1176,6 +1395,58 @@ async def msg_handler(event):
         except Exception as e:
             logger.error(f"Msg handler error: {e}")
 
+# --- GUEST GENERATOR REGION MENU ---
+
+async def send_guest_region_menu(event):
+    keyboard = [
+        [KeyboardButtonCallback(text="🇮🇳 IND", data=b"g_region_IND")],
+        [KeyboardButtonCallback(text="🇮🇩 ID", data=b"g_region_ID")],
+        [KeyboardButtonCallback(text="🇻🇳 VN", data=b"g_region_VN")],
+        [KeyboardButtonCallback(text="🇹🇭 TH", data=b"g_region_TH")],
+        [KeyboardButtonCallback(text="🇧🇩 BD", data=b"g_region_BD")],
+        [KeyboardButtonCallback(text="🇵🇰 PK", data=b"g_region_PK")],
+        [KeyboardButtonCallback(text="🇹🇼 TW", data=b"g_region_TW")],
+        [KeyboardButtonCallback(text="🇷🇺 CIS", data=b"g_region_CIS")],
+        [KeyboardButtonCallback(text="🇪🇸 SAC", data=b"g_region_SAC")],
+        [KeyboardButtonCallback(text="🇸🇦 ME", data=b"g_region_ME")],
+        [KeyboardButtonCallback(text="👻 GHOST", data=b"g_region_GHOST")],
+        [KeyboardButtonCallback(text="🔙 Back", data=b"g_region_back")]
+    ]
+    markup = ReplyInlineMarkup(rows=[
+        KeyboardButtonRow(buttons=row) for row in keyboard
+    ])
+    await send_html(event.chat_id, f"<blockquote>{E_GUEST} Sᴇʟᴇᴄᴛ Rᴇɢɪᴏɴ:\n\nChoose your region below:</blockquote>", reply_markup=markup)
+
+@client.on(events.CallbackQuery)
+async def guest_region_callback(event):
+    if event.data and event.data.startswith(b"g_region_"):
+        data = event.data.decode()
+        region = data.replace("g_region_", "")
+        uid = event.sender_id
+        
+        if region == "back":
+            # Go back to main menu
+            await event.answer()
+            await main_menu(event)
+            return
+        
+        is_ghost = region == "GHOST"
+        if is_ghost:
+            region = "BR"  # Default for ghost
+        
+        GUEST_STATE[uid] = {
+            "step": "name",
+            "region": region,
+            "is_ghost": is_ghost
+        }
+        
+        await event.answer(f"Region set to {region}{' (GHOST)' if is_ghost else ''}")
+        await send_html(event.chat_id, f"<blockquote>✅ Region set to <b>{region}</b> {'(GHOST)' if is_ghost else ''}\n\n📝 Enter <b>Name Prefix</b> (e.g., JXE):</blockquote>")
+    else:
+        await event.answer()
+
+# --- QUERY RUNNER ---
+
 async def run_query(event, mode, query):
     if not await net_ok():
         m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} No internet\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
@@ -1252,9 +1523,10 @@ async def main():
     print("Welcome message auto-deletes after 60 seconds")
     print("Buttons work without /start - just click and use!")
     print("Double message issue FIXED with Async Lock!")
+    print("Guest Generator integrated - click Fғ Gᴜᴇsᴛ Gᴇɴ!")
     
     try:
-        subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4"], capture_output=True, timeout=30)
+        subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4", "pycryptodome"], capture_output=True, timeout=30)
     except:
         pass
     
