@@ -16,6 +16,19 @@ import time
 from datetime import datetime, timedelta
 from io import BytesIO
 
+# ---- Ensure pycryptodome is installed BEFORE importing gen.py ----
+try:
+    import Crypto
+except ImportError:
+    print("Installing pycryptodome...")
+    subprocess.run([sys.executable, "-m", "pip", "install", "pycryptodome"], capture_output=True, timeout=30)
+    try:
+        import Crypto
+        print("pycryptodome installed successfully.")
+    except ImportError:
+        print("Failed to install pycryptodome. Guest Generator will be disabled.")
+# ----------------------------------------------------------------
+
 try:
     from telethon import TelegramClient, events, functions
     from telethon.tl.types import (
@@ -39,7 +52,7 @@ except ImportError:
     from telethon.errors import UserNotParticipantError, ChannelPrivateError
     HAS_BUTTON_STYLE = True
 
-# ---- FIX: robust import of gen.py ----
+# ---- Import gen.py (now Crypto is available) ----
 GEN_AVAILABLE = False
 try:
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -49,10 +62,11 @@ try:
     GEN_AVAILABLE = True
     print("✅ gen.py imported successfully")
 except ImportError as e:
-    print(f"⚠️ gen.py not found: {e}. Guest Generator will be disabled.")
+    print(f"⚠️ gen.py import error: {e}. Guest Generator disabled.")
     REGION_LANG = {"ME":"ar","IND":"hi","ID":"id","VN":"vi","TH":"th","BD":"bn","PK":"ur","TW":"zh","CIS":"ru","SAC":"es","BR":"pt"}
     def generate_accounts(*args, **kwargs):
         return []
+# -------------------------------------------------
 
 # --- ⚙️ CONFIGURATION ---
 API_ID = int(os.environ.get('API_ID', '37996037'))
@@ -855,7 +869,7 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
         loop.run_until_complete(send_html(
             chat_id,
             f"<blockquote>{E_CROSS} Guest Generator is not available.\n\n"
-            f"Please ensure gen.py is present.\n\n"
+            f"Please ensure gen.py is present and pycryptodome is installed.\n\n"
             f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
         ))
         loop.close()
@@ -1193,7 +1207,7 @@ async def msg_handler(event):
             # ---- GUEST GENERATOR FLOW ----
             if txt == "Fғ Gᴜᴇsᴛ Gᴇɴ":
                 if not GEN_AVAILABLE:
-                    await send_html(event.chat_id, f"<blockquote>{E_CROSS} Guest Generator is disabled.\n\nPlease contact admin.</blockquote>")
+                    await send_html(event.chat_id, f"<blockquote>{E_CROSS} Guest Generator is disabled.\n\nPlease ensure gen.py and pycryptodome are installed.</blockquote>")
                     return
                 # Start guest generator flow
                 GUEST_STATE[uid] = {"step": "region"}
@@ -1547,7 +1561,7 @@ async def main():
     if GEN_AVAILABLE:
         print("Guest Generator integrated - click Fғ Gᴜᴇsᴛ Gᴇɴ!")
     else:
-        print("WARNING: Guest Generator disabled - gen.py not found.")
+        print("WARNING: Guest Generator disabled - gen.py not found or missing dependencies.")
     
     try:
         subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4", "pycryptodome"], capture_output=True, timeout=30)

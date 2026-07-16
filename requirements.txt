@@ -3,4 +3,4 @@ aiohttp==3.9.1
 requests
 beautifulsoup4
 lxml
-PyGithub==2.1.1
+pycryptodome
