@@ -39,12 +39,23 @@ except ImportError:
     from telethon.errors import UserNotParticipantError, ChannelPrivateError
     HAS_BUTTON_STYLE = True
 
-# Import the guest generator
+# ---- FIX: robust import of gen.py ----
+GEN_AVAILABLE = False
 try:
+    # Add the current directory to sys.path if needed
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    if script_dir not in sys.path:
+        sys.path.insert(0, script_dir)
     from gen import generate_accounts, REGION_LANG
-except ImportError:
-    print("gen.py not found! Please ensure gen.py is in the same directory.")
-    sys.exit(1)
+    GEN_AVAILABLE = True
+    print("✅ gen.py imported successfully")
+except ImportError as e:
+    print(f"⚠️ gen.py not found: {e}. Guest Generator will be disabled.")
+    # Define dummy REGION_LANG to avoid NameError later
+    REGION_LANG = {"ME":"ar","IND":"hi","ID":"id","VN":"vi","TH":"th","BD":"bn","PK":"ur","TW":"zh","CIS":"ru","SAC":"es","BR":"pt"}
+    def generate_accounts(*args, **kwargs):
+        return []
+# -------------------------------------------------
 
 # --- ⚙️ CONFIGURATION ---
 API_ID = int(os.environ.get('API_ID', '37996037'))
@@ -127,7 +138,7 @@ E_PHONE_NUMBER = PE("5339534764367955381", "🌟")
 E_TG_ID = PE("5936017305585586269", "🪪")
 
 # Guest Generator Emoji
-E_GUEST = PE("5802980697886954454", "🎮")  # Reuse lion emoji
+E_GUEST = PE("5802980697886954454", "🎮")
 
 # Additional emojis
 E_CHECK = PE("6267008582294705964", "✅")
@@ -310,7 +321,7 @@ def get_settings():
             "gst_enabled": True,
             "pak_enabled": True,
             "tgid_enabled": True,
-            "guest_enabled": True,
+            "guest_enabled": True if GEN_AVAILABLE else False,
             "maintenance_mode": False,
             "page": 1
         }
@@ -493,12 +504,12 @@ def create_main_menu(is_admin=False, settings=None):
         if row4:
             rows.append(KeyboardButtonRow(buttons=row4))
         
-        # NEW ROW: Guest Generator
-        row5 = []
-        if settings.get("guest_enabled", True):
+        # NEW ROW: Guest Generator (only if available)
+        if GEN_AVAILABLE and settings.get("guest_enabled", True):
+            row5 = []
             row5.append(create_colored_button("Fғ Gᴜᴇsᴛ Gᴇɴ", 'primary', ICON_GUEST))
-        if row5:
-            rows.append(KeyboardButtonRow(buttons=row5))
+            if row5:
+                rows.append(KeyboardButtonRow(buttons=row5))
         
         rows.append(KeyboardButtonRow(buttons=[
             create_colored_button("Iɴᴠɪᴛᴇ & Eᴀʀɴ", 'primary', ICON_INVITE),
@@ -736,13 +747,14 @@ async def admin_panel(event):
         [KeyboardButtonCallback(text=f"{'🟢' if s.get('gst_enabled',True) else '🔴'} GS", data=b"ad_gst"), KeyboardButtonCallback(text=f"{ms('gst')} M", data=b"ad_maint_gst")],
         [KeyboardButtonCallback(text=f"{'🟢' if s.get('pak_enabled',True) else '🔴'} PA", data=b"ad_pak"), KeyboardButtonCallback(text=f"{ms('pak')} M", data=b"ad_maint_pak")],
         [KeyboardButtonCallback(text=f"{'🟢' if s.get('tgid_enabled',True) else '🔴'} TG", data=b"ad_tgid"), KeyboardButtonCallback(text=f"{ms('tgid')} M", data=b"ad_maint_tgid")],
-        [KeyboardButtonCallback(text=f"{'🟢' if s.get('guest_enabled',True) else '🔴'} GU", data=b"ad_guest"), KeyboardButtonCallback(text=f"{ms('guest')} M", data=b"ad_maint_guest")],
+        [KeyboardButtonCallback(text=f"{'🟢' if s.get('guest_enabled',True) else '🔴'} GU", data=b"ad_guest"), KeyboardButtonCallback(text=f"{ms('guest')} M", data=b"ad_maint_guest")] if GEN_AVAILABLE else [],
         [KeyboardButtonCallback(text="❌ Close", data=b"ad_close")]
     ]
     
     rows = []
     for row in buttons:
-        rows.append(KeyboardButtonRow(buttons=row))
+        if row:
+            rows.append(KeyboardButtonRow(buttons=row))
     
     markup = ReplyInlineMarkup(rows=rows)
     
@@ -839,6 +851,18 @@ async def send_json_direct(chat_id, data, filename, caption=""):
 
 def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix, total):
     """Run guest generation in a separate thread and send results using asyncio"""
+    if not GEN_AVAILABLE:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(send_html(
+            chat_id,
+            f"<blockquote>{E_CROSS} Guest Generator is not available.\n\n"
+            f"Please ensure gen.py is present.\n\n"
+            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+        ))
+        loop.close()
+        return
+    
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     
@@ -1170,6 +1194,9 @@ async def msg_handler(event):
             
             # ---- GUEST GENERATOR FLOW ----
             if txt == "Fғ Gᴜᴇsᴛ Gᴇɴ":
+                if not GEN_AVAILABLE:
+                    await send_html(event.chat_id, f"<blockquote>{E_CROSS} Guest Generator is disabled.\n\nPlease contact admin.</blockquote>")
+                    return
                 # Start guest generator flow
                 GUEST_STATE[uid] = {"step": "region"}
                 await send_guest_region_menu(event)
@@ -1181,13 +1208,11 @@ async def msg_handler(event):
                 step = state.get("step")
                 
                 if step == "region":
-                    # User sent region selection (should be from inline keyboard, but handle text too)
-                    # We'll handle via callback, but if user types, we can treat as region
                     if txt.upper() in REGION_LANG or txt.upper() == "GHOST":
                         region = txt.upper()
                         is_ghost = region == "GHOST"
                         if is_ghost:
-                            region = "BR"  # Default for ghost
+                            region = "BR"
                         state["region"] = region
                         state["is_ghost"] = is_ghost
                         state["step"] = "name"
@@ -1233,7 +1258,6 @@ async def msg_handler(event):
                         await send_html(event.chat_id, f"<blockquote>❌ Please enter a valid positive number.</blockquote>")
                     return
                 else:
-                    # Unknown step, reset
                     del GUEST_STATE[uid]
                     await send_html(event.chat_id, f"<blockquote>⚠️ Session reset. Please click Fғ Gᴜᴇsᴛ Gᴇɴ again.</blockquote>")
                     return
@@ -1431,7 +1455,7 @@ async def guest_region_callback(event):
         
         is_ghost = region == "GHOST"
         if is_ghost:
-            region = "BR"  # Default for ghost
+            region = "BR"
         
         GUEST_STATE[uid] = {
             "step": "name",
@@ -1522,7 +1546,10 @@ async def main():
     print("Welcome message auto-deletes after 60 seconds")
     print("Buttons work without /start - just click and use!")
     print("Double message issue FIXED with Async Lock!")
-    print("Guest Generator integrated - click Fғ Gᴜᴇsᴛ Gᴇɴ!")
+    if GEN_AVAILABLE:
+        print("Guest Generator integrated - click Fғ Gᴜᴇsᴛ Gᴇɴ!")
+    else:
+        print("WARNING: Guest Generator disabled - gen.py not found.")
     
     try:
         subprocess.run([sys.executable, "-m", "pip", "install", "requests", "beautifulsoup4", "pycryptodome"], capture_output=True, timeout=30)
