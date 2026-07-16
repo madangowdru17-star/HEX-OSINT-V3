@@ -16,19 +16,6 @@ import time
 from datetime import datetime, timedelta
 from io import BytesIO
 
-# ---- Ensure pycryptodome is installed BEFORE importing gen.py ----
-try:
-    import Crypto
-except ImportError:
-    print("Installing pycryptodome...")
-    subprocess.run([sys.executable, "-m", "pip", "install", "pycryptodome"], capture_output=True, timeout=30)
-    try:
-        import Crypto
-        print("pycryptodome installed successfully.")
-    except ImportError:
-        print("Failed to install pycryptodome. Guest Generator will be disabled.")
-# ----------------------------------------------------------------
-
 try:
     from telethon import TelegramClient, events, functions
     from telethon.tl.types import (
@@ -52,7 +39,14 @@ except ImportError:
     from telethon.errors import UserNotParticipantError, ChannelPrivateError
     HAS_BUTTON_STYLE = True
 
-# ---- Import gen.py (now Crypto is available) ----
+# ---- Ensure pycryptodome is installed ----
+try:
+    import Crypto
+except ImportError:
+    print("Installing pycryptodome...")
+    subprocess.run([sys.executable, "-m", "pip", "install", "pycryptodome"], capture_output=True, timeout=30)
+
+# ---- Import gen.py ----
 GEN_AVAILABLE = False
 try:
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -66,7 +60,6 @@ except ImportError as e:
     REGION_LANG = {"ME":"ar","IND":"hi","ID":"id","VN":"vi","TH":"th","BD":"bn","PK":"ur","TW":"zh","CIS":"ru","SAC":"es","BR":"pt"}
     def generate_accounts(*args, **kwargs):
         return []
-# -------------------------------------------------
 
 # --- ⚙️ CONFIGURATION ---
 API_ID = int(os.environ.get('API_ID', '37996037'))
@@ -843,20 +836,20 @@ async def admin_callback(event):
 async def send_json_direct(chat_id, data, filename, caption=""):
     """Send JSON data as a file without saving to disk"""
     try:
-        if data and len(data) > 0:
-            json_str = json.dumps(data, indent=2, ensure_ascii=False)
-            json_bytes = json_str.encode('utf-8')
-            bio = BytesIO(json_bytes)
-            bio.seek(0)
-            await client.send_file(
-                chat_id,
-                bio,
-                file_name=filename,
-                caption=caption,
-                parse_mode='html'
-            )
-            return True
-        return False
+        if not data or len(data) == 0:
+            return False
+        json_str = json.dumps(data, indent=2, ensure_ascii=False)
+        json_bytes = json_str.encode('utf-8')
+        bio = BytesIO(json_bytes)
+        bio.seek(0)
+        await client.send_file(
+            chat_id,
+            bio,
+            file_name=filename,
+            caption=caption,
+            parse_mode='html'
+        )
+        return True
     except Exception as e:
         logger.error(f"send_json_direct error: {e}")
         return False
@@ -869,7 +862,7 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
         loop.run_until_complete(send_html(
             chat_id,
             f"<blockquote>{E_CROSS} Guest Generator is not available.\n\n"
-            f"Please ensure gen.py is present and pycryptodome is installed.\n\n"
+            f"Please ensure gen.py and pycryptodome are installed.\n\n"
             f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
         ))
         loop.close()
@@ -928,6 +921,11 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
         )
         elapsed = time.time() - start_time
         
+        # Ensure we have accounts from the callback (or from the return value)
+        if not accounts and generated:
+            accounts = generated
+            # Also extract rare/couple from generated? Not needed, but we'll just rely on callback.
+        
         # Send summary
         summary_msg = (
             f"<blockquote>{E_CHECK} Gᴇɴᴇʀᴀᴛɪᴏɴ Cᴏᴍᴘʟᴇᴛᴇ!\n\n"
@@ -939,13 +937,19 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
         )
         loop.run_until_complete(send_html(chat_id, summary_msg))
         
-        # Send JSON files using the loop
+        # Send JSON files
         if accounts:
-            loop.run_until_complete(send_json_direct(chat_id, accounts, f"guest_accounts_{region}.json", f"📁 {len(accounts)} accounts"))
+            sent = loop.run_until_complete(send_json_direct(chat_id, accounts, f"guest_accounts_{region}.json", f"📁 {len(accounts)} accounts"))
+            if sent:
+                loop.run_until_complete(send_html(chat_id, f"<blockquote>✅ Accounts file sent ({len(accounts)} accounts)</blockquote>"))
         if rare_accounts:
-            loop.run_until_complete(send_json_direct(chat_id, rare_accounts, f"guest_rare_{region}.json", f"⭐ {rare_count} rare accounts"))
+            sent = loop.run_until_complete(send_json_direct(chat_id, rare_accounts, f"guest_rare_{region}.json", f"⭐ {rare_count} rare accounts"))
+            if sent:
+                loop.run_until_complete(send_html(chat_id, f"<blockquote>✅ Rare file sent ({rare_count} rare)</blockquote>"))
         if couple_pairs:
-            loop.run_until_complete(send_json_direct(chat_id, couple_pairs, f"guest_couples_{region}.json", f"💑 {couple_count} couples"))
+            sent = loop.run_until_complete(send_json_direct(chat_id, couple_pairs, f"guest_couples_{region}.json", f"💑 {couple_count} couples"))
+            if sent:
+                loop.run_until_complete(send_html(chat_id, f"<blockquote>✅ Couples file sent ({couple_count} couples)</blockquote>"))
         
         # Send combined file
         full_data = {
@@ -957,7 +961,9 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
             "couple_count": couple_count,
             "accounts": accounts
         }
-        loop.run_until_complete(send_json_direct(chat_id, full_data, f"guest_full_{region}.json", "📦 Complete data"))
+        sent = loop.run_until_complete(send_json_direct(chat_id, full_data, f"guest_full_{region}.json", "📦 Complete data"))
+        if sent:
+            loop.run_until_complete(send_html(chat_id, f"<blockquote>✅ Full combined file sent</blockquote>"))
         
         loop.run_until_complete(send_html(
             chat_id,
