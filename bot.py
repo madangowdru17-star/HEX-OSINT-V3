@@ -49,7 +49,7 @@ except ImportError:
 # --- ⚙️ CONFIGURATION ---
 API_ID = int(os.environ.get('API_ID', '37996037'))
 API_HASH = os.environ.get('API_HASH', '47ee9fa07b5eeb865edb3d79ada726a5')
-BOT_TOKEN = os.environ.get('BOT_TOKEN', '8687617595:AAGXvP6YiOX39vlRI0VYxpZjvlfmR7QMyf4')
+BOT_TOKEN = os.environ.get('BOT_TOKEN', '8687617595:AAFF6FP5XWr92RFhM0wco6UHutB7UGUpFFA')
 ADMIN_ID = int(os.environ.get('ADMIN_ID', '7898928200'))
 
 CHANNEL_1_ID = int(os.environ.get('CHANNEL_1_ID', '-1003240507339'))
@@ -127,7 +127,7 @@ E_PHONE_NUMBER = PE("5339534764367955381", "🌟")
 E_TG_ID = PE("5936017305585586269", "🪪")
 
 # Guest Generator Emoji
-E_GUEST = PE("5802980697886954454", "🎮")  # Reuse lion emoji or any premium
+E_GUEST = PE("5802980697886954454", "🎮")  # Reuse lion emoji
 
 # Additional emojis
 E_CHECK = PE("6267008582294705964", "✅")
@@ -174,7 +174,7 @@ ICON_PAK = 5913705895375672082
 ICON_TG = 5039783602301175152
 ICON_INVITE = 5244933196230972438
 ICON_UPGRADE = 6267128480601741166
-ICON_GUEST = 5802980697886954454  # reuse lion
+ICON_GUEST = 5802980697886954454
 ICON_ADMIN = 6267128480601741166
 ICON_NEXT = 5258331647358540449
 ICON_PRIMARY = 5258096772776991776
@@ -838,7 +838,7 @@ async def send_json_direct(chat_id, data, filename, caption=""):
         return False
 
 def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix, total):
-    """Run guest generation in a separate thread and send results"""
+    """Run guest generation in a separate thread and send results using asyncio"""
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     
@@ -903,13 +903,13 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
         )
         loop.run_until_complete(send_html(chat_id, summary_msg))
         
-        # Send JSON files
+        # Send JSON files using the loop
         if accounts:
-            await send_json_direct(chat_id, accounts, f"guest_accounts_{region}.json", f"📁 {len(accounts)} accounts")
+            loop.run_until_complete(send_json_direct(chat_id, accounts, f"guest_accounts_{region}.json", f"📁 {len(accounts)} accounts"))
         if rare_accounts:
-            await send_json_direct(chat_id, rare_accounts, f"guest_rare_{region}.json", f"⭐ {rare_count} rare accounts")
+            loop.run_until_complete(send_json_direct(chat_id, rare_accounts, f"guest_rare_{region}.json", f"⭐ {rare_count} rare accounts"))
         if couple_pairs:
-            await send_json_direct(chat_id, couple_pairs, f"guest_couples_{region}.json", f"💑 {couple_count} couples")
+            loop.run_until_complete(send_json_direct(chat_id, couple_pairs, f"guest_couples_{region}.json", f"💑 {couple_count} couples"))
         
         # Send combined file
         full_data = {
@@ -921,7 +921,7 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
             "couple_count": couple_count,
             "accounts": accounts
         }
-        await send_json_direct(chat_id, full_data, f"guest_full_{region}.json", "📦 Complete data")
+        loop.run_until_complete(send_json_direct(chat_id, full_data, f"guest_full_{region}.json", "📦 Complete data"))
         
         loop.run_until_complete(send_html(
             chat_id,
@@ -1425,7 +1425,6 @@ async def guest_region_callback(event):
         uid = event.sender_id
         
         if region == "back":
-            # Go back to main menu
             await event.answer()
             await main_menu(event)
             return
