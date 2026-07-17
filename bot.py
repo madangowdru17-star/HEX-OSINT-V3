@@ -15,6 +15,7 @@ import threading
 import time
 from datetime import datetime, timedelta
 from io import BytesIO
+import concurrent.futures
 
 try:
     from telethon import TelegramClient, events, functions
@@ -854,26 +855,39 @@ async def send_json_direct(chat_id, data, filename, caption=""):
         logger.error(f"send_json_direct error: {e}")
         return False
 
-def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix, total):
-    """Run guest generation in a separate thread and send results using asyncio"""
+def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix, total, loop):
+    """Run guest generation in a separate thread and send results using the main loop"""
     if not GEN_AVAILABLE:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(send_html(
-            chat_id,
-            f"<blockquote>{E_CROSS} Guest Generator is not available.\n\n"
-            f"Please ensure gen.py and pycryptodome are installed.\n\n"
-            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-        ))
-        loop.close()
+        # Send error using the loop
+        future = asyncio.run_coroutine_threadsafe(
+            send_html(
+                chat_id,
+                f"<blockquote>{E_CROSS} Guest Generator is not available.\n\n"
+                f"Please ensure gen.py and pycryptodome are installed.\n\n"
+                f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+            ),
+            loop
+        )
+        try:
+            future.result(timeout=30)
+        except Exception as e:
+            logger.error(f"Error sending message: {e}")
         return
-    
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    
+
+    def safe_send_coro(coro):
+        try:
+            future = asyncio.run_coroutine_threadsafe(coro, loop)
+            return future.result(timeout=60)
+        except concurrent.futures.TimeoutError:
+            logger.error("Timeout sending message")
+            return None
+        except Exception as e:
+            logger.error(f"Error sending message: {e}")
+            return None
+
     try:
         # Send start message
-        loop.run_until_complete(send_html(
+        safe_send_coro(send_html(
             chat_id,
             f"<blockquote>{E_GUEST} Fғ Gᴜᴇsᴛ Gᴇɴ {E_GUEST}\n\n"
             f"<b>Region:</b> {region} {'(GHOST)' if is_ghost else ''}\n"
@@ -921,10 +935,9 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
         )
         elapsed = time.time() - start_time
         
-        # Ensure we have accounts from the callback (or from the return value)
+        # Ensure we have accounts from the callback
         if not accounts and generated:
             accounts = generated
-            # Also extract rare/couple from generated? Not needed, but we'll just rely on callback.
         
         # Send summary
         summary_msg = (
@@ -935,21 +948,25 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
             f"<b>Time:</b> {elapsed:.2f}s\n\n"
             f"{E_CREDIT} Sending JSON files...</blockquote>"
         )
-        loop.run_until_complete(send_html(chat_id, summary_msg))
+        safe_send_coro(send_html(chat_id, summary_msg))
         
         # Send JSON files
+        sent_files = 0
         if accounts:
-            sent = loop.run_until_complete(send_json_direct(chat_id, accounts, f"guest_accounts_{region}.json", f"📁 {len(accounts)} accounts"))
+            sent = safe_send_coro(send_json_direct(chat_id, accounts, f"guest_accounts_{region}.json", f"📁 {len(accounts)} accounts"))
             if sent:
-                loop.run_until_complete(send_html(chat_id, f"<blockquote>✅ Accounts file sent ({len(accounts)} accounts)</blockquote>"))
+                sent_files += 1
+                safe_send_coro(send_html(chat_id, f"<blockquote>✅ Accounts file sent ({len(accounts)} accounts)</blockquote>"))
         if rare_accounts:
-            sent = loop.run_until_complete(send_json_direct(chat_id, rare_accounts, f"guest_rare_{region}.json", f"⭐ {rare_count} rare accounts"))
+            sent = safe_send_coro(send_json_direct(chat_id, rare_accounts, f"guest_rare_{region}.json", f"⭐ {rare_count} rare accounts"))
             if sent:
-                loop.run_until_complete(send_html(chat_id, f"<blockquote>✅ Rare file sent ({rare_count} rare)</blockquote>"))
+                sent_files += 1
+                safe_send_coro(send_html(chat_id, f"<blockquote>✅ Rare file sent ({rare_count} rare)</blockquote>"))
         if couple_pairs:
-            sent = loop.run_until_complete(send_json_direct(chat_id, couple_pairs, f"guest_couples_{region}.json", f"💑 {couple_count} couples"))
+            sent = safe_send_coro(send_json_direct(chat_id, couple_pairs, f"guest_couples_{region}.json", f"💑 {couple_count} couples"))
             if sent:
-                loop.run_until_complete(send_html(chat_id, f"<blockquote>✅ Couples file sent ({couple_count} couples)</blockquote>"))
+                sent_files += 1
+                safe_send_coro(send_html(chat_id, f"<blockquote>✅ Couples file sent ({couple_count} couples)</blockquote>"))
         
         # Send combined file
         full_data = {
@@ -961,11 +978,15 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
             "couple_count": couple_count,
             "accounts": accounts
         }
-        sent = loop.run_until_complete(send_json_direct(chat_id, full_data, f"guest_full_{region}.json", "📦 Complete data"))
+        sent = safe_send_coro(send_json_direct(chat_id, full_data, f"guest_full_{region}.json", "📦 Complete data"))
         if sent:
-            loop.run_until_complete(send_html(chat_id, f"<blockquote>✅ Full combined file sent</blockquote>"))
+            sent_files += 1
+            safe_send_coro(send_html(chat_id, f"<blockquote>✅ Full combined file sent</blockquote>"))
         
-        loop.run_until_complete(send_html(
+        if sent_files == 0:
+            safe_send_coro(send_html(chat_id, f"<blockquote>❌ No files were sent. Generation may have produced 0 accounts.</blockquote>"))
+        
+        safe_send_coro(send_html(
             chat_id,
             f"<blockquote>{E_DIAMOND} Aʟʟ ғɪʟᴇs sᴇɴᴛ! {E_DIAMOND}\n\n"
             f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
@@ -973,14 +994,12 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
         
     except Exception as e:
         logger.error(f"Guest generation error: {e}")
-        loop.run_until_complete(send_html(
+        safe_send_coro(send_html(
             chat_id,
             f"<blockquote>{E_CROSS} Gᴇɴᴇʀᴀᴛɪᴏɴ Fᴀɪʟᴇᴅ\n\n"
             f"Error: {str(e)}\n\n"
             f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
         ))
-    finally:
-        loop.close()
 
 # --- 🚀 HANDLERS ---
 
@@ -1260,11 +1279,14 @@ async def msg_handler(event):
                         name_prefix = state["name"]
                         password_prefix = state["password"]
                         
-                        # Start generation in a separate thread
+                        # Get the current event loop
+                        loop = asyncio.get_event_loop()
+                        
+                        # Start generation in a separate thread, passing the loop
                         chat_id = event.chat_id
                         threading.Thread(
                             target=run_guest_generation,
-                            args=(chat_id, region, is_ghost, name_prefix, password_prefix, total),
+                            args=(chat_id, region, is_ghost, name_prefix, password_prefix, total, loop),
                             daemon=True
                         ).start()
                         
