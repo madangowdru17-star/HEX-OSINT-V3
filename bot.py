@@ -848,7 +848,8 @@ async def send_json_direct(chat_id, data, filename, caption=""):
             bio,
             file_name=filename,
             caption=caption,
-            parse_mode='html'
+            parse_mode='html',
+            force_document=True   # <-- fix: ensures proper file name and type
         )
         return True
     except Exception as e:
