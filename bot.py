@@ -835,21 +835,23 @@ async def admin_callback(event):
 # --- 🚀 GUEST GENERATOR INTEGRATION ---
 
 async def send_json_direct(chat_id, data, filename, caption=""):
-    """Send JSON data as a file without saving to disk"""
+    """Send JSON data as a file with proper .json extension"""
     try:
         if not data or len(data) == 0:
             return False
         json_str = json.dumps(data, indent=2, ensure_ascii=False)
         json_bytes = json_str.encode('utf-8')
         bio = BytesIO(json_bytes)
+        # IMPORTANT: Set the name so Telegram recognizes it as JSON
+        bio.name = filename
         bio.seek(0)
         await client.send_file(
             chat_id,
             bio,
-            file_name=filename,
+            file_name=filename,      # Explicitly set the filename
             caption=caption,
             parse_mode='html',
-            force_document=True   # <-- fix: ensures proper file name and type
+            force_document=True      # Force as document to preserve extension
         )
         return True
     except Exception as e:
@@ -859,7 +861,6 @@ async def send_json_direct(chat_id, data, filename, caption=""):
 def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix, total, loop):
     """Run guest generation in a separate thread and send results using the main loop"""
     if not GEN_AVAILABLE:
-        # Send error using the loop
         future = asyncio.run_coroutine_threadsafe(
             send_html(
                 chat_id,
@@ -1280,10 +1281,7 @@ async def msg_handler(event):
                         name_prefix = state["name"]
                         password_prefix = state["password"]
                         
-                        # Get the current event loop
                         loop = asyncio.get_event_loop()
-                        
-                        # Start generation in a separate thread, passing the loop
                         chat_id = event.chat_id
                         threading.Thread(
                             target=run_guest_generation,
@@ -1291,7 +1289,6 @@ async def msg_handler(event):
                             daemon=True
                         ).start()
                         
-                        # Clear state
                         del GUEST_STATE[uid]
                         
                         await send_html(event.chat_id, f"<blockquote>🚀 Starting ULTRA SPEED generation with {total} accounts...\n\nResults will appear here.</blockquote>")
