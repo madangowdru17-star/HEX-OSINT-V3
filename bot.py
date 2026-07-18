@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot FINAL with Green Buttons
+# bot.py - Hex OSINT Bot FINAL
 
 import logging
 import asyncio
@@ -428,25 +428,24 @@ async def show_verification_page(event):
     except Exception as e:
         logger.error(f"Verification page error: {e}")
 
-# --- 🎨 GREEN BUTTON HELPER ---
+# --- 🎨 BUTTON HELPERS ---
 
-def create_green_button(text, emoji_id):
-    """Create a green (success) button for services"""
-    style = KeyboardButtonStyle(
-        bg_success=True,
-        icon=emoji_id
-    )
+def create_primary_button(text, emoji_id):
+    """Blue (primary) button for most services"""
+    style = KeyboardButtonStyle(bg_primary=True, icon=emoji_id)
     return KeyboardButton(text=text, style=style)
 
-def create_red_button(text, emoji_id):
-    """Create a red (danger) button for navigation/admin"""
-    style = KeyboardButtonStyle(
-        bg_danger=True,
-        icon=emoji_id
-    )
+def create_success_button(text, emoji_id):
+    """Green (success) button for Invite & Earn and Upgrade To Premium"""
+    style = KeyboardButtonStyle(bg_success=True, icon=emoji_id)
     return KeyboardButton(text=text, style=style)
 
-# --- 🆕 MAIN MENU WITH GREEN BUTTONS AND TWO COLUMNS ---
+def create_danger_button(text, emoji_id):
+    """Red (danger) button for navigation and admin"""
+    style = KeyboardButtonStyle(bg_danger=True, icon=emoji_id)
+    return KeyboardButton(text=text, style=style)
+
+# --- 🆕 MAIN MENU WITH BLUE/GREEN/RED BUTTONS ---
 
 def create_main_menu(is_admin=False, settings=None):
     if settings is None:
@@ -455,53 +454,51 @@ def create_main_menu(is_admin=False, settings=None):
     rows = []
     
     if page == 1:
-        # Row 1: FF Guest Gen (if available) and IFSC Info
+        # Row 1: FF Guest Gen (if available) and IFSC Info - both blue
         row1 = []
         if GEN_AVAILABLE and settings.get("guest_enabled", True):
-            row1.append(create_green_button("Fғ Gᴜᴇsᴛ Gᴇɴ", ICON_GUEST))
-        # Always show IFSC
-        row1.append(create_green_button("Iғsᴄ Iɴғᴏ", ICON_IFSC))
+            row1.append(create_primary_button("Fғ Gᴜᴇsᴛ Gᴇɴ", ICON_GUEST))
+        row1.append(create_primary_button("Iғsᴄ Iɴғᴏ", ICON_IFSC))
         rows.append(KeyboardButtonRow(buttons=row1))
         
-        # Row 2: Aadhar Info and India Number Info
+        # Row 2: Aadhar Info and India Number Info (blue)
         row2 = [
-            create_green_button("Aᴀᴅʜᴀʀ Iɴғᴏ", ICON_AADHAAR),
-            create_green_button("Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ", ICON_INDIA)
+            create_primary_button("Aᴀᴅʜᴀʀ Iɴғᴏ", ICON_AADHAAR),
+            create_primary_button("Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ", ICON_INDIA)
         ]
         rows.append(KeyboardButtonRow(buttons=row2))
         
-        # Row 3: RC Info and GST Info
+        # Row 3: RC Info and GST Info (blue)
         row3 = [
-            create_green_button("Rᴄ Iɴғᴏ", ICON_RC),
-            create_green_button("Gsᴛ Iɴғᴏ", ICON_GST)
+            create_primary_button("Rᴄ Iɴғᴏ", ICON_RC),
+            create_primary_button("Gsᴛ Iɴғᴏ", ICON_GST)
         ]
         rows.append(KeyboardButtonRow(buttons=row3))
         
-        # Row 4: TG User ID Info and Pak Number Info
+        # Row 4: TG User ID Info and Pak Number Info (blue)
         row4 = [
-            create_green_button("Tɢ Usᴇʀ Iᴅ Iɴғᴏ", ICON_TG),
-            create_green_button("Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ", ICON_PAK)
+            create_primary_button("Tɢ Usᴇʀ Iᴅ Iɴғᴏ", ICON_TG),
+            create_primary_button("Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ", ICON_PAK)
         ]
         rows.append(KeyboardButtonRow(buttons=row4))
         
-        # Row 5: Upgrade To Premium and Invite & Earn
+        # Row 5: Upgrade To Premium (green) and Invite & Earn (green)
         row5 = [
-            create_green_button("Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ", ICON_UPGRADE),
-            create_green_button("Iɴᴠɪᴛᴇ & Eᴀʀɴ", ICON_INVITE)
+            create_success_button("Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ", ICON_UPGRADE),
+            create_success_button("Iɴᴠɪᴛᴇ & Eᴀʀɴ", ICON_INVITE)
         ]
         rows.append(KeyboardButtonRow(buttons=row5))
         
         # Row 6: Next Page (red) and Admin Panel (red if admin)
         row6 = []
-        row6.append(create_red_button("Nᴇxᴛ Pᴀɢᴇ ➜", ICON_NEXT))
+        row6.append(create_danger_button("Nᴇxᴛ Pᴀɢᴇ ➜", ICON_NEXT))
         if is_admin:
-            row6.append(create_red_button("Aᴅᴍɪɴ Pᴀɴᴇʟ", ICON_ADMIN))
+            row6.append(create_danger_button("Aᴅᴍɪɴ Pᴀɴᴇʟ", ICON_ADMIN))
         rows.append(KeyboardButtonRow(buttons=row6))
     
     else:  # page 2
-        # Only Previous Page button (red)
-        row_prev = []
-        row_prev.append(create_red_button("◀ Pʀᴇᴠɪᴏᴜs Pᴀɢᴇ", ICON_NEXT))
+        # Only Previous Page (red)
+        row_prev = [create_danger_button("◀ Pʀᴇᴠɪᴏᴜs Pᴀɢᴇ", ICON_NEXT)]
         rows.append(KeyboardButtonRow(buttons=row_prev))
     
     return ReplyKeyboardMarkup(rows=rows, resize=True)
@@ -523,7 +520,7 @@ async def show_commands(event):
         f"/upgrade – Premium upgrade info\n"
         f"/commands – Show this list\n\n"
         f"{E_STAR} <b>Menu buttons</b> (private chat only)\n"
-        f"Use the green buttons below for quick access.\n\n"
+        f"Blue buttons for services, Green for Invite/Upgrade, Red for navigation.\n\n"
         f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
     )
     return await send_html(event.chat_id, txt)
@@ -1203,7 +1200,6 @@ async def msg_handler(event):
                 if mode == "COMMANDS":
                     await show_commands(event)
                     return
-                # Guest is handled separately (starts the guest flow)
                 if mode == "GUEST":
                     if not GEN_AVAILABLE:
                         await send_html(event.chat_id, f"<blockquote>{E_CROSS} Guest Generator is disabled.</blockquote>")
@@ -1416,26 +1412,39 @@ async def process_feature(event, mode, feature):
         m = await send_html(event.chat_id, prompts[mode])
         asyncio.create_task(schedule_delete(m))
 
-# --- GUEST GENERATOR REGION MENU ---
+# --- 🆕 GUEST GENERATOR REGION MENU (4 inline buttons per row) ---
 
 async def send_guest_region_menu(event):
-    keyboard = [
-        [KeyboardButtonCallback(text="🇮🇳 IND", data=b"g_region_IND")],
-        [KeyboardButtonCallback(text="🇮🇩 ID", data=b"g_region_ID")],
-        [KeyboardButtonCallback(text="🇻🇳 VN", data=b"g_region_VN")],
-        [KeyboardButtonCallback(text="🇹🇭 TH", data=b"g_region_TH")],
-        [KeyboardButtonCallback(text="🇧🇩 BD", data=b"g_region_BD")],
-        [KeyboardButtonCallback(text="🇵🇰 PK", data=b"g_region_PK")],
-        [KeyboardButtonCallback(text="🇹🇼 TW", data=b"g_region_TW")],
-        [KeyboardButtonCallback(text="🇷🇺 CIS", data=b"g_region_CIS")],
-        [KeyboardButtonCallback(text="🇪🇸 SAC", data=b"g_region_SAC")],
-        [KeyboardButtonCallback(text="🇸🇦 ME", data=b"g_region_ME")],
-        [KeyboardButtonCallback(text="👻 GHOST", data=b"g_region_GHOST")],
-        [KeyboardButtonCallback(text="🔙 Back", data=b"g_region_back")]
+    # List of regions: (label, callback_data, emoji)
+    regions = [
+        ("🇮🇳 IND", "g_region_IND"),
+        ("🇮🇩 ID", "g_region_ID"),
+        ("🇻🇳 VN", "g_region_VN"),
+        ("🇹🇭 TH", "g_region_TH"),
+        ("🇧🇩 BD", "g_region_BD"),
+        ("🇵🇰 PK", "g_region_PK"),
+        ("🇹🇼 TW", "g_region_TW"),
+        ("🇷🇺 CIS", "g_region_CIS"),
+        ("🇪🇸 SAC", "g_region_SAC"),
+        ("🇸🇦 ME", "g_region_ME"),
+        ("👻 GHOST", "g_region_GHOST"),
+        ("🔙 Back", "g_region_back")
     ]
-    markup = ReplyInlineMarkup(rows=[
-        KeyboardButtonRow(buttons=row) for row in keyboard
-    ])
+    
+    # Build rows of 4 buttons each
+    rows = []
+    for i in range(0, len(regions), 4):
+        row_buttons = []
+        for j in range(4):
+            if i+j < len(regions):
+                label, callback = regions[i+j]
+                # Use primary (blue) for all except back (we can also keep it blue)
+                style = KeyboardButtonStyle(bg_primary=True, icon=0)  # no icon needed
+                btn = KeyboardButtonCallback(text=label, data=callback.encode(), style=style)
+                row_buttons.append(btn)
+        rows.append(KeyboardButtonRow(buttons=row_buttons))
+    
+    markup = ReplyInlineMarkup(rows=rows)
     await send_html(event.chat_id, f"<blockquote>{E_GUEST} Sᴇʟᴇᴄᴛ Rᴇɢɪᴏɴ:\n\nChoose your region below:</blockquote>", reply_markup=markup)
 
 @client.on(events.CallbackQuery)
@@ -1525,10 +1534,10 @@ async def run_query(event, mode, query):
 # --- 🚀 START ---
 
 async def main():
-    print("Hex OSINT Bot ULTIMATE EDITION (Green Buttons)")
-    print("✅ All service buttons are GREEN")
-    print("✅ Next Page / Admin Panel are RED")
-    print("✅ Fast response – no delays")
+    print("Hex OSINT Bot ULTIMATE EDITION")
+    print("✅ Blue buttons for services (except Invite & Upgrade which are green)")
+    print("✅ Red buttons for navigation/admin")
+    print("✅ Region selection: 4 inline buttons per row")
     if GEN_AVAILABLE:
         print("✅ Guest Generator integrated")
     else:
