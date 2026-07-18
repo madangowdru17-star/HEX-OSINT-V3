@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot with Numeric Menu & Next Page
+# bot.py - Hex OSINT Bot FINAL CLEAN
 
 import logging
 import asyncio
@@ -471,7 +471,7 @@ def create_colored_button(text, bg_color, emoji_id):
     )
     return KeyboardButton(text=text, style=style)
 
-# --- 🆕 MAIN MENU WITH NUMERIC BUTTONS (TWO PER ROW) & NEXT PAGE ---
+# --- 🆕 MAIN MENU (TWO BUTTONS PER ROW, NO NUMBERS) ---
 def create_main_menu(is_admin=False, settings=None):
     if settings is None:
         settings = get_settings()
@@ -479,41 +479,33 @@ def create_main_menu(is_admin=False, settings=None):
     page = settings.get("page", 1)
     rows = []
     
-    # Define services for page 1 (numbers 1-10)
-    # Mapping: number -> (label, mode, feature, icon)
-    page1_buttons = [
-        ("1. Iғsᴄ Iɴғᴏ", "IFSC", "ifsc", ICON_IFSC),
-        ("6. Iɴᴠɪᴛᴇ & Eᴀʀɴ", "INVITE", None, ICON_INVITE),
-        ("2. Aᴀᴅʜᴀʀ Iɴғᴏ", "AADHAAR", "aadhaar", ICON_AADHAAR),
-        ("7. Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ", "UPGRADE", None, ICON_UPGRADE),
-        ("3. Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ", "MOBILE", "mobile", ICON_INDIA),
-        ("8. Tɢ Usᴇʀ Iᴅ Iɴғᴏ", "TGID", "tgid", ICON_TG),
-        ("4. Rᴄ Iɴғᴏ", "VEHICLE", "rc", ICON_RC),
-        ("9. Cᴏᴍᴍᴀɴᴅs", "COMMANDS", None, ICON_PRIMARY),
-        ("5. Gsᴛ Iɴғᴏ", "GST", "gst", ICON_GST),
-        ("10. Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ", "PAK", "pak", ICON_PAK)
+    # Page 1 buttons: two per row in the order: (IFSC, Invite), (Aadhaar, Upgrade), (India Number, TG ID), (RC, Commands), (GST, Pakistan)
+    page1 = [
+        ("Iғsᴄ Iɴғᴏ", "IFSC", "ifsc", ICON_IFSC),
+        ("Iɴᴠɪᴛᴇ & Eᴀʀɴ", "INVITE", None, ICON_INVITE),
+        ("Aᴀᴅʜᴀʀ Iɴғᴏ", "AADHAAR", "aadhaar", ICON_AADHAAR),
+        ("Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ", "UPGRADE", None, ICON_UPGRADE),
+        ("Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ", "MOBILE", "mobile", ICON_INDIA),
+        ("Tɢ Usᴇʀ Iᴅ Iɴғᴏ", "TGID", "tgid", ICON_TG),
+        ("Rᴄ Iɴғᴏ", "VEHICLE", "rc", ICON_RC),
+        ("Cᴏᴍᴍᴀɴᴅs", "COMMANDS", None, ICON_PRIMARY),
+        ("Gsᴛ Iɴғᴏ", "GST", "gst", ICON_GST),
+        ("Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ", "PAK", "pak", ICON_PAK)
     ]
-    # For page 2, we can add additional buttons (e.g., guest generator, etc.)
-    page2_buttons = []
+    
+    # Page 2: additional services (guest generator, etc.)
+    page2 = []
     if GEN_AVAILABLE and settings.get("guest_enabled", True):
-        page2_buttons.append(("Fғ Gᴜᴇsᴛ Gᴇɴ", "GUEST", "guest", ICON_GUEST))
-    # Add more future services here
+        page2.append(("Fғ Gᴜᴇsᴛ Gᴇɴ", "GUEST", "guest", ICON_GUEST))
+    # More can be added here in the future
     
     if page == 1:
-        # Arrange in pairs: (1,6), (2,7), (3,8), (4,9), (5,10)
-        # The list is already ordered as [1,6,2,7,3,8,4,9,5,10] but we need to pair them.
-        # Let's reorder to have pairs: (1,6), (2,7), (3,8), (4,9), (5,10)
-        # We'll create a list of pairs from the page1_buttons by taking indices 0,1 then 2,3 etc.
-        # But page1_buttons is ordered as [1,6,2,7,3,8,4,9,5,10]? Actually we defined in that order: 1,6,2,7,3,8,4,9,5,10.
-        # So we can just pair them sequentially: [0,1], [2,3], [4,5], [6,7], [8,9].
-        for i in range(0, len(page1_buttons), 2):
+        for i in range(0, len(page1), 2):
             row_buttons = []
             for j in range(2):
-                if i+j < len(page1_buttons):
-                    label, mode, feature, icon = page1_buttons[i+j]
-                    # Use primary color; admin panel and other special buttons can use different colors if needed
-                    bg = 'primary'
-                    row_buttons.append(create_colored_button(label, bg, icon))
+                if i+j < len(page1):
+                    label, mode, feature, icon = page1[i+j]
+                    row_buttons.append(create_colored_button(label, 'primary', icon))
             if row_buttons:
                 rows.append(KeyboardButtonRow(buttons=row_buttons))
         
@@ -525,22 +517,15 @@ def create_main_menu(is_admin=False, settings=None):
         rows.append(KeyboardButtonRow(buttons=next_row))
     
     else:  # page 2
-        # Show additional services
-        if page2_buttons:
-            # Put them in pairs as well
-            for i in range(0, len(page2_buttons), 2):
+        if page2:
+            for i in range(0, len(page2), 2):
                 row_buttons = []
                 for j in range(2):
-                    if i+j < len(page2_buttons):
-                        label, mode, feature, icon = page2_buttons[i+j]
-                        bg = 'primary'
-                        row_buttons.append(create_colored_button(label, bg, icon))
+                    if i+j < len(page2):
+                        label, mode, feature, icon = page2[i+j]
+                        row_buttons.append(create_colored_button(label, 'primary', icon))
                 if row_buttons:
                     rows.append(KeyboardButtonRow(buttons=row_buttons))
-        else:
-            # If no extra buttons, show a placeholder message? But we can just show a "No additional services" but better to have a back button only.
-            pass
-        
         # Always show Previous Page and Admin Panel (if admin)
         prev_row = []
         prev_row.append(create_colored_button("◀ Pʀᴇᴠɪᴏᴜs Pᴀɢᴇ", 'danger', ICON_NEXT))
@@ -565,8 +550,8 @@ async def show_commands(event):
         f"/invite – Get your invite link\n"
         f"/upgrade – Premium upgrade info\n"
         f"/commands – Show this list\n\n"
-        f"{E_STAR} <b>Numeric menu buttons</b> (private chat only)\n"
-        f"Use the number buttons below for quick access.\n\n"
+        f"{E_STAR} <b>Menu buttons</b> (private chat only)\n"
+        f"Use the buttons below for quick access.\n\n"
         f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
     )
     return await send_html(event.chat_id, txt)
@@ -1072,13 +1057,14 @@ async def send_welcome(event):
         )
         
         is_admin = event.sender_id == ADMIN_ID
-        # In private chats show the numeric keyboard; in groups no keyboard
         if event.is_group:
+            # In groups: no keyboard, only text
             msg = await send_html(event.chat_id, caption)
         else:
             markup = create_main_menu(is_admin, get_settings())
             msg = await send_html(event.chat_id, caption, reply_markup=markup)
-        asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
+        # Do NOT auto-delete welcome message
+        # asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
         
     except Exception as e:
         logger.error(f"Send welcome error: {e}")
@@ -1155,7 +1141,8 @@ async def main_menu(event):
     else:
         markup = create_main_menu(is_admin, s)
         msg = await send_html(event.chat_id, welcome_text, reply_markup=markup)
-    asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
+    # Do NOT auto-delete main menu either
+    # asyncio.create_task(schedule_delete(msg, AUTO_DELETE_TIME))
 
 @client.on(events.NewMessage)
 async def msg_handler(event):
@@ -1241,7 +1228,7 @@ async def msg_handler(event):
             if event.is_group:
                 return
             
-            # Auto-delete user message in private
+            # Auto-delete user message in private (but not commands or welcome)
             asyncio.create_task(schedule_delete(event.message, AUTO_DELETE_TIME))
             
             s = get_settings()
@@ -1250,19 +1237,18 @@ async def msg_handler(event):
                 asyncio.create_task(schedule_delete(m))
                 return
             
-            # --- Numeric menu button handling ---
-            # Map labels to (mode, feature)
+            # --- Menu button handling (without numbers) ---
             label_map = {
-                "1. Iғsᴄ Iɴғᴏ": ("IFSC", "ifsc"),
-                "2. Aᴀᴅʜᴀʀ Iɴғᴏ": ("AADHAAR", "aadhaar"),
-                "3. Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ": ("MOBILE", "mobile"),
-                "4. Rᴄ Iɴғᴏ": ("VEHICLE", "rc"),
-                "5. Gsᴛ Iɴғᴏ": ("GST", "gst"),
-                "6. Iɴᴠɪᴛᴇ & Eᴀʀɴ": ("INVITE", None),
-                "7. Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ": ("UPGRADE", None),
-                "8. Tɢ Usᴇʀ Iᴅ Iɴғᴏ": ("TGID", "tgid"),
-                "9. Cᴏᴍᴍᴀɴᴅs": ("COMMANDS", None),
-                "10. Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ": ("PAK", "pak"),
+                "Iғsᴄ Iɴғᴏ": ("IFSC", "ifsc"),
+                "Aᴀᴅʜᴀʀ Iɴғᴏ": ("AADHAAR", "aadhaar"),
+                "Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ": ("MOBILE", "mobile"),
+                "Rᴄ Iɴғᴏ": ("VEHICLE", "rc"),
+                "Gsᴛ Iɴғᴏ": ("GST", "gst"),
+                "Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ": ("PAK", "pak"),
+                "Tɢ Usᴇʀ Iᴅ Iɴғᴏ": ("TGID", "tgid"),
+                "Iɴᴠɪᴛᴇ & Eᴀʀɴ": ("INVITE", None),
+                "Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ": ("UPGRADE", None),
+                "Cᴏᴍᴍᴀɴᴅs": ("COMMANDS", None)
             }
             if txt in label_map:
                 mode, feature = label_map[txt]
@@ -1287,23 +1273,6 @@ async def msg_handler(event):
                 s["page"] = 1
                 save_settings(s)
                 await main_menu(event)
-                return
-            
-            # --- Legacy mapping (backward compatibility) ---
-            legacy_map = {
-                "Iғsᴄ Iɴғᴏ": ("IFSC", "ifsc"),
-                "Aᴀᴅʜᴀʀ Iɴғᴏ": ("AADHAAR", "aadhaar"),
-                "Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ": ("MOBILE", "mobile"),
-                "Rᴄ Iɴғᴏ": ("VEHICLE", "rc"),
-                "Gsᴛ Iɴғᴏ": ("GST", "gst"),
-                "Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ": ("PAK", "pak"),
-                "Tɢ Usᴇʀ Iᴅ Iɴғᴏ": ("TGID", "tgid"),
-                "Iɴᴠɪᴛᴇ & Eᴀʀɴ": ("INVITE", None),
-                "Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ": ("UPGRADE", None)
-            }
-            if txt in legacy_map:
-                mode, feature = legacy_map[txt]
-                await process_feature(event, mode, feature)
                 return
             
             # --- Guest Generator flow (if enabled) ---
@@ -1629,8 +1598,8 @@ async def main():
     print("Premium UI with Unique Emojis")
     print("All features working!")
     print("Group Mode: Only slash commands work in groups.")
-    print("Private chat: Numeric keyboard with two buttons per row (1‑6, 2‑7, 3‑8, 4‑9, 5‑10).")
-    print("Welcome message auto-deletes after 60 seconds.")
+    print("Private chat: Two-button rows (no numbers).")
+    print("Welcome message does NOT auto-delete.")
     if GEN_AVAILABLE:
         print("Guest Generator integrated.")
     else:
