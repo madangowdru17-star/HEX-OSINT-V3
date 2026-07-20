@@ -179,22 +179,23 @@ E_WELCOME = PE("6266969287638913443", "✨")
 E_FATHER = PE("6147864334077794239", "👨")
 E_UPGRADE = PE("6267128480601741166", "👑")
 
-# --- BUTTON ICON IDs ---
-ICON_IFSC = 5264895611517300926
-ICON_AADHAAR = 5260561650213220533
-ICON_INDIA = 6284779941489812433
-ICON_RC = 5253752975997803460
-ICON_GST = 5260561650213220533
-ICON_PAK = 5913705895375672082
-ICON_TG = 5039783602301175152
-ICON_INVITE = 5244933196230972438
-ICON_UPGRADE = 6267128480601741166
-ICON_GUEST = 5802980697886954454
-ICON_ADMIN = 6267128480601741166
-ICON_NEXT = 5258331647358540449
-ICON_PRIMARY = 5258096772776991776
-ICON_JOIN1 = 5802980697886954454
-ICON_JOIN2 = 6154369208076470797
+# --- BUTTON ICON IDs (NEW) ---
+ICON_GUEST  = 5300834592180165807
+ICON_IFSC   = 5407018055026877298
+ICON_AADHAAR= 5418115271267197333
+ICON_INDIA  = 6190229105506525818
+ICON_RC     = 5271626181752407599
+ICON_GST    = 5296467211735539812
+ICON_PAK    = 5913705895375672082
+ICON_TG     = 5345965137863928359
+ICON_INVITE = 6048721430730773527
+ICON_UPGRADE= 5251422397893989847
+ICON_NEXT   = 5260450573768990626
+ICON_ADMIN  = 5406711411541823609
+
+# Verification buttons (unchanged)
+ICON_JOIN1  = 5802980697886954454
+ICON_JOIN2  = 6154369208076470797
 ICON_VERIFY = 5289898724976240966
 
 # ---- LOGGING SETUP ----
@@ -454,16 +455,16 @@ def create_main_menu(is_admin=False, settings=None):
     rows = []
     
     if page == 1:
-        # Row 1: FF Guest Gen (if available) and IFSC Info - both blue
+        # Row 1: FF Guest Generator and IFSC Info - both blue
         row1 = []
         if GEN_AVAILABLE and settings.get("guest_enabled", True):
-            row1.append(create_primary_button("Fғ Gᴜᴇsᴛ Gᴇɴ", ICON_GUEST))
+            row1.append(create_primary_button("Fғ Gᴜᴇsᴛ Gᴇɴᴇʀᴀᴛᴏʀ", ICON_GUEST))
         row1.append(create_primary_button("Iғsᴄ Iɴғᴏ", ICON_IFSC))
         rows.append(KeyboardButtonRow(buttons=row1))
         
-        # Row 2: Aadhar Info and India Number Info (blue)
+        # Row 2: Aadhaar Info and India Number Info (blue)
         row2 = [
-            create_primary_button("Aᴀᴅʜᴀʀ Iɴғᴏ", ICON_AADHAAR),
+            create_primary_button("Aᴀᴅʜᴀᴀʀ Iɴғᴏ", ICON_AADHAAR),
             create_primary_button("Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ", ICON_INDIA)
         ]
         rows.append(KeyboardButtonRow(buttons=row2))
@@ -491,15 +492,14 @@ def create_main_menu(is_admin=False, settings=None):
         
         # Row 6: Next Page (red) and Admin Panel (red if admin)
         row6 = []
-        row6.append(create_danger_button("Nᴇxᴛ Pᴀɢᴇ ➜", ICON_NEXT))
+        row6.append(create_danger_button("Nᴇxᴛ Pᴀɢᴇ", ICON_NEXT))
         if is_admin:
             row6.append(create_danger_button("Aᴅᴍɪɴ Pᴀɴᴇʟ", ICON_ADMIN))
         rows.append(KeyboardButtonRow(buttons=row6))
     
     else:  # page 2
         # Only Previous Page (red)
-        row_prev = [create_danger_button("◀ Pʀᴇᴠɪᴏᴜs Pᴀɢᴇ", ICON_NEXT)]
-        rows.append(KeyboardButtonRow(buttons=row_prev))
+        rows.append(KeyboardButtonRow(buttons=[create_danger_button("◀ Pʀᴇᴠɪᴏᴜs Pᴀɢᴇ", ICON_NEXT)]))
     
     return ReplyKeyboardMarkup(rows=rows, resize=True)
 
@@ -865,7 +865,7 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
     try:
         safe_send_coro(send_html(
             chat_id,
-            f"<blockquote>{E_GUEST} Fғ Gᴜᴇsᴛ Gᴇɴ {E_GUEST}\n\n"
+            f"<blockquote>{E_GUEST} Fғ Gᴜᴇsᴛ Gᴇɴᴇʀᴀᴛᴏʀ {E_GUEST}\n\n"
             f"<b>Region:</b> {region} {'(GHOST)' if is_ghost else ''}\n"
             f"<b>Name Prefix:</b> {name_prefix}\n"
             f"<b>Password Prefix:</b> {password_prefix}\n"
@@ -1116,18 +1116,16 @@ async def msg_handler(event):
                     '/gst': ('GST', 'gst'),
                     '/pak': ('PAK', 'pak'),
                     '/tgid': ('TGID', 'tgid'),
-                    '/guest': ('GUEST', None),   # <--- added guest command
+                    '/guest': ('GUEST', None),
                     '/invite': ('INVITE', None),
                     '/upgrade': ('UPGRADE', None)
                 }
                 if cmd in cmd_map:
                     mode, feature = cmd_map[cmd]
-                    # Handle guest separately (no argument needed)
                     if mode == 'GUEST':
                         if not GEN_AVAILABLE:
                             await send_html(event.chat_id, f"<blockquote>{E_CROSS} Guest Generator is disabled.</blockquote>")
                             return
-                        # Start guest flow
                         GUEST_STATE[uid] = {"step": "region"}
                         await send_guest_region_menu(event)
                         return
@@ -1194,9 +1192,9 @@ async def msg_handler(event):
             
             # Button labels (exact match)
             label_map = {
-                "Fғ Gᴜᴇsᴛ Gᴇɴ": ("GUEST", "guest"),
+                "Fғ Gᴜᴇsᴛ Gᴇɴᴇʀᴀᴛᴏʀ": ("GUEST", "guest"),
                 "Iғsᴄ Iɴғᴏ": ("IFSC", "ifsc"),
-                "Aᴀᴅʜᴀʀ Iɴғᴏ": ("AADHAAR", "aadhaar"),
+                "Aᴀᴅʜᴀᴀʀ Iɴғᴏ": ("AADHAAR", "aadhaar"),
                 "Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ": ("MOBILE", "mobile"),
                 "Rᴄ Iɴғᴏ": ("VEHICLE", "rc"),
                 "Gsᴛ Iɴғᴏ": ("GST", "gst"),
@@ -1227,7 +1225,7 @@ async def msg_handler(event):
                 return
             
             # Page navigation
-            if txt == "Nᴇxᴛ Pᴀɢᴇ ➜":
+            if txt == "Nᴇxᴛ Pᴀɢᴇ":
                 s["page"] = 2
                 save_settings(s)
                 await main_menu(event)
@@ -1370,7 +1368,7 @@ async def process_feature(event, mode, feature):
             f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
         ),
         "AADHAAR": (
-            f"<blockquote>{E_AADHAAR} Aᴀᴅʜᴀʀ Iɴғᴏ\n\n"
+            f"<blockquote>{E_AADHAAR} Aᴀᴅʜᴀᴀʀ Iɴғᴏ\n\n"
             f"Send 12-digit Aadhar number\n\n"
             f"Example: 123456789012\n\n"
             f"{E_WALLET} Your Credits: {credits}\n\n"
