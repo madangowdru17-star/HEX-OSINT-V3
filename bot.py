@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot FINAL with Guest Command
+# bot.py - Hex OSINT Bot FINAL with Welcome Panel UI
 
 import logging
 import asyncio
@@ -107,6 +107,7 @@ BOT_USERNAME = "Hex_Terminal_bot"
 # --- YOUR PREMIUM EMOJI IDs ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
+# Existing emojis (unchanged)
 E_DIAMOND = PE("6314557546753440004", "💎")
 E_LION = PE("5802980697886954454", "🦁")
 E_HAPPY = PE("6154369208076470797", "🥹")
@@ -144,17 +145,34 @@ E_COUNTRY_CODE = PE("5422814644093868925", "👨‍💻")
 E_PHONE_NUMBER = PE("5339534764367955381", "🌟")
 E_TG_ID = PE("5936017305585586269", "🪪")
 
-# ---- Guest generator emojis (NEW IDs) ----
-E_GUEST = PE("5300834592180165807", "🎮")           # Guest button & title
-E_PROMPT = PE("5985774024968379294", "📝")          # Prompt icon
-E_CHECK = PE("6267008582294705964", "✅")           # Checkmark (already used)
-E_STARTING = PE("6147654280112248427", "🚀")        # Starting generation
-E_ACCOUNTS = PE("5249053508681883137", "📁")        # Accounts label
-E_COUPLES = PE("5370867435555529534", "💑")         # Couples label
-E_COMPLETE_DATA = PE("5370604433233177619", "📦")   # Complete data label
-E_ALL_SENT = PE("5237909052096259221", "✨")         # All files sent
+# ---- Guest generator emojis ----
+E_GUEST = PE("5300834592180165807", "🎮")
+E_PROMPT = PE("5985774024968379294", "📝")
+E_CHECK = PE("6267008582294705964", "✅")
+E_STARTING = PE("6147654280112248427", "🚀")
+E_ACCOUNTS = PE("5249053508681883137", "📁")
+E_COUPLES = PE("5370867435555529534", "💑")
+E_COMPLETE_DATA = PE("5370604433233177619", "📦")
+E_ALL_SENT = PE("5237909052096259221", "✨")
 
-# The following are unused in guest flow but kept for other parts
+# ---- Welcome panel emojis (NEW) ----
+E_LINE          = PE("6329854094252970694", "➿")
+E_VERTICAL_LINE = PE("5319053559981959471", "🪭")
+E_STORE_START   = PE("6235486558883946673", "💎")
+E_STORE_END     = PE("4990307318513009602", "🛍")
+E_GREET_START   = PE("5773659712071409251", "🥹")
+E_GREET_END     = PE("6336972134962697188", "👑")
+E_DASHBOARD     = PE("6010080507616826629", "📊")
+E_BALANCE_ICON  = PE("6147767796097884213", "💰")
+E_ROLE_ICON     = PE("6147528944376618702", "👑")
+E_CHATID_ICON   = PE("6010280773351904888", "✉️")
+E_PHONE_ICON    = PE("6010095381088571985", "📱")
+E_AUTOPAY_ICON  = PE("5807750375033278838", "⚡")
+E_AUTOKEY_ICON  = PE("6005570495603282482", "🔑")
+E_FAST_START    = PE("6285225986728400476", "⭐")
+E_FAST_END      = PE("6010375245452547641", "⭐")
+
+# ---- Other existing emojis (keep for compatibility) ----
 E_CROSS = PE("6267000941547885720", "❌")
 E_WARN = PE("6267039884016358504", "⚠️")
 E_LOCK = PE("5316522278056399236", "🔒")
@@ -187,7 +205,7 @@ E_WELCOME = PE("6266969287638913443", "✨")
 E_FATHER = PE("6147864334077794239", "👨")
 E_UPGRADE = PE("6267128480601741166", "👑")
 
-# --- BUTTON ICON IDs (NEW) ---
+# --- BUTTON ICON IDs ---
 ICON_GUEST  = 5300834592180165807
 ICON_IFSC   = 5407018055026877298
 ICON_AADHAAR= 5418115271267197333
@@ -201,12 +219,11 @@ ICON_UPGRADE= 5251422397893989847
 ICON_NEXT   = 5260450573768990626
 ICON_ADMIN  = 5406711411541823609
 
-# Verification buttons (unchanged)
 ICON_JOIN1  = 5802980697886954454
 ICON_JOIN2  = 6154369208076470797
 ICON_VERIFY = 5289898724976240966
 
-# ---- LOGGING SETUP ----
+# ---- LOGGING ----
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -454,7 +471,7 @@ def create_danger_button(text, emoji_id):
     style = KeyboardButtonStyle(bg_danger=True, icon=emoji_id)
     return KeyboardButton(text=text, style=style)
 
-# --- 🆕 MAIN MENU WITH BLUE/GREEN/RED BUTTONS ---
+# --- 🆕 MAIN MENU ---
 
 def create_main_menu(is_admin=False, settings=None):
     if settings is None:
@@ -463,42 +480,36 @@ def create_main_menu(is_admin=False, settings=None):
     rows = []
     
     if page == 1:
-        # Row 1: FF Guest Generator and IFSC Info - both blue
         row1 = []
         if GEN_AVAILABLE and settings.get("guest_enabled", True):
             row1.append(create_primary_button("Fғ Gᴜᴇsᴛ Gᴇɴᴇʀᴀᴛᴏʀ", ICON_GUEST))
         row1.append(create_primary_button("Iғsᴄ Iɴғᴏ", ICON_IFSC))
         rows.append(KeyboardButtonRow(buttons=row1))
         
-        # Row 2: Aadhaar Info and India Number Info (blue)
         row2 = [
             create_primary_button("Aᴀᴅʜᴀᴀʀ Iɴғᴏ", ICON_AADHAAR),
             create_primary_button("Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ", ICON_INDIA)
         ]
         rows.append(KeyboardButtonRow(buttons=row2))
         
-        # Row 3: RC Info and GST Info (blue)
         row3 = [
             create_primary_button("Rᴄ Iɴғᴏ", ICON_RC),
             create_primary_button("Gsᴛ Iɴғᴏ", ICON_GST)
         ]
         rows.append(KeyboardButtonRow(buttons=row3))
         
-        # Row 4: TG User ID Info and Pak Number Info (blue)
         row4 = [
             create_primary_button("Tɢ Usᴇʀ Iᴅ Iɴғᴏ", ICON_TG),
             create_primary_button("Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ", ICON_PAK)
         ]
         rows.append(KeyboardButtonRow(buttons=row4))
         
-        # Row 5: Upgrade To Premium (green) and Invite & Earn (green)
         row5 = [
             create_success_button("Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ", ICON_UPGRADE),
             create_success_button("Iɴᴠɪᴛᴇ & Eᴀʀɴ", ICON_INVITE)
         ]
         rows.append(KeyboardButtonRow(buttons=row5))
         
-        # Row 6: Next Page (red) and Admin Panel (red if admin)
         row6 = []
         row6.append(create_danger_button("Nᴇxᴛ Pᴀɢᴇ", ICON_NEXT))
         if is_admin:
@@ -506,10 +517,592 @@ def create_main_menu(is_admin=False, settings=None):
         rows.append(KeyboardButtonRow(buttons=row6))
     
     else:  # page 2
-        # Only Previous Page (red)
         rows.append(KeyboardButtonRow(buttons=[create_danger_button("◀ Pʀᴇᴠɪᴏᴜs Pᴀɢᴇ", ICON_NEXT)]))
     
     return ReplyKeyboardMarkup(rows=rows, resize=True)
+
+# --- 🆕 WELCOME PANEL BUILDER ---
+
+def build_welcome_panel(uid, first_name, credits, premium=False):
+    """Returns the formatted welcome message with the new UI style."""
+    line12 = E_LINE * 12
+    line10 = E_LINE * 10
+    role = "PREMIUM" if premium else "USER"
+    phone_number = "Not Set"
+    balance = credits  # credits as balance (can be shown as ₹ if you like)
+
+    return f"""{line12}      
+{E_STORE_START} Hᴇx Oꜱɪɴᴛ Bᴏᴛ {E_STORE_END}
+{line12}
+{E_GREET_START} Hᴇʏ {first_name} {E_GREET_END}
+
+{E_DASHBOARD} ʏᴏᴜʀ ᴅᴀꜱʜʙᴏᴀʀᴅ !!
+{line10}
+{E_VERTICAL_LINE} {E_BALANCE_ICON} ʏᴏᴜʀ ʙᴀʟᴀɴᴄᴇ » {balance} ᴄʀᴇᴅɪᴛꜱ
+
+{E_VERTICAL_LINE} {E_ROLE_ICON} ʀᴏʟᴇ » {role}
+
+{E_VERTICAL_LINE} {E_CHATID_ICON} ʏᴏᴜʀ ɪᴅ » {uid}
+
+{E_VERTICAL_LINE} {E_PHONE_ICON} ʏᴏᴜʀ ɴᴜᴍʙᴇʀ » {phone_number}
+{line10}
+{E_AUTOPAY_ICON} ᴀᴜᴛᴏᴍᴀᴛɪᴄ ᴘᴀʏᴍᴇɴᴛ ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ
+{E_AUTOKEY_ICON} ᴀᴜᴛᴏ ᴅᴇʟɪᴠᴇʀʏ ᴋᴇʏ
+{line10}
+{E_FAST_START} ꜰᴀꜱᴛ • ꜱᴇᴄᴜʀᴇ • ᴛʀᴜꜱᴛᴇᴅ {E_FAST_END}
+{line10}"""
+
+# --- 🚀 HANDLERS ---
+
+async def send_welcome(event):
+    try:
+        uid = event.sender_id
+        user = get_user(uid)
+        credits = user.get('credits', 0)
+        premium = user.get('premium', False)
+        first_name = event.sender.first_name or "User"
+        caption = build_welcome_panel(uid, first_name, credits, premium)
+        is_admin = event.sender_id == ADMIN_ID
+        if event.is_group:
+            msg = await send_html(event.chat_id, caption)
+        else:
+            markup = create_main_menu(is_admin, get_settings())
+            msg = await send_html(event.chat_id, caption, reply_markup=markup)
+    except Exception as e:
+        logger.error(f"Send welcome error: {e}")
+        await main_menu(event)
+
+@client.on(events.NewMessage(pattern='/start'))
+async def start(event):
+    async with processing_lock:
+        try:
+            uid = event.sender_id
+            user = get_user(uid)
+            user["started"] = True
+            save_user(uid, user)
+            
+            args = event.message.message.split()
+            if len(args) > 1 and args[1].startswith("HEX-"):
+                users = load_json(USERS_FILE)
+                for inviter, data in users.items():
+                    if data.get("invite_code") == args[1] and inviter != str(uid):
+                        cr = process_invite(inviter, uid)
+                        try:
+                            await send_html(int(inviter), f"<blockquote>{E_GIFT} +{cr} CREDITS! NEW USER JOINED!\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
+                        except:
+                            pass
+                        break
+            
+            await send_welcome(event)
+        except Exception as e:
+            logger.error(f"Start: {e}")
+            await main_menu(event)
+
+@client.on(events.CallbackQuery(data=b"verify"))
+async def verify_cb(event):
+    try:
+        uid = event.sender_id
+        in_channel1, in_channel2 = await check_individual_channels(uid)
+        if in_channel1 and in_channel2:
+            user = get_user(uid)
+            user["verified"] = True
+            save_user(uid, user)
+            await event.answer("✅ Verified!", alert=True)
+            try:
+                await event.delete()
+            except:
+                pass
+            try:
+                await event.message.delete()
+            except:
+                pass
+            await send_welcome(event)
+        elif not in_channel1 and not in_channel2:
+            await event.answer("❌ Join both channels first!", alert=True)
+        elif not in_channel1:
+            await event.answer("❌ Join Channel 1 first!", alert=True)
+        elif not in_channel2:
+            await event.answer("❌ Join Channel 2 first!", alert=True)
+    except Exception as e:
+        logger.error(f"Verify callback error: {e}")
+        await event.answer("❌ Error, try again", alert=True)
+
+@client.on(events.CallbackQuery)
+async def admin_callback_handler(event):
+    if event.data and event.data.startswith(b"ad_"):
+        await admin_callback(event)
+
+@client.on(events.CallbackQuery)
+async def handle_url_callback(event):
+    if event.data == b"url1":
+        await event.answer(f"{E_LINK} Join: {LINK_1}", alert=True)
+    elif event.data == b"url2":
+        await event.answer(f"{E_LINK} Join: {LINK_2}", alert=True)
+
+async def main_menu(event):
+    is_admin = event.sender_id == ADMIN_ID
+    user = get_user(event.sender_id)
+    s = get_settings()
+    if not await check_channels(event.sender_id):
+        user["verified"] = False
+        save_user(event.sender_id, user)
+        await show_verification_page(event)
+        return
+    credits = user.get("credits", 0)
+    premium = user.get('premium', False)
+    first_name = event.sender.first_name or "User"
+    welcome_text = build_welcome_panel(event.sender_id, first_name, credits, premium)
+    if event.is_group:
+        msg = await send_html(event.chat_id, welcome_text)
+    else:
+        markup = create_main_menu(is_admin, s)
+        msg = await send_html(event.chat_id, welcome_text, reply_markup=markup)
+
+@client.on(events.NewMessage)
+async def msg_handler(event):
+    async with processing_lock:
+        try:
+            uid = event.sender_id
+            txt = event.message.message.strip()
+            if not txt:
+                return
+            
+            # Slash commands
+            if txt.startswith('/'):
+                if txt.startswith('/commands'):
+                    await show_commands(event)
+                    return
+                parts = txt.split(maxsplit=1)
+                cmd = parts[0].lower()
+                arg = parts[1] if len(parts) > 1 else None
+                cmd_map = {
+                    '/ifsc': ('IFSC', 'ifsc'),
+                    '/aadhaar': ('AADHAAR', 'aadhaar'),
+                    '/mobile': ('MOBILE', 'mobile'),
+                    '/rc': ('VEHICLE', 'rc'),
+                    '/gst': ('GST', 'gst'),
+                    '/pak': ('PAK', 'pak'),
+                    '/tgid': ('TGID', 'tgid'),
+                    '/guest': ('GUEST', None),
+                    '/invite': ('INVITE', None),
+                    '/upgrade': ('UPGRADE', None)
+                }
+                if cmd in cmd_map:
+                    mode, feature = cmd_map[cmd]
+                    if mode == 'GUEST':
+                        if not GEN_AVAILABLE:
+                            await send_html(event.chat_id, f"<blockquote>{E_CROSS} Guest Generator is disabled.</blockquote>")
+                            return
+                        GUEST_STATE[uid] = {"step": "region"}
+                        await send_guest_region_menu(event)
+                        return
+                    if mode in ('INVITE', 'UPGRADE'):
+                        await process_feature(event, mode, feature)
+                        return
+                    if arg is None:
+                        m = await send_html(event.chat_id, f"<blockquote>{E_WARN} Please provide a value.\nExample: <code>{cmd} VALUE</code></blockquote>")
+                        asyncio.create_task(schedule_delete(m))
+                        return
+                    user = get_user(uid)
+                    if not user.get("verified"):
+                        if await check_channels(uid):
+                            user["verified"] = True
+                            save_user(uid, user)
+                        else:
+                            await show_verification_page(event)
+                            return
+                    s = get_settings()
+                    if feature and not s.get(f"{feature}_enabled", True):
+                        m = await send_html(event.chat_id, f"<blockquote>{E_DISABLED} Disabled</blockquote>")
+                        asyncio.create_task(schedule_delete(m))
+                        return
+                    if feature:
+                        maint, msg = check_feature_maintenance(feature)
+                        if maint:
+                            m = await send_html(event.chat_id, f"<blockquote>{E_TOOLS} {msg}</blockquote>")
+                            asyncio.create_task(schedule_delete(m))
+                            return
+                    if user.get("credits", 0) <= 0:
+                        m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} No credits! +10 daily | +3 invite</blockquote>")
+                        asyncio.create_task(schedule_delete(m))
+                        return
+                    await run_query(event, mode, arg)
+                    return
+                else:
+                    m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Unknown command. Type /commands for help.</blockquote>")
+                    asyncio.create_task(schedule_delete(m))
+                    return
+            
+            if txt.startswith('/start'):
+                return
+            
+            # Duplicate prevention
+            msg_id = event.message.id
+            if msg_id in processed_messages:
+                return
+            processed_messages.add(msg_id)
+            if len(processed_messages) > 500:
+                processed_messages.clear()
+            
+            # In groups, only slash commands are accepted
+            if event.is_group:
+                return
+            
+            # Auto-delete user messages in private (except commands)
+            asyncio.create_task(schedule_delete(event.message, AUTO_DELETE_TIME))
+            
+            s = get_settings()
+            if s.get("maintenance_mode", False) and uid != ADMIN_ID:
+                m = await send_html(event.chat_id, f"<blockquote>{E_TOOLS} Under maintenance\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
+                asyncio.create_task(schedule_delete(m))
+                return
+            
+            # Button labels (exact match)
+            label_map = {
+                "Fғ Gᴜᴇsᴛ Gᴇɴᴇʀᴀᴛᴏʀ": ("GUEST", "guest"),
+                "Iғsᴄ Iɴғᴏ": ("IFSC", "ifsc"),
+                "Aᴀᴅʜᴀᴀʀ Iɴғᴏ": ("AADHAAR", "aadhaar"),
+                "Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ": ("MOBILE", "mobile"),
+                "Rᴄ Iɴғᴏ": ("VEHICLE", "rc"),
+                "Gsᴛ Iɴғᴏ": ("GST", "gst"),
+                "Tɢ Usᴇʀ Iᴅ Iɴғᴏ": ("TGID", "tgid"),
+                "Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ": ("PAK", "pak"),
+                "Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ": ("UPGRADE", None),
+                "Iɴᴠɪᴛᴇ & Eᴀʀɴ": ("INVITE", None),
+                "Cᴏᴍᴍᴀɴᴅs": ("COMMANDS", None)
+            }
+            if txt in label_map:
+                mode, feature = label_map[txt]
+                if mode == "COMMANDS":
+                    await show_commands(event)
+                    return
+                if mode == "GUEST":
+                    if not GEN_AVAILABLE:
+                        await send_html(event.chat_id, f"<blockquote>{E_CROSS} Guest Generator is disabled.</blockquote>")
+                        return
+                    GUEST_STATE[uid] = {"step": "region"}
+                    await send_guest_region_menu(event)
+                    return
+                await process_feature(event, mode, feature)
+                return
+            
+            # Admin Panel
+            if txt == "Aᴅᴍɪɴ Pᴀɴᴇʟ":
+                await admin_panel(event)
+                return
+            
+            # Page navigation
+            if txt == "Nᴇxᴛ Pᴀɢᴇ":
+                s["page"] = 2
+                save_settings(s)
+                await main_menu(event)
+                return
+            if txt == "◀ Pʀᴇᴠɪᴏᴜs Pᴀɢᴇ":
+                s["page"] = 1
+                save_settings(s)
+                await main_menu(event)
+                return
+            
+            # Guest generator flow
+            if uid in GUEST_STATE:
+                state = GUEST_STATE[uid]
+                step = state.get("step")
+                if step == "region":
+                    if txt.upper() in REGION_LANG or txt.upper() == "GHOST":
+                        region = txt.upper()
+                        is_ghost = region == "GHOST"
+                        if is_ghost:
+                            region = "BR"
+                        state["region"] = region
+                        state["is_ghost"] = is_ghost
+                        state["step"] = "name"
+                        await send_html(event.chat_id, f"<blockquote>{E_CHECK} Region set to <b>{region}</b> {'(GHOST)' if is_ghost else ''}\n\n{E_PROMPT} Enter <b>Name Prefix</b> (e.g., JXE):</blockquote>")
+                    else:
+                        await send_html(event.chat_id, f"<blockquote>❌ Invalid region. Please select from the inline buttons.</blockquote>")
+                    return
+                elif step == "name":
+                    state["name"] = txt
+                    state["step"] = "password"
+                    await send_html(event.chat_id, f"<blockquote>{E_CHECK} Name prefix set to <b>{txt}</b>\n\n{E_PROMPT} Enter <b>Password Prefix</b> (e.g., JXE2026):</blockquote>")
+                    return
+                elif step == "password":
+                    state["password"] = txt
+                    state["step"] = "total"
+                    await send_html(event.chat_id, f"<blockquote>{E_CHECK} Password prefix set to <b>{txt}</b>\n\n{E_PROMPT} Enter <b>Total Accounts</b> (number):</blockquote>")
+                    return
+                elif step == "total":
+                    if txt.isdigit() and int(txt) > 0:
+                        total = int(txt)
+                        state["total"] = total
+                        region = state["region"]
+                        is_ghost = state["is_ghost"]
+                        name_prefix = state["name"]
+                        password_prefix = state["password"]
+                        loop = asyncio.get_event_loop()
+                        chat_id = event.chat_id
+                        threading.Thread(
+                            target=run_guest_generation,
+                            args=(chat_id, region, is_ghost, name_prefix, password_prefix, total, loop),
+                            daemon=True
+                        ).start()
+                        del GUEST_STATE[uid]
+                        await send_html(event.chat_id, f"<blockquote>{E_STARTING} Starting ULTRA SPEED generation with {total} accounts...\n\nResults will appear here.</blockquote>")
+                    else:
+                        await send_html(event.chat_id, f"<blockquote>❌ Please enter a valid positive number.</blockquote>")
+                    return
+                else:
+                    del GUEST_STATE[uid]
+                    await send_html(event.chat_id, f"<blockquote>⚠️ Session reset. Please click Fғ Gᴜᴇsᴛ Gᴇɴ again.</blockquote>")
+                    return
+            
+            # Query mode
+            uid_str = str(uid)
+            if uid_str in USER_MODES and USER_MODES[uid_str]:
+                mode = USER_MODES[uid_str]
+                user = get_user(uid)
+                if user.get("credits", 0) <= 0:
+                    m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} No credits! +10 daily | +3 invite\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
+                    asyncio.create_task(schedule_delete(m))
+                    USER_MODES[uid_str] = None
+                    return
+                await run_query(event, mode, txt)
+                USER_MODES[uid_str] = None
+                return
+            
+        except Exception as e:
+            logger.error(f"Msg handler error: {e}")
+
+# --- 🆕 Helper to process a feature ---
+
+async def process_feature(event, mode, feature):
+    uid = event.sender_id
+    user = get_user(uid)
+    if not user.get("verified"):
+        if await check_channels(uid):
+            user["verified"] = True
+            save_user(uid, user)
+        else:
+            await show_verification_page(event)
+            return
+    s = get_settings()
+    if feature and not s.get(f"{feature}_enabled", True):
+        m = await send_html(event.chat_id, f"<blockquote>{E_DISABLED} Disabled</blockquote>")
+        asyncio.create_task(schedule_delete(m))
+        return
+    if feature:
+        maint, msg = check_feature_maintenance(feature)
+        if maint:
+            m = await send_html(event.chat_id, f"<blockquote>{E_TOOLS} {msg}</blockquote>")
+            asyncio.create_task(schedule_delete(m))
+            return
+    
+    if mode == "INVITE":
+        user = get_user(uid)
+        bot_username = BOT_USERNAME
+        link = f"https://t.me/{bot_username}?start={user['invite_code']}"
+        invite_msg = (
+            f"<blockquote>{E_STAR} Invite & Earn {E_STAR}\n\n"
+            f"{E_USERS} +{INVITE_CREDITS} Credits per invite\n\n"
+            f"{E_LINK} {link}\n\n"
+            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+        )
+        m = await send_html(event.chat_id, invite_msg)
+        asyncio.create_task(schedule_delete(m, 120))
+        return
+    elif mode == "UPGRADE":
+        m = await send_html(event.chat_id, 
+            f"<blockquote>{E_UPGRADE} Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ\n\n"
+            f"Contact @HeX_CiPhEr to upgrade your account!\n\n"
+            f"🌟 Premium Benefits:\n\n"
+            f"• Unlimited Credits\n\n"
+            f"• All Services Access\n\n"
+            f"• Priority Support\n\n"
+            f"• Exclusive Features\n\n"
+            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+        )
+        asyncio.create_task(schedule_delete(m, 60))
+        return
+    
+    USER_MODES[str(uid)] = mode
+    credits = user.get("credits", 0)
+    prompts = {
+        "IFSC": (
+            f"<blockquote>{E_IFSC} Iғsᴄ Iɴғᴏ\n\n"
+            f"Send IFSC code\n\n"
+            f"Example: SBIN0001234\n\n"
+            f"{E_WALLET} Your Credits: {credits}\n\n"
+            f"Search Cost: 1 Point\n\n"
+            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+        ),
+        "AADHAAR": (
+            f"<blockquote>{E_AADHAAR} Aᴀᴅʜᴀᴀʀ Iɴғᴏ\n\n"
+            f"Send 12-digit Aadhar number\n\n"
+            f"Example: 123456789012\n\n"
+            f"{E_WALLET} Your Credits: {credits}\n\n"
+            f"Search Cost: 1 Point\n\n"
+            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+        ),
+        "MOBILE": (
+            f"<blockquote>{E_INDIA} Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ\n\n"
+            f"Send 10-digit mobile number\n\n"
+            f"Example: 9876543210\n\n"
+            f"Tip: with or without +91\n\n"
+            f"{E_WALLET} Your Credits: {credits}\n\n"
+            f"Search Cost: 1 Point\n\n"
+            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+        ),
+        "VEHICLE": (
+            f"<blockquote>{E_RC} Rᴄ Iɴғᴏ\n\n"
+            f"Send vehicle number\n\n"
+            f"Example: KA01AB3256\n\n"
+            f"{E_WALLET} Your Credits: {credits}\n\n"
+            f"Search Cost: 1 Point\n\n"
+            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+        ),
+        "GST": (
+            f"<blockquote>{E_GST} Gsᴛ Iɴғᴏ\n\n"
+            f"Send GST number\n\n"
+            f"Example: 19BOKPS7056D1ZI\n\n"
+            f"{E_WALLET} Your Credits: {credits}\n\n"
+            f"Search Cost: 1 Point\n\n"
+            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+        ),
+        "PAK": (
+            f"<blockquote>{E_PAK} Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ\n\n"
+            f"Send Pakistan number\n\n"
+            f"Example: 923078750447\n\n"
+            f"{E_WALLET} Your Credits: {credits}\n\n"
+            f"Search Cost: 1 Point\n\n"
+            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+        ),
+        "TGID": (
+            f"<blockquote>{E_TG} Tɢ Usᴇʀ Iᴅ Iɴғᴏ\n\n"
+            f"Send Telegram username or chat ID\n\n"
+            f"Example: @username or 123456789\n\n"
+            f"{E_WALLET} Your Credits: {credits}\n\n"
+            f"Search Cost: 1 Point\n\n"
+            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
+        )
+    }
+    if mode in prompts:
+        m = await send_html(event.chat_id, prompts[mode])
+        asyncio.create_task(schedule_delete(m))
+
+# --- 🆕 GUEST GENERATOR REGION MENU ---
+
+async def send_guest_region_menu(event):
+    regions = [
+        ("🇮🇳 IND", "g_region_IND"),
+        ("🇮🇩 ID", "g_region_ID"),
+        ("🇻🇳 VN", "g_region_VN"),
+        ("🇹🇭 TH", "g_region_TH"),
+        ("🇧🇩 BD", "g_region_BD"),
+        ("🇵🇰 PK", "g_region_PK"),
+        ("🇹🇼 TW", "g_region_TW"),
+        ("🇷🇺 CIS", "g_region_CIS"),
+        ("🇪🇸 SAC", "g_region_SAC"),
+        ("🇸🇦 ME", "g_region_ME"),
+        ("👻 GHOST", "g_region_GHOST"),
+        ("🔙 Back", "g_region_back")
+    ]
+    
+    rows = []
+    for i in range(0, len(regions), 4):
+        row_buttons = []
+        for j in range(4):
+            if i+j < len(regions):
+                label, callback = regions[i+j]
+                style = KeyboardButtonStyle(bg_primary=True, icon=0)
+                btn = KeyboardButtonCallback(text=label, data=callback.encode(), style=style)
+                row_buttons.append(btn)
+        rows.append(KeyboardButtonRow(buttons=row_buttons))
+    
+    markup = ReplyInlineMarkup(rows=rows)
+    await send_html(event.chat_id, f"<blockquote>{E_GUEST} Sᴇʟᴇᴄᴛ Rᴇɢɪᴏɴ:\n\nChoose your region below:</blockquote>", reply_markup=markup)
+
+@client.on(events.CallbackQuery)
+async def guest_region_callback(event):
+    if event.data and event.data.startswith(b"g_region_"):
+        data = event.data.decode()
+        region = data.replace("g_region_", "")
+        uid = event.sender_id
+        if region == "back":
+            await event.answer()
+            await main_menu(event)
+            return
+        is_ghost = region == "GHOST"
+        if is_ghost:
+            region = "BR"
+        GUEST_STATE[uid] = {
+            "step": "name",
+            "region": region,
+            "is_ghost": is_ghost
+        }
+        await event.answer(f"Region set to {region}{' (GHOST)' if is_ghost else ''}")
+        await send_html(event.chat_id, f"<blockquote>{E_CHECK} Region set to <b>{region}</b> {'(GHOST)' if is_ghost else ''}\n\n{E_PROMPT} Enter <b>Name Prefix</b> (e.g., JXE):</blockquote>")
+    else:
+        await event.answer()
+
+# --- QUERY RUNNER ---
+
+async def run_query(event, mode, query):
+    if not await net_ok():
+        m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} No internet\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
+        asyncio.create_task(schedule_delete(m))
+        return
+    
+    st = await send_html(event.chat_id, f"<blockquote>{E_SEARCH} Searching...</blockquote>")
+    
+    credit_deducted = False
+    
+    try:
+        if mode in ['AADHAAR', 'MOBILE', 'VEHICLE']:
+            choice_map = {'AADHAAR': '2', 'MOBILE': '1', 'VEHICLE': '4'}
+            raw = run_india_script(choice_map[mode], query)
+            if raw:
+                records = parse_all_india_records(raw)
+                result = format_records_result(records, {'AADHAAR': 'aadhaar', 'MOBILE': 'mobile', 'VEHICLE': 'vehicle'}[mode])
+                if records and f"{E_CROSS}" not in str(result):
+                    use_credit(event.sender_id)
+                    credit_deducted = True
+            else:
+                result = f"<blockquote>{E_CROSS} Script failed</blockquote>"
+        elif mode == 'TGID':
+            async with aiohttp.ClientSession() as s:
+                result = await tg_user_info(s, query)
+                if result and f"{E_CROSS}" not in str(result) and "NO DATA" not in str(result):
+                    use_credit(event.sender_id)
+                    credit_deducted = True
+        else:
+            async with aiohttp.ClientSession() as s:
+                if mode == 'IFSC':
+                    result = await ifsc_lookup(s, query)
+                elif mode == 'GST':
+                    result = await gst_lookup(s, query)
+                elif mode == 'PAK':
+                    result = await pakistan_lookup(s, query)
+                else:
+                    result = f"<blockquote>{E_CROSS}</blockquote>"
+            
+            if result and f"{E_CROSS}" not in str(result) and "unavailable" not in str(result).lower():
+                use_credit(event.sender_id)
+                credit_deducted = True
+        
+        user = get_user(event.sender_id)
+        
+        if f"{E_POWERED}" not in str(result):
+            final = f"{result}\n\n{E_CREDIT} {'Credits: '+str(user.get('credits',0)) if credit_deducted else 'No credit deducted'} | {E_CLOCK} {AUTO_DELETE_TIME}s\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}"
+        else:
+            final = result
+        
+        sent = await edit_html(st, final)
+        asyncio.create_task(schedule_delete(sent))
+    except Exception as e:
+        logger.error(f"Query error: {e}")
+        try:
+            await edit_html(st, f"<blockquote>{E_WARN} Error\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
+        except:
+            pass
 
 # --- 📋 COMMANDS LIST ---
 
@@ -979,582 +1572,14 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
             f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
         ))
 
-# --- 🚀 HANDLERS ---
-
-async def send_welcome(event):
-    try:
-        cr = get_user(event.sender_id).get('credits', 0)
-        name = event.sender.first_name or "User"
-        caption = (
-            f"<blockquote>{E_DIAMOND} Hᴇx Osɪɴᴛ Bᴏᴛ {E_LION}\n\n"
-            f"{E_HAPPY} ᴡᴇʟᴄᴏᴍᴇ {name}! {E_HAPPY}\n\n"
-            f"{E_WALLET} ᴄʀᴇᴅɪᴛꜱ: {cr}\n\n"
-            f"{E_CROWN} ᴘʀᴇᴍɪᴜᴍ: ᴜɴʟɪᴍɪᴛᴇᴅ\n\n"
-            f"{E_CAMERA} ᴜꜱᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴꜱ ʙᴇʟᴏᴡ\n\n"
-            f"{E_ARROW} /Help ꜰᴏʀ ᴄᴏᴍᴍᴀɴᴅꜱ\n\n"
-            f"{E_DIAMOND2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ\n\n"
-            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-        )
-        is_admin = event.sender_id == ADMIN_ID
-        if event.is_group:
-            msg = await send_html(event.chat_id, caption)
-        else:
-            markup = create_main_menu(is_admin, get_settings())
-            msg = await send_html(event.chat_id, caption, reply_markup=markup)
-    except Exception as e:
-        logger.error(f"Send welcome error: {e}")
-        await main_menu(event)
-
-@client.on(events.NewMessage(pattern='/start'))
-async def start(event):
-    async with processing_lock:
-        try:
-            uid = event.sender_id
-            user = get_user(uid)
-            user["started"] = True
-            save_user(uid, user)
-            
-            args = event.message.message.split()
-            if len(args) > 1 and args[1].startswith("HEX-"):
-                users = load_json(USERS_FILE)
-                for inviter, data in users.items():
-                    if data.get("invite_code") == args[1] and inviter != str(uid):
-                        cr = process_invite(inviter, uid)
-                        try:
-                            await send_html(int(inviter), f"<blockquote>{E_GIFT} +{cr} CREDITS! NEW USER JOINED!\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
-                        except:
-                            pass
-                        break
-            
-            await send_welcome(event)
-        except Exception as e:
-            logger.error(f"Start: {e}")
-            await main_menu(event)
-
-@client.on(events.CallbackQuery(data=b"verify"))
-async def verify_cb(event):
-    try:
-        uid = event.sender_id
-        in_channel1, in_channel2 = await check_individual_channels(uid)
-        if in_channel1 and in_channel2:
-            user = get_user(uid)
-            user["verified"] = True
-            save_user(uid, user)
-            await event.answer("✅ Verified!", alert=True)
-            try:
-                await event.delete()
-            except:
-                pass
-            try:
-                await event.message.delete()
-            except:
-                pass
-            await send_welcome(event)
-        elif not in_channel1 and not in_channel2:
-            await event.answer("❌ Join both channels first!", alert=True)
-        elif not in_channel1:
-            await event.answer("❌ Join Channel 1 first!", alert=True)
-        elif not in_channel2:
-            await event.answer("❌ Join Channel 2 first!", alert=True)
-    except Exception as e:
-        logger.error(f"Verify callback error: {e}")
-        await event.answer("❌ Error, try again", alert=True)
-
-@client.on(events.CallbackQuery)
-async def admin_callback_handler(event):
-    if event.data and event.data.startswith(b"ad_"):
-        await admin_callback(event)
-
-@client.on(events.CallbackQuery)
-async def handle_url_callback(event):
-    if event.data == b"url1":
-        await event.answer(f"{E_LINK} Join: {LINK_1}", alert=True)
-    elif event.data == b"url2":
-        await event.answer(f"{E_LINK} Join: {LINK_2}", alert=True)
-
-async def main_menu(event):
-    is_admin = event.sender_id == ADMIN_ID
-    user = get_user(event.sender_id)
-    s = get_settings()
-    if not await check_channels(event.sender_id):
-        user["verified"] = False
-        save_user(event.sender_id, user)
-        await show_verification_page(event)
-        return
-    cr = user.get("credits", 0)
-    name = event.sender.first_name or "User"
-    welcome_text = (
-        f"<blockquote>{E_DIAMOND} Hᴇx Osɪɴᴛ Bᴏᴛ {E_LION}\n\n"
-        f"{E_HAPPY} ᴡᴇʟᴄᴏᴍᴇ {name}! {E_HAPPY}\n\n"
-        f"{E_WALLET} ᴄʀᴇᴅɪᴛꜱ: {cr}\n\n"
-        f"{E_CROWN} ᴘʀᴇᴍɪᴜᴍ: ᴜɴʟɪᴍɪᴛᴇᴅ\n\n"
-        f"{E_CAMERA} ᴜꜱᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴꜱ ʙᴇʟᴏᴡ\n\n"
-        f"{E_ARROW} /Help ꜰᴏʀ ᴄᴏᴍᴍᴀɴᴅꜱ\n\n"
-        f"{E_DIAMOND2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ\n\n"
-        f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-    )
-    if event.is_group:
-        msg = await send_html(event.chat_id, welcome_text)
-    else:
-        markup = create_main_menu(is_admin, s)
-        msg = await send_html(event.chat_id, welcome_text, reply_markup=markup)
-
-@client.on(events.NewMessage)
-async def msg_handler(event):
-    async with processing_lock:
-        try:
-            uid = event.sender_id
-            txt = event.message.message.strip()
-            if not txt:
-                return
-            
-            # Slash commands
-            if txt.startswith('/'):
-                if txt.startswith('/commands'):
-                    await show_commands(event)
-                    return
-                parts = txt.split(maxsplit=1)
-                cmd = parts[0].lower()
-                arg = parts[1] if len(parts) > 1 else None
-                cmd_map = {
-                    '/ifsc': ('IFSC', 'ifsc'),
-                    '/aadhaar': ('AADHAAR', 'aadhaar'),
-                    '/mobile': ('MOBILE', 'mobile'),
-                    '/rc': ('VEHICLE', 'rc'),
-                    '/gst': ('GST', 'gst'),
-                    '/pak': ('PAK', 'pak'),
-                    '/tgid': ('TGID', 'tgid'),
-                    '/guest': ('GUEST', None),
-                    '/invite': ('INVITE', None),
-                    '/upgrade': ('UPGRADE', None)
-                }
-                if cmd in cmd_map:
-                    mode, feature = cmd_map[cmd]
-                    if mode == 'GUEST':
-                        if not GEN_AVAILABLE:
-                            await send_html(event.chat_id, f"<blockquote>{E_CROSS} Guest Generator is disabled.</blockquote>")
-                            return
-                        GUEST_STATE[uid] = {"step": "region"}
-                        await send_guest_region_menu(event)
-                        return
-                    if mode in ('INVITE', 'UPGRADE'):
-                        await process_feature(event, mode, feature)
-                        return
-                    if arg is None:
-                        m = await send_html(event.chat_id, f"<blockquote>{E_WARN} Please provide a value.\nExample: <code>{cmd} VALUE</code></blockquote>")
-                        asyncio.create_task(schedule_delete(m))
-                        return
-                    user = get_user(uid)
-                    if not user.get("verified"):
-                        if await check_channels(uid):
-                            user["verified"] = True
-                            save_user(uid, user)
-                        else:
-                            await show_verification_page(event)
-                            return
-                    s = get_settings()
-                    if feature and not s.get(f"{feature}_enabled", True):
-                        m = await send_html(event.chat_id, f"<blockquote>{E_DISABLED} Disabled</blockquote>")
-                        asyncio.create_task(schedule_delete(m))
-                        return
-                    if feature:
-                        maint, msg = check_feature_maintenance(feature)
-                        if maint:
-                            m = await send_html(event.chat_id, f"<blockquote>{E_TOOLS} {msg}</blockquote>")
-                            asyncio.create_task(schedule_delete(m))
-                            return
-                    if user.get("credits", 0) <= 0:
-                        m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} No credits! +10 daily | +3 invite</blockquote>")
-                        asyncio.create_task(schedule_delete(m))
-                        return
-                    await run_query(event, mode, arg)
-                    return
-                else:
-                    m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Unknown command. Type /commands for help.</blockquote>")
-                    asyncio.create_task(schedule_delete(m))
-                    return
-            
-            if txt.startswith('/start'):
-                return
-            
-            # Duplicate prevention
-            msg_id = event.message.id
-            if msg_id in processed_messages:
-                return
-            processed_messages.add(msg_id)
-            if len(processed_messages) > 500:
-                processed_messages.clear()
-            
-            # In groups, only slash commands are accepted
-            if event.is_group:
-                return
-            
-            # Auto-delete user messages in private (except commands)
-            asyncio.create_task(schedule_delete(event.message, AUTO_DELETE_TIME))
-            
-            s = get_settings()
-            if s.get("maintenance_mode", False) and uid != ADMIN_ID:
-                m = await send_html(event.chat_id, f"<blockquote>{E_TOOLS} Under maintenance\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
-                asyncio.create_task(schedule_delete(m))
-                return
-            
-            # Button labels (exact match)
-            label_map = {
-                "Fғ Gᴜᴇsᴛ Gᴇɴᴇʀᴀᴛᴏʀ": ("GUEST", "guest"),
-                "Iғsᴄ Iɴғᴏ": ("IFSC", "ifsc"),
-                "Aᴀᴅʜᴀᴀʀ Iɴғᴏ": ("AADHAAR", "aadhaar"),
-                "Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ": ("MOBILE", "mobile"),
-                "Rᴄ Iɴғᴏ": ("VEHICLE", "rc"),
-                "Gsᴛ Iɴғᴏ": ("GST", "gst"),
-                "Tɢ Usᴇʀ Iᴅ Iɴғᴏ": ("TGID", "tgid"),
-                "Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ": ("PAK", "pak"),
-                "Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ": ("UPGRADE", None),
-                "Iɴᴠɪᴛᴇ & Eᴀʀɴ": ("INVITE", None),
-                "Cᴏᴍᴍᴀɴᴅs": ("COMMANDS", None)
-            }
-            if txt in label_map:
-                mode, feature = label_map[txt]
-                if mode == "COMMANDS":
-                    await show_commands(event)
-                    return
-                if mode == "GUEST":
-                    if not GEN_AVAILABLE:
-                        await send_html(event.chat_id, f"<blockquote>{E_CROSS} Guest Generator is disabled.</blockquote>")
-                        return
-                    GUEST_STATE[uid] = {"step": "region"}
-                    await send_guest_region_menu(event)
-                    return
-                await process_feature(event, mode, feature)
-                return
-            
-            # Admin Panel
-            if txt == "Aᴅᴍɪɴ Pᴀɴᴇʟ":
-                await admin_panel(event)
-                return
-            
-            # Page navigation
-            if txt == "Nᴇxᴛ Pᴀɢᴇ":
-                s["page"] = 2
-                save_settings(s)
-                await main_menu(event)
-                return
-            if txt == "◀ Pʀᴇᴠɪᴏᴜs Pᴀɢᴇ":
-                s["page"] = 1
-                save_settings(s)
-                await main_menu(event)
-                return
-            
-            # Guest generator flow (region selection steps)
-            if uid in GUEST_STATE:
-                state = GUEST_STATE[uid]
-                step = state.get("step")
-                if step == "region":
-                    if txt.upper() in REGION_LANG or txt.upper() == "GHOST":
-                        region = txt.upper()
-                        is_ghost = region == "GHOST"
-                        if is_ghost:
-                            region = "BR"
-                        state["region"] = region
-                        state["is_ghost"] = is_ghost
-                        state["step"] = "name"
-                        await send_html(event.chat_id, f"<blockquote>{E_CHECK} Region set to <b>{region}</b> {'(GHOST)' if is_ghost else ''}\n\n{E_PROMPT} Enter <b>Name Prefix</b> (e.g., JXE):</blockquote>")
-                    else:
-                        await send_html(event.chat_id, f"<blockquote>❌ Invalid region. Please select from the inline buttons.</blockquote>")
-                    return
-                elif step == "name":
-                    state["name"] = txt
-                    state["step"] = "password"
-                    await send_html(event.chat_id, f"<blockquote>{E_CHECK} Name prefix set to <b>{txt}</b>\n\n{E_PROMPT} Enter <b>Password Prefix</b> (e.g., JXE2026):</blockquote>")
-                    return
-                elif step == "password":
-                    state["password"] = txt
-                    state["step"] = "total"
-                    await send_html(event.chat_id, f"<blockquote>{E_CHECK} Password prefix set to <b>{txt}</b>\n\n{E_PROMPT} Enter <b>Total Accounts</b> (number):</blockquote>")
-                    return
-                elif step == "total":
-                    if txt.isdigit() and int(txt) > 0:
-                        total = int(txt)
-                        state["total"] = total
-                        region = state["region"]
-                        is_ghost = state["is_ghost"]
-                        name_prefix = state["name"]
-                        password_prefix = state["password"]
-                        loop = asyncio.get_event_loop()
-                        chat_id = event.chat_id
-                        threading.Thread(
-                            target=run_guest_generation,
-                            args=(chat_id, region, is_ghost, name_prefix, password_prefix, total, loop),
-                            daemon=True
-                        ).start()
-                        del GUEST_STATE[uid]
-                        await send_html(event.chat_id, f"<blockquote>{E_STARTING} Starting ULTRA SPEED generation with {total} accounts...\n\nResults will appear here.</blockquote>")
-                    else:
-                        await send_html(event.chat_id, f"<blockquote>❌ Please enter a valid positive number.</blockquote>")
-                    return
-                else:
-                    del GUEST_STATE[uid]
-                    await send_html(event.chat_id, f"<blockquote>⚠️ Session reset. Please click Fғ Gᴜᴇsᴛ Gᴇɴ again.</blockquote>")
-                    return
-            
-            # Query mode
-            uid_str = str(uid)
-            if uid_str in USER_MODES and USER_MODES[uid_str]:
-                mode = USER_MODES[uid_str]
-                user = get_user(uid)
-                if user.get("credits", 0) <= 0:
-                    m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} No credits! +10 daily | +3 invite\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
-                    asyncio.create_task(schedule_delete(m))
-                    USER_MODES[uid_str] = None
-                    return
-                await run_query(event, mode, txt)
-                USER_MODES[uid_str] = None
-                return
-            
-        except Exception as e:
-            logger.error(f"Msg handler error: {e}")
-
-# --- 🆕 Helper to process a feature ---
-
-async def process_feature(event, mode, feature):
-    uid = event.sender_id
-    user = get_user(uid)
-    if not user.get("verified"):
-        if await check_channels(uid):
-            user["verified"] = True
-            save_user(uid, user)
-        else:
-            await show_verification_page(event)
-            return
-    s = get_settings()
-    if feature and not s.get(f"{feature}_enabled", True):
-        m = await send_html(event.chat_id, f"<blockquote>{E_DISABLED} Disabled</blockquote>")
-        asyncio.create_task(schedule_delete(m))
-        return
-    if feature:
-        maint, msg = check_feature_maintenance(feature)
-        if maint:
-            m = await send_html(event.chat_id, f"<blockquote>{E_TOOLS} {msg}</blockquote>")
-            asyncio.create_task(schedule_delete(m))
-            return
-    
-    if mode == "INVITE":
-        user = get_user(uid)
-        bot_username = BOT_USERNAME
-        link = f"https://t.me/{bot_username}?start={user['invite_code']}"
-        invite_msg = (
-            f"<blockquote>{E_STAR} Invite & Earn {E_STAR}\n\n"
-            f"{E_USERS} +{INVITE_CREDITS} Credits per invite\n\n"
-            f"{E_LINK} {link}\n\n"
-            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-        )
-        m = await send_html(event.chat_id, invite_msg)
-        asyncio.create_task(schedule_delete(m, 120))
-        return
-    elif mode == "UPGRADE":
-        m = await send_html(event.chat_id, 
-            f"<blockquote>{E_UPGRADE} Uᴘɢʀᴀᴅᴇ Tᴏ Pʀᴇᴍɪᴜᴍ\n\n"
-            f"Contact @HeX_CiPhEr to upgrade your account!\n\n"
-            f"🌟 Premium Benefits:\n\n"
-            f"• Unlimited Credits\n\n"
-            f"• All Services Access\n\n"
-            f"• Priority Support\n\n"
-            f"• Exclusive Features\n\n"
-            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-        )
-        asyncio.create_task(schedule_delete(m, 60))
-        return
-    
-    USER_MODES[str(uid)] = mode
-    credits = user.get("credits", 0)
-    prompts = {
-        "IFSC": (
-            f"<blockquote>{E_IFSC} Iғsᴄ Iɴғᴏ\n\n"
-            f"Send IFSC code\n\n"
-            f"Example: SBIN0001234\n\n"
-            f"{E_WALLET} Your Credits: {credits}\n\n"
-            f"Search Cost: 1 Point\n\n"
-            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-        ),
-        "AADHAAR": (
-            f"<blockquote>{E_AADHAAR} Aᴀᴅʜᴀᴀʀ Iɴғᴏ\n\n"
-            f"Send 12-digit Aadhar number\n\n"
-            f"Example: 123456789012\n\n"
-            f"{E_WALLET} Your Credits: {credits}\n\n"
-            f"Search Cost: 1 Point\n\n"
-            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-        ),
-        "MOBILE": (
-            f"<blockquote>{E_INDIA} Iɴᴅɪᴀ Nᴜᴍʙᴇʀ Iɴғᴏ\n\n"
-            f"Send 10-digit mobile number\n\n"
-            f"Example: 9876543210\n\n"
-            f"Tip: with or without +91\n\n"
-            f"{E_WALLET} Your Credits: {credits}\n\n"
-            f"Search Cost: 1 Point\n\n"
-            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-        ),
-        "VEHICLE": (
-            f"<blockquote>{E_RC} Rᴄ Iɴғᴏ\n\n"
-            f"Send vehicle number\n\n"
-            f"Example: KA01AB3256\n\n"
-            f"{E_WALLET} Your Credits: {credits}\n\n"
-            f"Search Cost: 1 Point\n\n"
-            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-        ),
-        "GST": (
-            f"<blockquote>{E_GST} Gsᴛ Iɴғᴏ\n\n"
-            f"Send GST number\n\n"
-            f"Example: 19BOKPS7056D1ZI\n\n"
-            f"{E_WALLET} Your Credits: {credits}\n\n"
-            f"Search Cost: 1 Point\n\n"
-            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-        ),
-        "PAK": (
-            f"<blockquote>{E_PAK} Pᴀᴋ Nᴜᴍʙᴇʀ Iɴғᴏ\n\n"
-            f"Send Pakistan number\n\n"
-            f"Example: 923078750447\n\n"
-            f"{E_WALLET} Your Credits: {credits}\n\n"
-            f"Search Cost: 1 Point\n\n"
-            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-        ),
-        "TGID": (
-            f"<blockquote>{E_TG} Tɢ Usᴇʀ Iᴅ Iɴғᴏ\n\n"
-            f"Send Telegram username or chat ID\n\n"
-            f"Example: @username or 123456789\n\n"
-            f"{E_WALLET} Your Credits: {credits}\n\n"
-            f"Search Cost: 1 Point\n\n"
-            f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
-        )
-    }
-    if mode in prompts:
-        m = await send_html(event.chat_id, prompts[mode])
-        asyncio.create_task(schedule_delete(m))
-
-# --- 🆕 GUEST GENERATOR REGION MENU (4 inline buttons per row) ---
-
-async def send_guest_region_menu(event):
-    # List of regions: (label, callback_data, emoji)
-    regions = [
-        ("🇮🇳 IND", "g_region_IND"),
-        ("🇮🇩 ID", "g_region_ID"),
-        ("🇻🇳 VN", "g_region_VN"),
-        ("🇹🇭 TH", "g_region_TH"),
-        ("🇧🇩 BD", "g_region_BD"),
-        ("🇵🇰 PK", "g_region_PK"),
-        ("🇹🇼 TW", "g_region_TW"),
-        ("🇷🇺 CIS", "g_region_CIS"),
-        ("🇪🇸 SAC", "g_region_SAC"),
-        ("🇸🇦 ME", "g_region_ME"),
-        ("👻 GHOST", "g_region_GHOST"),
-        ("🔙 Back", "g_region_back")
-    ]
-    
-    # Build rows of 4 buttons each
-    rows = []
-    for i in range(0, len(regions), 4):
-        row_buttons = []
-        for j in range(4):
-            if i+j < len(regions):
-                label, callback = regions[i+j]
-                style = KeyboardButtonStyle(bg_primary=True, icon=0)
-                btn = KeyboardButtonCallback(text=label, data=callback.encode(), style=style)
-                row_buttons.append(btn)
-        rows.append(KeyboardButtonRow(buttons=row_buttons))
-    
-    markup = ReplyInlineMarkup(rows=rows)
-    await send_html(event.chat_id, f"<blockquote>{E_GUEST} Sᴇʟᴇᴄᴛ Rᴇɢɪᴏɴ:\n\nChoose your region below:</blockquote>", reply_markup=markup)
-
-@client.on(events.CallbackQuery)
-async def guest_region_callback(event):
-    if event.data and event.data.startswith(b"g_region_"):
-        data = event.data.decode()
-        region = data.replace("g_region_", "")
-        uid = event.sender_id
-        if region == "back":
-            await event.answer()
-            await main_menu(event)
-            return
-        is_ghost = region == "GHOST"
-        if is_ghost:
-            region = "BR"
-        GUEST_STATE[uid] = {
-            "step": "name",
-            "region": region,
-            "is_ghost": is_ghost
-        }
-        await event.answer(f"Region set to {region}{' (GHOST)' if is_ghost else ''}")
-        await send_html(event.chat_id, f"<blockquote>{E_CHECK} Region set to <b>{region}</b> {'(GHOST)' if is_ghost else ''}\n\n{E_PROMPT} Enter <b>Name Prefix</b> (e.g., JXE):</blockquote>")
-    else:
-        await event.answer()
-
-# --- QUERY RUNNER (FAST) ---
-
-async def run_query(event, mode, query):
-    if not await net_ok():
-        m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} No internet\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
-        asyncio.create_task(schedule_delete(m))
-        return
-    
-    st = await send_html(event.chat_id, f"<blockquote>{E_SEARCH} Searching...</blockquote>")
-    
-    credit_deducted = False
-    
-    try:
-        if mode in ['AADHAAR', 'MOBILE', 'VEHICLE']:
-            choice_map = {'AADHAAR': '2', 'MOBILE': '1', 'VEHICLE': '4'}
-            raw = run_india_script(choice_map[mode], query)
-            if raw:
-                records = parse_all_india_records(raw)
-                result = format_records_result(records, {'AADHAAR': 'aadhaar', 'MOBILE': 'mobile', 'VEHICLE': 'vehicle'}[mode])
-                if records and f"{E_CROSS}" not in str(result):
-                    use_credit(event.sender_id)
-                    credit_deducted = True
-            else:
-                result = f"<blockquote>{E_CROSS} Script failed</blockquote>"
-        elif mode == 'TGID':
-            async with aiohttp.ClientSession() as s:
-                result = await tg_user_info(s, query)
-                if result and f"{E_CROSS}" not in str(result) and "NO DATA" not in str(result):
-                    use_credit(event.sender_id)
-                    credit_deducted = True
-        else:
-            async with aiohttp.ClientSession() as s:
-                if mode == 'IFSC':
-                    result = await ifsc_lookup(s, query)
-                elif mode == 'GST':
-                    result = await gst_lookup(s, query)
-                elif mode == 'PAK':
-                    result = await pakistan_lookup(s, query)
-                else:
-                    result = f"<blockquote>{E_CROSS}</blockquote>"
-            
-            if result and f"{E_CROSS}" not in str(result) and "unavailable" not in str(result).lower():
-                use_credit(event.sender_id)
-                credit_deducted = True
-        
-        user = get_user(event.sender_id)
-        
-        if f"{E_POWERED}" not in str(result):
-            final = f"{result}\n\n{E_CREDIT} {'Credits: '+str(user.get('credits',0)) if credit_deducted else 'No credit deducted'} | {E_CLOCK} {AUTO_DELETE_TIME}s\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}"
-        else:
-            final = result
-        
-        sent = await edit_html(st, final)
-        asyncio.create_task(schedule_delete(sent))
-    except Exception as e:
-        logger.error(f"Query error: {e}")
-        try:
-            await edit_html(st, f"<blockquote>{E_WARN} Error\n\n{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>")
-        except:
-            pass
-
 # --- 🚀 START ---
 
 async def main():
     print("Hex OSINT Bot ULTIMATE EDITION")
-    print("✅ Blue buttons for services (except Invite & Upgrade which are green)")
-    print("✅ Red buttons for navigation/admin")
+    print("✅ Welcome panel UI updated with new style")
+    print("✅ Blue buttons for services, Green for Invite/Upgrade, Red for navigation")
     print("✅ Region selection: 4 inline buttons per row")
-    print("✅ /guest command added")
+    print("✅ /guest command available")
     if GEN_AVAILABLE:
         print("✅ Guest Generator integrated")
     else:
