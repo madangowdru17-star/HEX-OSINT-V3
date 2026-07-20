@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot FINAL
+# bot.py - Hex OSINT Bot FINAL with Guest Command
 
 import logging
 import asyncio
@@ -516,6 +516,7 @@ async def show_commands(event):
         f"/gst <code>19BOKPS7056D1ZI</code> – GST verification\n"
         f"/pak <code>923078750447</code> – Pakistan number info\n"
         f"/tgid <code>@username</code> or <code>123456789</code> – Telegram user ID info\n"
+        f"/guest – Start Guest Account Generator\n"
         f"/invite – Get your invite link\n"
         f"/upgrade – Premium upgrade info\n"
         f"/commands – Show this list\n\n"
@@ -1115,11 +1116,21 @@ async def msg_handler(event):
                     '/gst': ('GST', 'gst'),
                     '/pak': ('PAK', 'pak'),
                     '/tgid': ('TGID', 'tgid'),
+                    '/guest': ('GUEST', None),   # <--- added guest command
                     '/invite': ('INVITE', None),
                     '/upgrade': ('UPGRADE', None)
                 }
                 if cmd in cmd_map:
                     mode, feature = cmd_map[cmd]
+                    # Handle guest separately (no argument needed)
+                    if mode == 'GUEST':
+                        if not GEN_AVAILABLE:
+                            await send_html(event.chat_id, f"<blockquote>{E_CROSS} Guest Generator is disabled.</blockquote>")
+                            return
+                        # Start guest flow
+                        GUEST_STATE[uid] = {"step": "region"}
+                        await send_guest_region_menu(event)
+                        return
                     if mode in ('INVITE', 'UPGRADE'):
                         await process_feature(event, mode, feature)
                         return
@@ -1438,8 +1449,7 @@ async def send_guest_region_menu(event):
         for j in range(4):
             if i+j < len(regions):
                 label, callback = regions[i+j]
-                # Use primary (blue) for all except back (we can also keep it blue)
-                style = KeyboardButtonStyle(bg_primary=True, icon=0)  # no icon needed
+                style = KeyboardButtonStyle(bg_primary=True, icon=0)
                 btn = KeyboardButtonCallback(text=label, data=callback.encode(), style=style)
                 row_buttons.append(btn)
         rows.append(KeyboardButtonRow(buttons=row_buttons))
@@ -1538,6 +1548,7 @@ async def main():
     print("✅ Blue buttons for services (except Invite & Upgrade which are green)")
     print("✅ Red buttons for navigation/admin")
     print("✅ Region selection: 4 inline buttons per row")
+    print("✅ /guest command added")
     if GEN_AVAILABLE:
         print("✅ Guest Generator integrated")
     else:
