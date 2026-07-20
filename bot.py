@@ -144,9 +144,17 @@ E_COUNTRY_CODE = PE("5422814644093868925", "👨‍💻")
 E_PHONE_NUMBER = PE("5339534764367955381", "🌟")
 E_TG_ID = PE("5936017305585586269", "🪪")
 
-E_GUEST = PE("5802980697886954454", "🎮")
+# ---- Guest generator emojis (NEW IDs) ----
+E_GUEST = PE("5300834592180165807", "🎮")           # Guest button & title
+E_PROMPT = PE("5985774024968379294", "📝")          # Prompt icon
+E_CHECK = PE("6267008582294705964", "✅")           # Checkmark (already used)
+E_STARTING = PE("6147654280112248427", "🚀")        # Starting generation
+E_ACCOUNTS = PE("5249053508681883137", "📁")        # Accounts label
+E_COUPLES = PE("5370867435555529534", "💑")         # Couples label
+E_COMPLETE_DATA = PE("5370604433233177619", "📦")   # Complete data label
+E_ALL_SENT = PE("5237909052096259221", "✨")         # All files sent
 
-E_CHECK = PE("6267008582294705964", "✅")
+# The following are unused in guest flow but kept for other parts
 E_CROSS = PE("6267000941547885720", "❌")
 E_WARN = PE("6267039884016358504", "⚠️")
 E_LOCK = PE("5316522278056399236", "🔒")
@@ -914,9 +922,9 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
         
         summary_msg = (
             f"<blockquote>{E_CHECK} Gᴇɴᴇʀᴀᴛɪᴏɴ Cᴏᴍᴘʟᴇᴛᴇ!\n\n"
-            f"<b>Total Accounts:</b> {len(accounts)}\n"
+            f"{E_ACCOUNTS} Total: {len(accounts)}\n"
+            f"{E_COUPLES} Couples: {couple_count}\n"
             f"<b>Rare Found:</b> {rare_count}\n"
-            f"<b>Couple Pairs:</b> {couple_count}\n"
             f"<b>Time:</b> {elapsed:.2f}s\n\n"
             f"{E_CREDIT} Sending JSON files...</blockquote>"
         )
@@ -924,20 +932,20 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
         
         sent_files = 0
         if accounts:
-            sent = safe_send_coro(send_json_direct(chat_id, accounts, f"guest_accounts_{region}.json", f"📁 {len(accounts)} accounts"))
+            sent = safe_send_coro(send_json_direct(chat_id, accounts, f"guest_accounts_{region}.json", f"{E_ACCOUNTS} {len(accounts)} accounts"))
             if sent:
                 sent_files += 1
-                safe_send_coro(send_html(chat_id, f"<blockquote>✅ Accounts file sent ({len(accounts)} accounts)</blockquote>"))
+                safe_send_coro(send_html(chat_id, f"<blockquote>{E_CHECK} Accounts file sent ({len(accounts)} accounts)</blockquote>"))
         if rare_accounts:
             sent = safe_send_coro(send_json_direct(chat_id, rare_accounts, f"guest_rare_{region}.json", f"⭐ {rare_count} rare accounts"))
             if sent:
                 sent_files += 1
-                safe_send_coro(send_html(chat_id, f"<blockquote>✅ Rare file sent ({rare_count} rare)</blockquote>"))
+                safe_send_coro(send_html(chat_id, f"<blockquote>{E_CHECK} Rare file sent ({rare_count} rare)</blockquote>"))
         if couple_pairs:
-            sent = safe_send_coro(send_json_direct(chat_id, couple_pairs, f"guest_couples_{region}.json", f"💑 {couple_count} couples"))
+            sent = safe_send_coro(send_json_direct(chat_id, couple_pairs, f"guest_couples_{region}.json", f"{E_COUPLES} {couple_count} couples"))
             if sent:
                 sent_files += 1
-                safe_send_coro(send_html(chat_id, f"<blockquote>✅ Couples file sent ({couple_count} couples)</blockquote>"))
+                safe_send_coro(send_html(chat_id, f"<blockquote>{E_CHECK} Couples file sent ({couple_count} couples)</blockquote>"))
         
         full_data = {
             "generated_at": datetime.now().isoformat(),
@@ -948,17 +956,17 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
             "couple_count": couple_count,
             "accounts": accounts
         }
-        sent = safe_send_coro(send_json_direct(chat_id, full_data, f"guest_full_{region}.json", "📦 Complete data"))
+        sent = safe_send_coro(send_json_direct(chat_id, full_data, f"guest_full_{region}.json", f"{E_COMPLETE_DATA} Complete data"))
         if sent:
             sent_files += 1
-            safe_send_coro(send_html(chat_id, f"<blockquote>✅ Full combined file sent</blockquote>"))
+            safe_send_coro(send_html(chat_id, f"<blockquote>{E_CHECK} Full combined file sent</blockquote>"))
         
         if sent_files == 0:
             safe_send_coro(send_html(chat_id, f"<blockquote>❌ No files were sent. Generation may have produced 0 accounts.</blockquote>"))
         
         safe_send_coro(send_html(
             chat_id,
-            f"<blockquote>{E_DIAMOND} Aʟʟ ғɪʟᴇs sᴇɴᴛ! {E_DIAMOND}\n\n"
+            f"<blockquote>{E_ALL_SENT} Aʟʟ ғɪʟᴇs sᴇɴᴛ! {E_ALL_SENT}\n\n"
             f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
         ))
         
@@ -1249,19 +1257,19 @@ async def msg_handler(event):
                         state["region"] = region
                         state["is_ghost"] = is_ghost
                         state["step"] = "name"
-                        await send_html(event.chat_id, f"<blockquote>✅ Region set to <b>{region}</b> {'(GHOST)' if is_ghost else ''}\n\n📝 Enter <b>Name Prefix</b> (e.g., JXE):</blockquote>")
+                        await send_html(event.chat_id, f"<blockquote>{E_CHECK} Region set to <b>{region}</b> {'(GHOST)' if is_ghost else ''}\n\n{E_PROMPT} Enter <b>Name Prefix</b> (e.g., JXE):</blockquote>")
                     else:
                         await send_html(event.chat_id, f"<blockquote>❌ Invalid region. Please select from the inline buttons.</blockquote>")
                     return
                 elif step == "name":
                     state["name"] = txt
                     state["step"] = "password"
-                    await send_html(event.chat_id, f"<blockquote>✅ Name prefix set to <b>{txt}</b>\n\n📝 Enter <b>Password Prefix</b> (e.g., JXE2026):</blockquote>")
+                    await send_html(event.chat_id, f"<blockquote>{E_CHECK} Name prefix set to <b>{txt}</b>\n\n{E_PROMPT} Enter <b>Password Prefix</b> (e.g., JXE2026):</blockquote>")
                     return
                 elif step == "password":
                     state["password"] = txt
                     state["step"] = "total"
-                    await send_html(event.chat_id, f"<blockquote>✅ Password prefix set to <b>{txt}</b>\n\n📝 Enter <b>Total Accounts</b> (number):</blockquote>")
+                    await send_html(event.chat_id, f"<blockquote>{E_CHECK} Password prefix set to <b>{txt}</b>\n\n{E_PROMPT} Enter <b>Total Accounts</b> (number):</blockquote>")
                     return
                 elif step == "total":
                     if txt.isdigit() and int(txt) > 0:
@@ -1279,7 +1287,7 @@ async def msg_handler(event):
                             daemon=True
                         ).start()
                         del GUEST_STATE[uid]
-                        await send_html(event.chat_id, f"<blockquote>🚀 Starting ULTRA SPEED generation with {total} accounts...\n\nResults will appear here.</blockquote>")
+                        await send_html(event.chat_id, f"<blockquote>{E_STARTING} Starting ULTRA SPEED generation with {total} accounts...\n\nResults will appear here.</blockquote>")
                     else:
                         await send_html(event.chat_id, f"<blockquote>❌ Please enter a valid positive number.</blockquote>")
                     return
@@ -1474,7 +1482,7 @@ async def guest_region_callback(event):
             "is_ghost": is_ghost
         }
         await event.answer(f"Region set to {region}{' (GHOST)' if is_ghost else ''}")
-        await send_html(event.chat_id, f"<blockquote>✅ Region set to <b>{region}</b> {'(GHOST)' if is_ghost else ''}\n\n📝 Enter <b>Name Prefix</b> (e.g., JXE):</blockquote>")
+        await send_html(event.chat_id, f"<blockquote>{E_CHECK} Region set to <b>{region}</b> {'(GHOST)' if is_ghost else ''}\n\n{E_PROMPT} Enter <b>Name Prefix</b> (e.g., JXE):</blockquote>")
     else:
         await event.answer()
 
