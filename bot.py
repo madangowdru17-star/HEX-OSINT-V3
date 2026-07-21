@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot FINAL with Welcome Panel UI
+# bot.py - Hex OSINT Bot FINAL with New Welcome Panel
 
 import logging
 import asyncio
@@ -104,10 +104,10 @@ AUTO_DELETE_TIME = 60
 BOT_NAME = "𝗛𝗲𝘅 𝗢𝗦𝗜𝗡𝗧 𝗕𝗼𝘁"
 BOT_USERNAME = "Hex_Terminal_bot"
 
-# --- YOUR PREMIUM EMOJI IDs ---
+# --- PREMIUM EMOJI IDs (including new ones for welcome panel) ---
 PE = lambda eid, fallback: f'<tg-emoji emoji-id="{eid}">{fallback}</tg-emoji>'
 
-# Existing emojis (unchanged)
+# ---- Existing emojis (keep as is) ----
 E_DIAMOND = PE("6314557546753440004", "💎")
 E_LION = PE("5802980697886954454", "🦁")
 E_HAPPY = PE("6154369208076470797", "🥹")
@@ -117,8 +117,8 @@ E_CAMERA = PE("6008258140108231117", "📸")
 E_ARROW = PE("5875450995332353523", "➡️")
 E_DIAMOND2 = PE("4961143940817355662", "💠")
 E_STAR = PE("5289898724976240966", "⭐")
-E_BOLT = PE("5377834924776627189", "⚡")
-E_POWERED = PE("6176952682989754426", "⚡")
+E_BOLT = PE("5377834924776627189", "⚡")          # used elsewhere
+E_POWERED = PE("6176952682989754426", "⚡")        # new bolt for welcome panel
 
 # Service Emojis
 E_IFSC = PE("5264895611517300926", "🏦")
@@ -155,24 +155,20 @@ E_COUPLES = PE("5370867435555529534", "💑")
 E_COMPLETE_DATA = PE("5370604433233177619", "📦")
 E_ALL_SENT = PE("5237909052096259221", "✨")
 
-# ---- Welcome panel emojis (NEW) ----
-E_LINE          = PE("6329854094252970694", "➿")
+# ---- Welcome panel emojis (from screenshot) ----
+E_LINE = PE("6329854094252970694", "➿")
 E_VERTICAL_LINE = PE("5319053559981959471", "🪭")
-E_STORE_START   = PE("6235486558883946673", "💎")
-E_STORE_END     = PE("4990307318513009602", "🛍")
-E_GREET_START   = PE("5773659712071409251", "🥹")
-E_GREET_END     = PE("6336972134962697188", "👑")
-E_DASHBOARD     = PE("6010080507616826629", "📊")
-E_BALANCE_ICON  = PE("6147767796097884213", "💰")
-E_ROLE_ICON     = PE("6147528944376618702", "👑")
-E_CHATID_ICON   = PE("6010280773351904888", "✉️")
-E_PHONE_ICON    = PE("6010095381088571985", "📱")
-E_AUTOPAY_ICON  = PE("5807750375033278838", "⚡")
-E_AUTOKEY_ICON  = PE("6005570495603282482", "🔑")
-E_FAST_START    = PE("6285225986728400476", "⭐")
-E_FAST_END      = PE("6010375245452547641", "⭐")
+E_STORE_START = PE("5438401999534039253", "💎")    # left of "HEX OSINT"
+E_STORE_END = PE("6010095381088571985", "🛍")      # right of "HEX OSINT"
+E_GREET_START = PE("5773659712071409251", "🥹")
+E_GREET_END = PE("6336972134962697188", "👑")
+E_DASHBOARD = PE("6010080507616826629", "📊")
+E_BALANCE_ICON = PE("6147767796097884213", "💰")
+E_ROLE_ICON = PE("6147528944376618702", "👑")
+E_CHATID_ICON = PE("6010280773351904888", "✉️")
+E_BOLT_WELCOME = PE("6176952682989754426", "⚡")    # used in powered line
 
-# ---- Other existing emojis (keep for compatibility) ----
+# Other existing constants (keep for compatibility)
 E_CROSS = PE("6267000941547885720", "❌")
 E_WARN = PE("6267039884016358504", "⚠️")
 E_LOCK = PE("5316522278056399236", "🔒")
@@ -521,35 +517,34 @@ def create_main_menu(is_admin=False, settings=None):
     
     return ReplyKeyboardMarkup(rows=rows, resize=True)
 
-# --- 🆕 WELCOME PANEL BUILDER ---
+# --- 🆕 WELCOME PANEL BUILDER (matching screenshot) ---
 
 def build_welcome_panel(uid, first_name, credits, premium=False):
     """Returns the formatted welcome message with the new UI style."""
-    line12 = E_LINE * 12
     line10 = E_LINE * 10
     role = "PREMIUM" if premium else "USER"
-    phone_number = "Not Set"
-    balance = credits  # credits as balance (can be shown as ₹ if you like)
-
-    return f"""{line12}      
-{E_STORE_START} Hᴇx Oꜱɪɴᴛ Bᴏᴛ {E_STORE_END}
-{line12}
-{E_GREET_START} Hᴇʏ {first_name} {E_GREET_END}
+    # The stylized "HEX OSINT" text with special Unicode characters
+    hex_osint = "𝚮 𝚬 𝚾   𝚶 S ༏ 𝚴 𝚻"
+    return f"""{line10}      
+{E_STORE_START} {hex_osint} {E_STORE_END}
+{line10}
+{E_GREET_START} Hᴇʏ #define 𝚮 𝚬 𝚾 {E_GREET_END}
 
 {E_DASHBOARD} ʏᴏᴜʀ ᴅᴀꜱʜʙᴏᴀʀᴅ !!
 {line10}
-{E_VERTICAL_LINE} {E_BALANCE_ICON} ʏᴏᴜʀ ʙᴀʟᴀɴᴄᴇ » {balance} ᴄʀᴇᴅɪᴛꜱ
+{E_VERTICAL_LINE} {E_BALANCE_ICON} ʏᴏᴜʀ ʙᴀʟᴀɴᴄᴇ » {credits} ᴄʀᴇᴅɪᴛꜱ
 
 {E_VERTICAL_LINE} {E_ROLE_ICON} ʀᴏʟᴇ » {role}
 
 {E_VERTICAL_LINE} {E_CHATID_ICON} ʏᴏᴜʀ ɪᴅ » {uid}
 
-{E_VERTICAL_LINE} {E_PHONE_ICON} ʏᴏᴜʀ ɴᴜᴍʙᴇʀ » {phone_number}
+{E_VERTICAL_LINE} {E_CAMERA} ᴜꜱᴇ ᴛʜᴇ ʙᴜᴛᴛᴏɴꜱ ʙᴇʟᴏᴡ
 {line10}
-{E_AUTOPAY_ICON} ᴀᴜᴛᴏᴍᴀᴛɪᴄ ᴘᴀʏᴍᴇɴᴛ ᴠᴇʀɪꜰɪᴄᴀᴛɪᴏɴ
-{E_AUTOKEY_ICON} ᴀᴜᴛᴏ ᴅᴇʟɪᴠᴇʀʏ ᴋᴇʏ
+{E_ARROW} /Help ꜰᴏʀ ᴄᴏᴍᴍᴀɴᴅꜱ
+
+{E_DIAMOND2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ
 {line10}
-{E_FAST_START} ꜰᴀꜱᴛ • ꜱᴇᴄᴜʀᴇ • ᴛʀᴜꜱᴛᴇᴅ {E_FAST_END}
+{E_BOLT_WELCOME} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}
 {line10}"""
 
 # --- 🚀 HANDLERS ---
@@ -1576,7 +1571,7 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
 
 async def main():
     print("Hex OSINT Bot ULTIMATE EDITION")
-    print("✅ Welcome panel UI updated with new style")
+    print("✅ Welcome panel updated to match screenshot exactly")
     print("✅ Blue buttons for services, Green for Invite/Upgrade, Red for navigation")
     print("✅ Region selection: 4 inline buttons per row")
     print("✅ /guest command available")
