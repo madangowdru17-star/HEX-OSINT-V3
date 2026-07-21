@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot FINAL with New Welcome Panel
+# bot.py - Hex OSINT Bot FINAL with Updated Welcome Panel
 
 import logging
 import asyncio
@@ -117,8 +117,8 @@ E_CAMERA = PE("6008258140108231117", "📸")
 E_ARROW = PE("5875450995332353523", "➡️")
 E_DIAMOND2 = PE("4961143940817355662", "💠")
 E_STAR = PE("5289898724976240966", "⭐")
-E_BOLT = PE("5377834924776627189", "⚡")          # used elsewhere
-E_POWERED = PE("6176952682989754426", "⚡")        # new bolt for welcome panel
+E_BOLT = PE("5377834924776627189", "⚡")
+E_POWERED = PE("6176952682989754426", "⚡")
 
 # Service Emojis
 E_IFSC = PE("5264895611517300926", "🏦")
@@ -158,15 +158,15 @@ E_ALL_SENT = PE("5237909052096259221", "✨")
 # ---- Welcome panel emojis (from screenshot) ----
 E_LINE = PE("6329854094252970694", "➿")
 E_VERTICAL_LINE = PE("5319053559981959471", "🪭")
-E_STORE_START = PE("5438401999534039253", "💎")    # left of "HEX OSINT"
-E_STORE_END = PE("6010095381088571985", "🛍")      # right of "HEX OSINT"
+E_STORE_START = PE("5438401999534039253", "💎")
+E_STORE_END = PE("6010095381088571985", "🛍")
 E_GREET_START = PE("5773659712071409251", "🥹")
 E_GREET_END = PE("6336972134962697188", "👑")
 E_DASHBOARD = PE("6010080507616826629", "📊")
 E_BALANCE_ICON = PE("6147767796097884213", "💰")
 E_ROLE_ICON = PE("6147528944376618702", "👑")
 E_CHATID_ICON = PE("6010280773351904888", "✉️")
-E_BOLT_WELCOME = PE("6176952682989754426", "⚡")    # used in powered line
+E_BOLT_WELCOME = PE("6176952682989754426", "⚡")
 
 # Other existing constants (keep for compatibility)
 E_CROSS = PE("6267000941547885720", "❌")
@@ -520,15 +520,14 @@ def create_main_menu(is_admin=False, settings=None):
 # --- 🆕 WELCOME PANEL BUILDER (matching screenshot) ---
 
 def build_welcome_panel(uid, first_name, credits, premium=False):
-    """Returns the formatted welcome message with the new UI style."""
+    """Returns the formatted welcome message with the new UI style, wrapped in <blockquote>."""
     line10 = E_LINE * 10
     role = "PREMIUM" if premium else "USER"
-    # The stylized "HEX OSINT" text with special Unicode characters
-    hex_osint = "𝚮 𝚬 𝚾   𝚶 S ༏ 𝚴 𝚻"
-    return f"""{line10}      
-{E_STORE_START} {hex_osint} {E_STORE_END}
+    # Use the user's first name in the greeting
+    return f"""<blockquote>{line10}      
+{E_STORE_START} 𝚮 𝚬 𝚾   𝚶 S ༏ 𝚴 𝚻 {E_STORE_END}
 {line10}
-{E_GREET_START} Hᴇʏ #define 𝚮 𝚬 𝚾 {E_GREET_END}
+{E_GREET_START} Hᴇʏ {first_name} {E_GREET_END}
 
 {E_DASHBOARD} ʏᴏᴜʀ ᴅᴀꜱʜʙᴏᴀʀᴅ !!
 {line10}
@@ -545,7 +544,7 @@ def build_welcome_panel(uid, first_name, credits, premium=False):
 {E_DIAMOND2} ꜱᴇʟᴇᴄᴛ ᴀ ꜱᴇʀᴠɪᴄᴇ ʙᴇʟᴏᴡ
 {line10}
 {E_BOLT_WELCOME} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}
-{line10}"""
+{line10}</blockquote>"""
 
 # --- 🚀 HANDLERS ---
 
@@ -664,7 +663,8 @@ async def msg_handler(event):
             
             # Slash commands
             if txt.startswith('/'):
-                if txt.startswith('/commands'):
+                # Alias /help to /commands
+                if txt.startswith('/help') or txt.startswith('/commands'):
                     await show_commands(event)
                     return
                 parts = txt.split(maxsplit=1)
@@ -1115,7 +1115,7 @@ async def show_commands(event):
         f"/guest – Start Guest Account Generator\n"
         f"/invite – Get your invite link\n"
         f"/upgrade – Premium upgrade info\n"
-        f"/commands – Show this list\n\n"
+        f"/help or /commands – Show this list\n\n"
         f"{E_STAR} <b>Menu buttons</b> (private chat only)\n"
         f"Blue buttons for services, Green for Invite/Upgrade, Red for navigation.\n\n"
         f"{E_POWERED} ᴘᴏᴡᴇʀᴇᴅ ʙʏ @HeX_CiPhEr {E_STAR}</blockquote>"
@@ -1571,7 +1571,7 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
 
 async def main():
     print("Hex OSINT Bot ULTIMATE EDITION")
-    print("✅ Welcome panel updated to match screenshot exactly")
+    print("✅ Welcome panel wrapped in blockquote, uses user's name, /help alias added")
     print("✅ Blue buttons for services, Green for Invite/Upgrade, Red for navigation")
     print("✅ Region selection: 4 inline buttons per row")
     print("✅ /guest command available")
