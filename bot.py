@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot FINAL with Updated Welcome Panel
+# bot.py - Hex OSINT Bot FINAL with /start fix and /Help message
 
 import logging
 import asyncio
@@ -661,6 +661,10 @@ async def msg_handler(event):
             if not txt:
                 return
             
+            # ---- FIX: Handle /start immediately (works in groups) ----
+            if txt.startswith('/start'):
+                return
+            
             # Slash commands
             if txt.startswith('/'):
                 # Alias /help to /commands
@@ -724,12 +728,10 @@ async def msg_handler(event):
                     await run_query(event, mode, arg)
                     return
                 else:
-                    m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Unknown command. Type /commands for help.</blockquote>")
+                    # Changed message to reference /Help
+                    m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Unknown command. Type /Help for help.</blockquote>")
                     asyncio.create_task(schedule_delete(m))
                     return
-            
-            if txt.startswith('/start'):
-                return
             
             # Duplicate prevention
             msg_id = event.message.id
@@ -1571,7 +1573,7 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
 
 async def main():
     print("Hex OSINT Bot ULTIMATE EDITION")
-    print("✅ Welcome panel wrapped in blockquote, uses user's name, /help alias added")
+    print("✅ /start fixed for groups, unknown command now says /Help")
     print("✅ Blue buttons for services, Green for Invite/Upgrade, Red for navigation")
     print("✅ Region selection: 4 inline buttons per row")
     print("✅ /guest command available")
