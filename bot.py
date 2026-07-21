@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot FINAL with /start fix and /Help message
+# bot.py - Hex OSINT Bot FINAL with /Help fix (supports @username)
 
 import logging
 import asyncio
@@ -667,13 +667,18 @@ async def msg_handler(event):
             
             # Slash commands
             if txt.startswith('/'):
-                # Alias /help to /commands
-                if txt.startswith('/help') or txt.startswith('/commands'):
+                # Extract the command without @username and convert to lowercase
+                raw_cmd = txt.split()[0]  # first word
+                if '@' in raw_cmd:
+                    raw_cmd = raw_cmd.split('@')[0]
+                raw_cmd = raw_cmd.lower()
+                
+                # Handle /help and /commands
+                if raw_cmd in ('/help', '/commands'):
                     await show_commands(event)
                     return
-                parts = txt.split(maxsplit=1)
-                cmd = parts[0].lower()
-                arg = parts[1] if len(parts) > 1 else None
+                
+                # Now check other commands
                 cmd_map = {
                     '/ifsc': ('IFSC', 'ifsc'),
                     '/aadhaar': ('AADHAAR', 'aadhaar'),
@@ -686,8 +691,13 @@ async def msg_handler(event):
                     '/invite': ('INVITE', None),
                     '/upgrade': ('UPGRADE', None)
                 }
-                if cmd in cmd_map:
-                    mode, feature = cmd_map[cmd]
+                
+                if raw_cmd in cmd_map:
+                    mode, feature = cmd_map[raw_cmd]
+                    # Extract argument (if any) – after the command
+                    parts = txt.split(maxsplit=1)
+                    arg = parts[1] if len(parts) > 1 else None
+                    
                     if mode == 'GUEST':
                         if not GEN_AVAILABLE:
                             await send_html(event.chat_id, f"<blockquote>{E_CROSS} Guest Generator is disabled.</blockquote>")
@@ -699,7 +709,7 @@ async def msg_handler(event):
                         await process_feature(event, mode, feature)
                         return
                     if arg is None:
-                        m = await send_html(event.chat_id, f"<blockquote>{E_WARN} Please provide a value.\nExample: <code>{cmd} VALUE</code></blockquote>")
+                        m = await send_html(event.chat_id, f"<blockquote>{E_WARN} Please provide a value.\nExample: <code>{raw_cmd} VALUE</code></blockquote>")
                         asyncio.create_task(schedule_delete(m))
                         return
                     user = get_user(uid)
@@ -728,7 +738,7 @@ async def msg_handler(event):
                     await run_query(event, mode, arg)
                     return
                 else:
-                    # Changed message to reference /Help
+                    # Unknown command – message now says /Help
                     m = await send_html(event.chat_id, f"<blockquote>{E_CROSS} Unknown command. Type /Help for help.</blockquote>")
                     asyncio.create_task(schedule_delete(m))
                     return
@@ -1573,7 +1583,7 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
 
 async def main():
     print("Hex OSINT Bot ULTIMATE EDITION")
-    print("✅ /start fixed for groups, unknown command now says /Help")
+    print("✅ /Help now works with or without @username")
     print("✅ Blue buttons for services, Green for Invite/Upgrade, Red for navigation")
     print("✅ Region selection: 4 inline buttons per row")
     print("✅ /guest command available")
