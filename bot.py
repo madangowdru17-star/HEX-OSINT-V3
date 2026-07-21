@@ -1,4 +1,4 @@
-# bot.py - Hex OSINT Bot FINAL with /Help fix (supports @username)
+# bot.py - Hex OSINT Bot FINAL with Guest Flow Fixes
 
 import logging
 import asyncio
@@ -661,8 +661,25 @@ async def msg_handler(event):
             if not txt:
                 return
             
-            # ---- FIX: Handle /start immediately (works in groups) ----
+            # ---- FIX 1: Handle /start immediately (works in groups) ----
             if txt.startswith('/start'):
+                return
+            
+            # ---- FIX 2: Clear GUEST_STATE if message is a slash command ----
+            if txt.startswith('/'):
+                # If user was in guest flow, cancel it
+                if uid in GUEST_STATE:
+                    del GUEST_STATE[uid]
+                    # Optionally send a message that the flow was cancelled
+                    # We'll not send anything to avoid clutter
+                # Then proceed to command handling
+                # (we'll handle commands below)
+            
+            # ---- FIX 3: Guest flow only in private chats ----
+            if event.is_group and uid in GUEST_STATE:
+                # If in group and guest state exists, clear it and tell user
+                del GUEST_STATE[uid]
+                await send_html(event.chat_id, f"<blockquote>{E_WARN} Guest Generator is only available in private chats.\n\nPlease start a private chat with me first.</blockquote>")
                 return
             
             # Slash commands
@@ -702,7 +719,12 @@ async def msg_handler(event):
                         if not GEN_AVAILABLE:
                             await send_html(event.chat_id, f"<blockquote>{E_CROSS} Guest Generator is disabled.</blockquote>")
                             return
-                        GUEST_STATE[uid] = {"step": "region"}
+                        # Ensure we are in private chat
+                        if event.is_group:
+                            await send_html(event.chat_id, f"<blockquote>{E_WARN} Guest Generator is only available in private chats.\n\nPlease start a private chat with me first.</blockquote>")
+                            return
+                        # Start guest flow
+                        GUEST_STATE[uid] = {"step": "region", "timestamp": time.time()}
                         await send_guest_region_menu(event)
                         return
                     if mode in ('INVITE', 'UPGRADE'):
@@ -787,7 +809,11 @@ async def msg_handler(event):
                     if not GEN_AVAILABLE:
                         await send_html(event.chat_id, f"<blockquote>{E_CROSS} Guest Generator is disabled.</blockquote>")
                         return
-                    GUEST_STATE[uid] = {"step": "region"}
+                    # Ensure private chat
+                    if event.is_group:
+                        await send_html(event.chat_id, f"<blockquote>{E_WARN} Guest Generator is only available in private chats.\n\nPlease start a private chat with me first.</blockquote>")
+                        return
+                    GUEST_STATE[uid] = {"step": "region", "timestamp": time.time()}
                     await send_guest_region_menu(event)
                     return
                 await process_feature(event, mode, feature)
@@ -810,9 +836,15 @@ async def msg_handler(event):
                 await main_menu(event)
                 return
             
-            # Guest generator flow
+            # ---- GUEST GENERATOR FLOW (only in private) ----
             if uid in GUEST_STATE:
+                # Check timeout (5 minutes)
                 state = GUEST_STATE[uid]
+                if time.time() - state.get("timestamp", 0) > 300:  # 5 minutes
+                    del GUEST_STATE[uid]
+                    await send_html(event.chat_id, f"<blockquote>{E_WARN} Guest flow timed out. Please start again.</blockquote>")
+                    return
+                
                 step = state.get("step")
                 if step == "region":
                     if txt.upper() in REGION_LANG or txt.upper() == "GHOST":
@@ -823,6 +855,7 @@ async def msg_handler(event):
                         state["region"] = region
                         state["is_ghost"] = is_ghost
                         state["step"] = "name"
+                        state["timestamp"] = time.time()  # reset timer
                         await send_html(event.chat_id, f"<blockquote>{E_CHECK} Region set to <b>{region}</b> {'(GHOST)' if is_ghost else ''}\n\n{E_PROMPT} Enter <b>Name Prefix</b> (e.g., JXE):</blockquote>")
                     else:
                         await send_html(event.chat_id, f"<blockquote>❌ Invalid region. Please select from the inline buttons.</blockquote>")
@@ -830,11 +863,13 @@ async def msg_handler(event):
                 elif step == "name":
                     state["name"] = txt
                     state["step"] = "password"
+                    state["timestamp"] = time.time()
                     await send_html(event.chat_id, f"<blockquote>{E_CHECK} Name prefix set to <b>{txt}</b>\n\n{E_PROMPT} Enter <b>Password Prefix</b> (e.g., JXE2026):</blockquote>")
                     return
                 elif step == "password":
                     state["password"] = txt
                     state["step"] = "total"
+                    state["timestamp"] = time.time()
                     await send_html(event.chat_id, f"<blockquote>{E_CHECK} Password prefix set to <b>{txt}</b>\n\n{E_PROMPT} Enter <b>Total Accounts</b> (number):</blockquote>")
                     return
                 elif step == "total":
@@ -845,6 +880,8 @@ async def msg_handler(event):
                         is_ghost = state["is_ghost"]
                         name_prefix = state["name"]
                         password_prefix = state["password"]
+                        # Clear state before starting generation
+                        del GUEST_STATE[uid]
                         loop = asyncio.get_event_loop()
                         chat_id = event.chat_id
                         threading.Thread(
@@ -852,12 +889,12 @@ async def msg_handler(event):
                             args=(chat_id, region, is_ghost, name_prefix, password_prefix, total, loop),
                             daemon=True
                         ).start()
-                        del GUEST_STATE[uid]
                         await send_html(event.chat_id, f"<blockquote>{E_STARTING} Starting ULTRA SPEED generation with {total} accounts...\n\nResults will appear here.</blockquote>")
                     else:
                         await send_html(event.chat_id, f"<blockquote>❌ Please enter a valid positive number.</blockquote>")
                     return
                 else:
+                    # Invalid step, clear state
                     del GUEST_STATE[uid]
                     await send_html(event.chat_id, f"<blockquote>⚠️ Session reset. Please click Fғ Gᴜᴇsᴛ Gᴇɴ again.</blockquote>")
                     return
@@ -1035,15 +1072,20 @@ async def guest_region_callback(event):
         uid = event.sender_id
         if region == "back":
             await event.answer()
+            # Clear guest state if any
+            if uid in GUEST_STATE:
+                del GUEST_STATE[uid]
             await main_menu(event)
             return
         is_ghost = region == "GHOST"
         if is_ghost:
             region = "BR"
+        # Store region and move to next step
         GUEST_STATE[uid] = {
             "step": "name",
             "region": region,
-            "is_ghost": is_ghost
+            "is_ghost": is_ghost,
+            "timestamp": time.time()
         }
         await event.answer(f"Region set to {region}{' (GHOST)' if is_ghost else ''}")
         await send_html(event.chat_id, f"<blockquote>{E_CHECK} Region set to <b>{region}</b> {'(GHOST)' if is_ghost else ''}\n\n{E_PROMPT} Enter <b>Name Prefix</b> (e.g., JXE):</blockquote>")
@@ -1124,7 +1166,7 @@ async def show_commands(event):
         f"/gst <code>19BOKPS7056D1ZI</code> – GST verification\n"
         f"/pak <code>923078750447</code> – Pakistan number info\n"
         f"/tgid <code>@username</code> or <code>123456789</code> – Telegram user ID info\n"
-        f"/guest – Start Guest Account Generator\n"
+        f"/guest – Start Guest Account Generator (private chat only)\n"
         f"/invite – Get your invite link\n"
         f"/upgrade – Premium upgrade info\n"
         f"/help or /commands – Show this list\n\n"
@@ -1583,10 +1625,9 @@ def run_guest_generation(chat_id, region, is_ghost, name_prefix, password_prefix
 
 async def main():
     print("Hex OSINT Bot ULTIMATE EDITION")
-    print("✅ /Help now works with or without @username")
-    print("✅ Blue buttons for services, Green for Invite/Upgrade, Red for navigation")
-    print("✅ Region selection: 4 inline buttons per row")
-    print("✅ /guest command available")
+    print("✅ Guest flow now works only in private chats and auto‑clears on commands / timeout.")
+    print("✅ /Help works with @username, unknown command suggests /Help.")
+    print("✅ All other features unchanged.")
     if GEN_AVAILABLE:
         print("✅ Guest Generator integrated")
     else:
